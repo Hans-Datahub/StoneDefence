@@ -11,7 +11,7 @@ void UUI_TakenSkillSlot::NativeTick(const FGeometry& MyGeometry, float InDeltaTi
 
 	FSkillData& SkillData = GetSkillData();
 	if (SkillData.IsValid()) {
-		DrawTakenSkillCD(0);
+		DrawTakenSkillCD(SkillData.GetSkillCDPercentage());
 	}
 }
 

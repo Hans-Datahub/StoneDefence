@@ -7,14 +7,26 @@ FSkillData::FSkillData() {
 void FSkillData::Init() {
 	Super::Init();
 
+	//æŠ€èƒ½æ•ˆæœ
 	GoldModify = 0.f;
 	HealthModify = 0.f;
 	PhysicalAttackModify = 0.f;
 	AttackSpeedModify = 0.f;
 	ArmorModify = 0.f;
 	CDModify = 0.f;
-	AttackRange = 0.f;//ÈôÎª¶àµ¥Î»¹¥»÷£¬0´ú±íÈ«³¡¾°ËùÓĞµĞÈË
+
+	//0ä»£è¡¨æŠ€èƒ½ä½œç”¨äºå…¨åœºæ™¯æ‰€æœ‰æ•Œäºº
+	AttackRange = 0.f;
+
+	//æŠ€èƒ½æŒç»­æ—¶é—´
 	MaxSkillDuration = 0.f;
 	SkillDuration = 0.f;
+	//æŠ€èƒ½CD
+	SkillCD = 0.f;
+	MaxSkillCD = 0.f;
 
+}
+
+float FSkillData::GetSkillCDPercentage() const {
+	return MaxSkillCD == 0.f ? 0 : (SkillCD / MaxSkillCD);
 }

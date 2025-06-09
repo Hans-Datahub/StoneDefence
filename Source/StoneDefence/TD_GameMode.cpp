@@ -404,9 +404,9 @@ void ATD_GameMode::UpdateSkill(float DeltaSeconds) {
 
 			//更新每一个技能的CD
 			for (auto& InSkill : Temp.Value.CharacterSkill) {
-				InSkill.CDTime += DeltaSeconds;
-				if (InSkill.CDTime >= Temp.Value.CD) {
-					InSkill.CDTime = 0.f;
+				InSkill.SkillCD += DeltaSeconds;
+				if (InSkill.SkillCD >= InSkill.MaxSkillCD) {
+					InSkill.SkillCD = 0.f;
 					//判断该技能是群体 或单体攻击					
 					if (InSkill.SkillType.SkillTargetNumType == ESkillTargetNumType::MULTIPLE) {
 						TArray<TPair<FGuid, FCharacterData>*> SkillTakerDataArray;

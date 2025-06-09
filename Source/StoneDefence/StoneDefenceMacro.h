@@ -35,7 +35,7 @@
 
 #endif
 
-
+//技能效果应用
 #define SKILL_TABLE_ACQUISITION(BasicValue,ModifyValue) \
 float Value = BasicValue; \
 for (const auto& Temp : AdditionalSkillData) \
@@ -51,7 +51,7 @@ for (const auto& Temp : AdditionalSkillData) \
 } \
 return Value;
 
-
+//技能效果应用（CD减免）
 #define SKILL_TABLE_ACQUISITION_CD(SkillCD) \
 float Value = SkillCD; \
 	for (const auto& Temp : AdditionalSkillData) \

@@ -36,7 +36,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Skill Profit")
 		float CDModify;
 	UPROPERTY(EditDefaultsOnly, Category = "Skill Profit")
-		float AttackRange;//ÈôÎª¶àµ¥Î»¹¥»÷£¬0´ú±íÈ«³¡¾°ËùÓĞµĞÈË
+		float AttackRange;//è‹¥ä¸ºå¤šå•ä½æ”»å‡»ï¼Œ0ä»£è¡¨å…¨åœºæ™¯æ‰€æœ‰æ•Œäºº
 	UPROPERTY(EditDefaultsOnly, Category = "Skill Profit")
 		float MaxSkillDuration;
 	UPROPERTY()
@@ -45,9 +45,10 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Skill Profit")
 		float SkillCD;
-	UPROPERTY()
-		float CDTime;
+	UPROPERTY(EditDefaultsOnly, Category = "Skill Profit")
+		float MaxSkillCD;
 
+	float GetSkillCDPercentage() const;
 };
 
 
