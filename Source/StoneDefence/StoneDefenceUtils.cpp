@@ -27,7 +27,7 @@ struct MeshUtils::FMeshTracker {
 	FMeshTracker()
 		:bValidColors(false)
 	{
-		FMemory::Memset(bValidTexCoords, 0);//ÄÚ´æ³õÊ¼»¯
+		FMemory::Memset(bValidTexCoords, 0);//å†…å­˜åˆå§‹åŒ–
 	}
 	bool bValidTexCoords[MAX_MESH_TEXTURE_COORDS];
 	bool bValidColors;
@@ -49,8 +49,8 @@ void StoneDefenceUtils::FindMostClosedTargetInRange(ARuleOfCharacter* InOwner, f
 
 ARuleOfCharacter* StoneDefenceUtils::FindMostClosedTarget(const TArray<ARuleOfCharacter*>& InCharacters, const FVector& SubjectLocation) {
 		if (InCharacters.Num()) {
-		float TargetDistance = 9999999999;//ÓÃÓÚµü´ú´æ´¢×îĞ¡¾àÀë
-		int32 Index = INDEX_NONE;//´Ë´¦INDEX_NONEÎª-1£¬ÓÃÓÚµü´ú´æ´¢×î½üµÄÄ¿±êID
+		float TargetDistance = 9999999999;//ç”¨äºè¿­ä»£å­˜å‚¨æœ€å°è·ç¦»
+		int32 Index = INDEX_NONE;//æ­¤å¤„INDEX_NONEä¸º-1ï¼Œç”¨äºè¿­ä»£å­˜å‚¨æœ€è¿‘çš„ç›®æ ‡ID
 
 		for (int32 i = 0; i < InCharacters.Num(); i++) {
 			if (ARuleOfCharacter* ObjectCharacter = InCharacters[i]) {
@@ -59,18 +59,18 @@ ARuleOfCharacter* StoneDefenceUtils::FindMostClosedTarget(const TArray<ARuleOfCh
 				float Distance = DistanceVector.Size();
 
 				if (Distance < TargetDistance && ObjectCharacter->IsActive()) {
-					//µü´ú×î½ü¾àÀëÓëÆä¶ÔÏóID
+					//è¿­ä»£æœ€è¿‘è·ç¦»ä¸å…¶å¯¹è±¡ID
 					Index = i;
 					TargetDistance = Distance;
 				}
 			}
 		}
 		if (Index != INDEX_NONE) {
-			//·µ»Ø×î½üËşµÄID 
+			//è¿”å›æœ€è¿‘å¡”çš„ID 
 			return InCharacters[Index];
 		}
 	}
-	//ÈôÃ»ÕÒµ½·µ»ØNULL
+	//è‹¥æ²¡æ‰¾åˆ°è¿”å›NULL
 	return NULL;
 }
 
@@ -83,7 +83,7 @@ AStaticMeshActor* StoneDefenceUtils::SpawnTowerDoll(UWorld* World, int32 ID) {
 			const TArray<FCharacterData*>& InDatas = GameState->GetTowerDataFromTable();
 			for (const auto& Temp : InDatas) {
 				if (Temp->ID == ID) {
-					UClass* NewClass = Temp->CharacterBlueprintKey.LoadSynchronous();//¸ºÔØÍ¬²½
+					UClass* NewClass = Temp->CharacterBlueprintKey.LoadSynchronous();//è´Ÿè½½åŒæ­¥
 					if (NewClass) {
 						if (ARuleOfCharacter* RuleOfCharacter = World->SpawnActor<ARuleOfCharacter>(NewClass, FVector::ZeroVector, FRotator::ZeroRotator)) {
 							//AStaticMeshActor
@@ -95,7 +95,7 @@ AStaticMeshActor* StoneDefenceUtils::SpawnTowerDoll(UWorld* World, int32 ID) {
 									MeshActor->GetStaticMeshComponent()->SetStaticMesh(InMesh);
 									MeshActor->GetStaticMeshComponent()->SetMobility(EComponentMobility::Movable);
 									OutActor = MeshActor;
-									RuleOfCharacter->Destroy();//Ö»ÓÃ¾²Ì¬Íø¸ñÌå
+									RuleOfCharacter->Destroy();//åªç”¨é™æ€ç½‘æ ¼ä½“
 								}
 								else {
 									MeshActor->Destroy();
@@ -155,6 +155,17 @@ AActor* StoneDefenceUtils::SpawnProjectile(UWorld* World, APawn* NewPawn, UClass
 	return nullptr;
 }
 
+void FindFitTargetAndExecution(const FGuid& CharacterID, TFunction<void(ARuleOfCharacter* InCharacter)>Code) {
+	TArray<ARuleOfCharacter*> CharacterArray;
+	StoneDefenceUtils::GetAllActor(GetWorld(), CharacterArray);
+	for (ARuleOfCharacter* Temp : CharacterArray) {
+		if (Temp->GUID == CharacterID) {
+			Code(Temp);	//æ­¤å¤„æ˜¯æŠŠTempä¼ ç»™äº†InCharacterï¼Œå³ä¼ ç»™Codeè¿™ä¸ªå‡½æ•°çš„å½¢å‚,å¹¶éåä¹‹	
+			break;
+		}
+	}
+}
+
 
 float Expression::GetDamage(IRuleCharacter* Enemy, IRuleCharacter* Taker) {
 	if (Enemy && Taker) {
@@ -168,12 +179,12 @@ UStaticMesh* MeshUtils::SkeletalMeshComponentToStaticMesh(class USkeletalMeshCom
 	class UStaticMesh* StaticMesh = nullptr;
 
 	if (UWorld* World = SkeletalMeshComponent->GetWorld()) {
-		//Ô­Ê¼MeshÊı¾İ£¬°üº¬Ò»Ğ©µãµÄÎ»ÖÃ¡¢ÑÕÉ«ÒÔ¼°×ø±êµÈµÈ
-		FRawMesh RawMesh;//ĞèÒªÔÚBuild.csÖĞ°üº¬Ä£¿é
+		//åŸå§‹Meshæ•°æ®ï¼ŒåŒ…å«ä¸€äº›ç‚¹çš„ä½ç½®ã€é¢œè‰²ä»¥åŠåæ ‡ç­‰ç­‰
+		FRawMesh RawMesh;//éœ€è¦åœ¨Build.csä¸­åŒ…å«æ¨¡å—
 		FMeshTracker MeshTracker;
 		int32 OverallMaxLODs = 0;
 
-		const FTransform& InRootTransform = FTransform::Identity;//µ¥Î»»¯ÒÔ·½±ã¼ÆËã 
+		const FTransform& InRootTransform = FTransform::Identity;//å•ä½åŒ–ä»¥æ–¹ä¾¿è®¡ç®— 
 		FMatrix WorldToRoot = InRootTransform.ToMatrixWithScale().Inverse();
 		FMatrix ComponentToWorld = SkeletalMeshComponent->GetComponentTransform().ToMatrixWithScale() * WorldToRoot;
 
@@ -181,7 +192,7 @@ UStaticMesh* MeshUtils::SkeletalMeshComponentToStaticMesh(class USkeletalMeshCom
 			SkeletalMeshToRawMeshes(SkeletalMeshComponent, OverallMaxLODs, ComponentToWorld, MeshTracker, RawMesh);
 		}
 
-		uint32 MaxInUseTextureCoordsinate = 0;//ÉùÃ÷×î´óÎÆÀí×ø±ê
+		uint32 MaxInUseTextureCoordsinate = 0;//å£°æ˜æœ€å¤§çº¹ç†åæ ‡
 		if (!MeshTracker.bValidColors) {
 			RawMesh.WedgeColors.Empty();
 		}
@@ -197,13 +208,13 @@ UStaticMesh* MeshUtils::SkeletalMeshComponentToStaticMesh(class USkeletalMeshCom
 
 		if (RawMesh.IsValidOrFixable()) {
 			FString MeshName = FGuid::NewGuid().ToString();
-			StaticMesh = NewObject<UStaticMesh>(World, *MeshName, RF_Transient);//RF_Transient ±£Ö¤¸ÃMesh²»»á±»±£´æ£¬²»»áĞòÁĞ»¯µ½´ÅÅÌ
+			StaticMesh = NewObject<UStaticMesh>(World, *MeshName, RF_Transient);//RF_Transient ä¿è¯è¯¥Meshä¸ä¼šè¢«ä¿å­˜ï¼Œä¸ä¼šåºåˆ—åŒ–åˆ°ç£ç›˜
 			StaticMesh->InitResources();
 
 			StaticMesh->SetLightingGuid(FGuid::NewGuid());
 
-			//MaxInUseTextureCoordinate + 1Ö¸1ºÅÌùÍ¼Î»ÖÃÎªµÆ¹âÌùÍ¼£¬(uint32)8 - 1Ö¸ĞòÁĞÎª7
-			const uint32 LightMapIndex = FMath::Min(MaxInUseTextureCoordsinate + 1, (uint32)8 - 1);//»ñÈ¡µÆ¹âUV  
+			//MaxInUseTextureCoordinate + 1æŒ‡1å·è´´å›¾ä½ç½®ä¸ºç¯å…‰è´´å›¾ï¼Œ(uint32)8 - 1æŒ‡åºåˆ—ä¸º7
+			const uint32 LightMapIndex = FMath::Min(MaxInUseTextureCoordsinate + 1, (uint32)8 - 1);//è·å–ç¯å…‰UV  
 
 			FStaticMeshSourceModel& SrcModel = StaticMesh->AddSourceModel();
 			SrcModel.BuildSettings.bRecomputeNormals = false;
@@ -232,7 +243,7 @@ UStaticMesh* MeshUtils::SkeletalMeshComponentToStaticMesh(class USkeletalMeshCom
 				StaticMesh->GetSectionInfoMap().Set(0, i, FMeshSectionInfo(UniqueMaterialIndices[i]));
 			}
 			StaticMesh->GetOriginalSectionInfoMap().CopyFrom(StaticMesh->GetSectionInfoMap());
-			StaticMesh->Build(false);//falseÖ¸²»Ï£Íûµ¯³ö¶Ô»°¿ò
+			StaticMesh->Build(false);//falseæŒ‡ä¸å¸Œæœ›å¼¹å‡ºå¯¹è¯æ¡†
 
 		}
 
@@ -275,10 +286,10 @@ void MeshUtils::SkeletalMeshToRawMeshes(USkeletalMeshComponent* InComponent,
 	FSkeletalMeshLODRenderData& LODData = SkeletalMeshRenderData.LODRenderData[InOverallMaxLODs];
 
 	for (int32 VertIndex = 0; VertIndex < FinalVertices.Num(); ++VertIndex) {
-		//½Ì³Ì·½·¨
+		//æ•™ç¨‹æ–¹æ³•
 		//RawMesh.VertexPositions.Add((InComponentToWorld.TransformPosition(FinalVertices[VertIndex].Position));
 
-		//UE5ÊÊÅä·½·¨
+		//UE5é€‚é…æ–¹æ³•
 		FVector4d TransformedPosition4d = InComponentToWorld.TransformPosition(FVector3d(FinalVertices[VertIndex].Position));
 		FVector3d TransformedPosition3d = FVector3d(TransformedPosition4d.X, TransformedPosition4d.Y, TransformedPosition4d.Z);
 		RawMesh.VertexPositions.Add(FVector3f(TransformedPosition3d));
@@ -289,16 +300,16 @@ void MeshUtils::SkeletalMeshToRawMeshes(USkeletalMeshComponent* InComponent,
 
 	const FRawStaticIndexBuffer16or32Interface& IndexBuffer = *LODData.MultiSizeIndexContainer.GetIndexBuffer();
 
-	for (int32 SectionIndex = 0; SectionIndex < NumSections; SectionIndex++) {//Íâ²ã±éÀúRender Section (äÖÈ¾¶Î)
+	for (int32 SectionIndex = 0; SectionIndex < NumSections; SectionIndex++) {//å¤–å±‚éå†Render Section (æ¸²æŸ“æ®µ)
 		const FSkelMeshRenderSection& SkelMeshSection = LODData.RenderSections[SectionIndex];
 		if (InComponent->IsMaterialSectionShown(SkelMeshSection.MaterialIndex, InOverallMaxLODs)) {
 			const int32 NumWedges = SkelMeshSection.NumTriangles * 3;
-			for (int32 WedgeIndex = 0; WedgeIndex < NumWedges; WedgeIndex++) {//ÄÚ²ã±éÀú´¦ÀíÈı½Ç×¶Êı¾İ
-				//´Ó»º³åÇø»ñÈ¡¶¥µãË÷Òı
+			for (int32 WedgeIndex = 0; WedgeIndex < NumWedges; WedgeIndex++) {//å†…å±‚éå†å¤„ç†ä¸‰è§’é”¥æ•°æ®
+				//ä»ç¼“å†²åŒºè·å–é¡¶ç‚¹ç´¢å¼•
 				const int32 VertexIndexForWedge = IndexBuffer.Get(SkelMeshSection.BaseIndex + WedgeIndex);
 				RawMesh.WedgeIndices.Add(VertexIndexForWedge);
 
-				//´¦ÀíÇĞÏß¿Õ¼ä
+				//å¤„ç†åˆ‡çº¿ç©ºé—´
 				const FFinalSkinVertex& SkinnedVertex = FinalVertices[VertexIndexForWedge];
 				const FVector TangentX = InComponentToWorld.TransformVector(SkinnedVertex.TangentX.ToFVector());
 				const FVector TangentZ = InComponentToWorld.TransformVector(SkinnedVertex.TangentZ.ToFVector());
@@ -308,7 +319,7 @@ void MeshUtils::SkeletalMeshToRawMeshes(USkeletalMeshComponent* InComponent,
 				RawMesh.WedgeTangentY.Add(FVector3f(TangentY));
 				RawMesh.WedgeTangentZ.Add(FVector3f(TangentZ));
 
-				//´¦ÀíUV×ø±ê
+				//å¤„ç†UVåæ ‡
 				for (uint32 TexCoordIndex = 0; TexCoordIndex < MAX_MESH_TEXTURE_COORDS; TexCoordIndex++) {
 					if (TexCoordIndex >= NumTexCoords) {
 						RawMesh.WedgeTexCoords[TexCoordIndex].AddDefaulted();
@@ -319,7 +330,7 @@ void MeshUtils::SkeletalMeshToRawMeshes(USkeletalMeshComponent* InComponent,
 					}
 				}
 
-				//´¦Àí¶¥µãÑÕÉ«
+				//å¤„ç†é¡¶ç‚¹é¢œè‰²
 				if (LODData.StaticVertexBuffers.ColorVertexBuffer.IsInitialized()) {
 					RawMesh.WedgeColors.Add(LODData.StaticVertexBuffers.ColorVertexBuffer.VertexColor(VertexIndexForWedge));
 					MeshTracker.bValidColors = true;
@@ -329,7 +340,7 @@ void MeshUtils::SkeletalMeshToRawMeshes(USkeletalMeshComponent* InComponent,
 				}
 			}
 
-			//´¦Àí²ÄÖÊË÷Òı
+			//å¤„ç†æè´¨ç´¢å¼•
 			int32 MaterialIndex = SkelMeshSection.MaterialIndex;
 			if (SrcLODInfo.LODMaterialMap.IsValidIndex(SectionIndex) && SrcLODInfo.LODMaterialMap[SectionIndex] != INDEX_NONE) {
 				MaterialIndex = FMath::Clamp<int32>(SrcLODInfo.LODMaterialMap[SectionIndex], 0, InComponent->SkeletalMesh->Materials.Num());

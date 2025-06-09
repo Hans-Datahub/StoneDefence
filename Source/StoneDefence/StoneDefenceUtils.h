@@ -22,8 +22,8 @@ class AStaticMeshActor;
 
 namespace StoneDefenceUtils {
 
-	AActor* SpawnProjectile(UWorld* World, FGuid CharacterID, UClass* ProjectileClass);//ÓÃÓÚ·şÎñ¶ËÍ¨Öª¿Í»§¶Ë
-	AActor* SpawnProjectile(UWorld* World, APawn* NewPawn, UClass* InClass, const FVector& Loc, const FRotator& Rot);//ÓÃÓÚ¶¯»­Í¨Öª
+	AActor* SpawnProjectile(UWorld* World, FGuid CharacterID, UClass* ProjectileClass);//ç”¨äºæœåŠ¡ç«¯é€šçŸ¥å®¢æˆ·ç«¯
+	AActor* SpawnProjectile(UWorld* World, APawn* NewPawn, UClass* InClass, const FVector& Loc, const FRotator& Rot);//ç”¨äºåŠ¨ç”»é€šçŸ¥
 	
 	AStaticMeshActor* SpawnTowerDoll(UWorld* World, int32 ID);
 
@@ -49,7 +49,7 @@ namespace StoneDefenceUtils {
 	template<class T>
 	TArray<T*> GetAllActor(UWorld* World) {
 		TArray<T*> Array;
-		for (TActorIterator<T>It(World); It; ++It) {//½« ItµÄÀàĞÍT::StaticClass()ÒÆ³ı
+		for (TActorIterator<T>It(World); It; ++It) {//å°† Itçš„ç±»å‹T::StaticClass()ç§»é™¤
 			Array.Add(*It);
 		}
 		return Array;
@@ -60,6 +60,9 @@ namespace StoneDefenceUtils {
 	T* SpawnCharacter(int32 CharacterID, int32 CharacterLevel, UDataTable* InCharacterData, const FVector& Location, const FRotator& Rotator) {
 		return Cast<T>(SpawnCharacter(CharacterID, CharacterLevel, InCharacterData, Location, Rotator));
 	}
+
+	//Execution() -> FindFitTargetAndExecution()
+	void FindFitTargetAndExecution(const FGuid& CharacterID, TFunction<void(ARuleOfCharacter* InCharacter)>Code);
 }
 
 namespace Expression {
@@ -68,7 +71,7 @@ namespace Expression {
 
 namespace MeshUtils {
 	struct FMeshTracker;
-	//@prama World:½«mesh°ó¶¨µ½Õâ¸öworldÉÏ£¬ÔÚworldÏú»ÙÖ®ºóÍ¬Ê±Ïú»Ùmesh
+	//@prama World:å°†meshç»‘å®šåˆ°è¿™ä¸ªworldä¸Šï¼Œåœ¨worldé”€æ¯ä¹‹ååŒæ—¶é”€æ¯mesh
 	UStaticMesh* SkeletalMeshComponentToStaticMesh(class USkeletalMeshComponent* SkeletalMeshComponent);
 	UStaticMesh* ParticleSystemComponentToStaticMesh(class UParticleSystemComponent* ParticleComponent);
 	bool IsValidSkeletalMeshComponent(USkeletalMeshComponent* InComponent);

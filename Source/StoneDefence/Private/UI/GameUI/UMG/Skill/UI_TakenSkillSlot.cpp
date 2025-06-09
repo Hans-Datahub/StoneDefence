@@ -8,7 +8,11 @@ void UUI_TakenSkillSlot::NativeConstruct() {
 
 void UUI_TakenSkillSlot::NativeTick(const FGeometry& MyGeometry, float InDeltaTime) {
 	Super::NativeTick(MyGeometry, InDeltaTime);
-	DrawTakenSkillCD(InDeltaTime);
+
+	FSkillData& SkillData = GetSkillData();
+	if (SkillData.IsValid()) {
+		DrawTakenSkillCD(0);
+	}
 }
 
 
@@ -31,6 +35,6 @@ void UUI_TakenSkillSlot::DrawTakenSkillCD(float InTakenSkillCD) {
 			DynamicCDMaterial->SetScalarParameterValue("Transparency", false);
 			TakenSkillCD->SetVisibility(ESlateVisibility::Hidden);
 		}
-		DynamicCDMaterial->SetScalarParameterValue("Percentage", InTakenSkillCD);//设置蓝图中，CD材质的百分比
+		DynamicCDMaterial->SetScalarParameterValue("Percentage", InTakenSkillCD);//璁剧疆钃濆浘涓紝CD鏉愯川鐨勭櫨鍒嗘瘮
 	}
 }

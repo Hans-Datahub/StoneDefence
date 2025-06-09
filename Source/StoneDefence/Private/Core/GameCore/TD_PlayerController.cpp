@@ -4,6 +4,7 @@
 #include "Core/GameCore/TD_PlayerController.h"
 #include "Core/GameCore/TD_GameCamera.h"
 #include "Components/InputComponent.h"
+#include "../StoneDefenceUtils.h"
 
 
 ATD_PlayerController::ATD_PlayerController() {
@@ -25,7 +26,7 @@ void ATD_PlayerController::Tick(float DeltaSeconds) {
 		TowerDoll->SetActorLocation(TraceOutHit.Location);
 	}
 	else {
-		//¼ì²âÆÁÄ»ÖÐµÄËþºÍ¹ÖÎï²¢ÔÚÆÁÄ»ÉÏÉú³ÉTip
+		//æ£€æµ‹å±å¹•ä¸­çš„å¡”å’Œæ€ªç‰©å¹¶åœ¨å±å¹•ä¸Šç”ŸæˆTip
 		GetHitResultUnderCursor(ECollisionChannel::ECC_GameTraceChannel5, true, MouseTraceHit);
 	}
 }
@@ -33,9 +34,9 @@ void ATD_PlayerController::Tick(float DeltaSeconds) {
 void ATD_PlayerController::BeginPlay() {
 	Super::BeginPlay();
 
-	//Ëø¶¨Êó±ê
-	//SetInputMode_GameAndUIEx£¨£©
-	//Èç¹ûÊÇÀ¶Í¼¿ÉÒÔÓÃSetInputModeGameAndUI()
+	//é”å®šé¼ æ ‡
+	//SetInputMode_GameAndUIExï¼ˆï¼‰
+	//å¦‚æžœæ˜¯è“å›¾å¯ä»¥ç”¨SetInputModeGameAndUI()
 	SetInputModeGameAndUI();
 }  
 
@@ -69,9 +70,9 @@ void ATD_PlayerController::SetInputModeGameAndUI() {
 }
 
 void ATD_PlayerController::SetupInputComponent() {
-	//Ö´ÐÐÒ»ÏÂ¸¸Àà
+	//æ‰§è¡Œä¸€ä¸‹çˆ¶ç±»
 	Super::SetupInputComponent();
-	//Êó±ê¹öÂÖ°ó¶¨ , µÚÒ»¸ö²ÎÊýÎª±à¼­Æ÷ÖÐµÄ°´¼üÃû³Æ£¬µÚ¶þ¸öÎª°´ÏÂ»òÕßÌ§Æð£¬µÚÈý¸öÎªÊµÀý£¬µÚËÄ¸öÎªËù°ó¶¨º¯Êý
+	//é¼ æ ‡æ»šè½®ç»‘å®š , ç¬¬ä¸€ä¸ªå‚æ•°ä¸ºç¼–è¾‘å™¨ä¸­çš„æŒ‰é”®åç§°ï¼Œç¬¬äºŒä¸ªä¸ºæŒ‰ä¸‹æˆ–è€…æŠ¬èµ·ï¼Œç¬¬ä¸‰ä¸ªä¸ºå®žä¾‹ï¼Œç¬¬å››ä¸ªä¸ºæ‰€ç»‘å®šå‡½æ•°
 	InputComponent->BindAction("MouseWheelUp", IE_Pressed, this, &ATD_PlayerController::MouseWheelUp);
 	InputComponent->BindAction("MouseWheelDown", IE_Pressed, this, &ATD_PlayerController::MouseWheelDown);
 	InputComponent->BindAction("MouseMiddleButton", IE_Pressed, this, &ATD_PlayerController::MouseMiddleButtonPressed);
@@ -106,10 +107,20 @@ const FHitResult& ATD_PlayerController::GetHitResult() {
 	return MouseTraceHit;
 }
 
-void ATD_PlayerController::AddSkillSlot_Client(const FGuid& SlotID) {
-	SkillAddingDelegate.ExecuteIfBound(SlotID);
+void ATD_PlayerController::AddSkillSlot_Server(const FGuid& CharacterID, const FGuid& SlotID) {
+	TArray<ARuleOfCharacter*> CharacterArray;
+	StoneDefenceUtils::FindFitTargetAndExecution(CharacterID, [&](ARuleOfCharacter* InCharacter) {
+		InCharacter->AddSkillSlot_Client(SlotID);
+	});
 }
 
-void ATD_PlayerController::Spawn_Projectile_Client(const FGuid& CharacterID, UClass* InClass) {
+void ATD_PlayerController::RemoveSkillSlot_Server(const FGuid& CharacterID, const FGuid& SlotID) {
+	TArray<ARuleOfCharacter*> CharacterArray;
+	StoneDefenceUtils::FindFitTargetAndExecution(CharacterID, [&](ARuleOfCharacter* InCharacter) {
+		InCharacter->RemoveSkillSlot_Client(SlotID);
+	});
+}
+
+void ATD_PlayerController::Spawn_Projectile_Server(const FGuid& CharacterID, UClass* InClass) {
 	ProjectileSpawnDelegate.ExecuteIfBound(CharacterID, InClass);
 }

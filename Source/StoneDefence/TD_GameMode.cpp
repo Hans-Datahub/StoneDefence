@@ -294,7 +294,7 @@ void ATD_GameMode::UpdateSkill(float DeltaSeconds) {
 
 				//通知代理 在UI模块显示相应技能图标	
 				CallUpdateAllClient([&](ATD_PlayerController* MyPlayerController) {
-					MyPlayerController->AddSkillSlot_Client(TempSkillID);
+					MyPlayerController->AddSkillSlot_Server(SkillTakerData.Key, TempSkillID);
 					}
 				);
 			}
@@ -363,7 +363,7 @@ void ATD_GameMode::UpdateSkill(float DeltaSeconds) {
 						RemoveSkillArray.Add(SkillTemp.Key);
 					}
 				}
-				//若为持续性技能，每X秒执行一次增减益
+				//若为持续性技能，每秒执行一次增减益
 				if (SkillTemp.Value.SkillType.SkillTimeType == ESkillTimeType::ITERATION) {
 					SkillTemp.Value.SkillDuration += DeltaSeconds;
 					if (SkillTemp.Value.SkillDuration >= 1.0f) {
@@ -388,13 +388,19 @@ void ATD_GameMode::UpdateSkill(float DeltaSeconds) {
 				}
 				//通知客户端渲染Projectile
 				CallUpdateAllClient([&](ATD_PlayerController* MyPlayerController) {
-					MyPlayerController->Spawn_Projectile_Client(Temp.Key, SkillTemp.Value.ProjectileClass);
+					MyPlayerController->Spawn_Projectile_Server(Temp.Key, SkillTemp.Value.ProjectileClass);
 					});
 			}
 
 			//清除
-			for (FGuid& RemoveID : RemoveSkillArray)
+			for (FGuid& RemoveID : RemoveSkillArray) {
+				//通知客户端移除技能图标
+				CallUpdateAllClient([&](ATD_PlayerController* MyPlayerController) {
+					MyPlayerController->RemoveSkillSlot_Server(Temp.Key, RemoveID);
+				});
 				Temp.Value.AdditionalSkillData.Remove(RemoveID);
+
+			}
 
 			//更新每一个技能的CD
 			for (auto& InSkill : Temp.Value.CharacterSkill) {
@@ -436,6 +442,3 @@ void ATD_GameMode::CallUpdateAllClient(TFunction<void(ATD_PlayerController* MyPl
 		}
 	}
 }
-
-//test1
-//test2

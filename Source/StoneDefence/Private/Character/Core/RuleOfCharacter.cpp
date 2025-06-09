@@ -34,7 +34,7 @@ ARuleOfCharacter::ARuleOfCharacter()
 
 	DeathDelayTime = 10.f;
 
-	//ÉèÖÃÔ¤ÉèScanning
+	//è®¾ç½®é¢„è®¾Scanning
 	TraceShowCharacterInformation->SetCollisionProfileName("Scanning");
 	TraceShowCharacterInformation->SetBoxExtent(FVector(38, 38, 100));
 
@@ -71,9 +71,9 @@ float ARuleOfCharacter::TakeDamage(float Damage, struct FDamageEvent const& Dama
 	auto DrawGameText = [&](ARuleOfCharacter* InOwner, const TCHAR* InText, float Number, FLinearColor Color) {
 		if (DrawTextClass) {
 			if (ADrawText* Text = GetWorld()->SpawnActor<ADrawText>(DrawTextClass, InOwner->GetActorLocation(), FRotator::ZeroRotator)) {
-				int32 IntNumber = static_cast<int32>(Number);//È¥Ğ¡Êı
+				int32 IntNumber = static_cast<int32>(Number);//å»å°æ•°
 
-				//Éú³ÉÊı×é¹©Formatº¯ÊıÊ¹ÓÃ
+				//ç”Ÿæˆæ•°ç»„ä¾›Formatå‡½æ•°ä½¿ç”¨
 				TArray<FStringFormatArg>NumberArray;
 				NumberArray.Add((FStringFormatArg)IntNumber);
 
@@ -87,7 +87,7 @@ float ARuleOfCharacter::TakeDamage(float Damage, struct FDamageEvent const& Dama
 
 	GetCharacterData().Health -= Damage / 10.f;
 
-	//ËÀÍöºóÖ´ĞĞÏà¹Ø²Ù×÷
+	//æ­»äº¡åæ‰§è¡Œç›¸å…³æ“ä½œ
 	if (!IsActive()) {
 		if (ATD_PlayerState* TempPlayerState = Cast<ATD_PlayerState>(GetPlayerState())) {		
 			FPlayerData PlayerData = TempPlayerState->GetPlayerData();
@@ -108,13 +108,13 @@ float ARuleOfCharacter::TakeDamage(float Damage, struct FDamageEvent const& Dama
 		if (ARuleOfCharacter* CauserCharacter = Cast<ARuleOfCharacter>(DamageCauser)) {
 			if (CauserCharacter->IsActive()) {
 				if (CauserCharacter->GetCharacterData().UpdateExp(GetCharacterData().AddEmpiricalValue)) {
-					//²¥·ÅÉı¼¶ÌØĞ§
+					//æ’­æ”¾å‡çº§ç‰¹æ•ˆ
 				}
 				DrawGameText(CauserCharacter, TEXT("+Exp {0}"), GetCharacterData().AddEmpiricalValue, FLinearColor::Yellow);
 			}
 		}
 
-		//Ñ°ÕÒ·¶Î§ÄÚ×î½üµÄµĞÈË
+		//å¯»æ‰¾èŒƒå›´å†…æœ€è¿‘çš„æ•Œäºº
 		TArray<ARuleOfCharacter*> EnemyCharacters;
 		StoneDefenceUtils::FindMostClosedTargetInRange(this, 1000.f, EnemyCharacters);
 		for (ARuleOfCharacter* InEnemy : EnemyCharacters) {
@@ -130,7 +130,7 @@ float ARuleOfCharacter::TakeDamage(float Damage, struct FDamageEvent const& Dama
 
 		GetGameState()->RemoveCharacterData(GUID);
 	}
-	//»æÖÆÉËº¦Êı×Ö
+	//ç»˜åˆ¶ä¼¤å®³æ•°å­—
 	DrawGameText(this, TEXT("-{0}"), Damage, FLinearColor::Red);
 
 	return DamageValue;
@@ -191,10 +191,10 @@ void ARuleOfCharacter::UpdataUI() {
 UStaticMesh* ARuleOfCharacter::GetDollMesh(FTransform& Transform) {
 	TArray<USceneComponent*> SceneComponent;
 	RootComponent->GetChildrenComponents(true, SceneComponent);
-	//ÈıÖÖ»ñÈ¡MeshµÄ·½·¨
+	//ä¸‰ç§è·å–Meshçš„æ–¹æ³•
 	for (auto& OuterTemp : SceneComponent) {
 		if (UStaticMeshComponent* MeshComponent = Cast<UStaticMeshComponent>(OuterTemp)) {
-			if (MeshComponent->GetStaticMesh()) {//¼Ó¸ÃÅĞ¶Ïºó£¬Õâ¸ö½Ó¿Ú¾Í»áÒ»Ö±Ñ­»·Ö±µ½ÓĞMesh²Å·µ»Ø£¬¶ø²»ÊÇÖ±½Ó·µ»Ø¿ÕÖµ
+			if (MeshComponent->GetStaticMesh()) {//åŠ è¯¥åˆ¤æ–­åï¼Œè¿™ä¸ªæ¥å£å°±ä¼šä¸€ç›´å¾ªç¯ç›´åˆ°æœ‰Meshæ‰è¿”å›ï¼Œè€Œä¸æ˜¯ç›´æ¥è¿”å›ç©ºå€¼
 				Transform = MeshComponent->GetComponentTransform();
 				return MeshComponent->GetStaticMesh();
 			}
@@ -205,7 +205,7 @@ UStaticMesh* ARuleOfCharacter::GetDollMesh(FTransform& Transform) {
 				return TempMesh;
 			}
 		}
-		//ºóÃæ½¨Á¢»º´æ³ØÖ®ºó»áÔÙ´Î»Øµ½´Ë´¦½øĞĞ¸Ä¶¯
+		//åé¢å»ºç«‹ç¼“å­˜æ± ä¹‹åä¼šå†æ¬¡å›åˆ°æ­¤å¤„è¿›è¡Œæ”¹åŠ¨
 		else if(USkeletalMeshComponent* SkeletalComponent = Cast<USkeletalMeshComponent>(OuterTemp)){
 			Transform = SkeletalComponent->GetComponentTransform();
 			SkeletalComponent->SetRelativeTransform(FTransform::Identity);
@@ -217,4 +217,15 @@ UStaticMesh* ARuleOfCharacter::GetDollMesh(FTransform& Transform) {
 		}
 	}
 	return NULL;
+}
+
+
+void ARuleOfCharacter::AddSkillSlot_Client(const FGuid& SlotID) {
+	if (UUI_Health* HealthUI = Cast<UUI_Health>(Widget->GetUserWidgetObject()))
+		HealthUI->AddSkillSlot(SlotID);
+}
+
+void ARuleOfCharacter::RemoveSkillSlot_Client(const FGuid& SlotID) {
+	if (UUI_Health* HealthUI = Cast<UUI_Health>(Widget->GetUserWidgetObject()))
+		HealthUI->RemoveSkillSlot(SlotID);
 }

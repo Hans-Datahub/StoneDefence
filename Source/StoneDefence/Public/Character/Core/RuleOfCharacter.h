@@ -16,18 +16,18 @@ class STONEDEFENCE_API ARuleOfCharacter : public ACharacter , public IRuleCharac
 {
 	GENERATED_BODY()
 
-	//Êó±êÉäÏß²¶×½¶ÔÏó
+	//é¼ æ ‡å°„çº¿æ•æ‰å¯¹è±¡
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BaseAttribute", meta = (AllowPrivateAccess = true))
 	class UBoxComponent* TraceShowCharacterInformation;
 
-	//¿ª»ğµã
+	//å¼€ç«ç‚¹
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BaseAttribute", meta = (AllowPrivateAccess = true))
 	class UArrowComponent* OpenFirePoint;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BaseAttribute", meta = (AllowPrivateAccess = true))
 	class UWidgetComponent* Widget;
 
-	//¸ú×Ùµã
+	//è·Ÿè¸ªç‚¹
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BaseAttribute", meta = (AllowPrivateAccess = true))
 	class USceneComponent* HomingPoint;
 
@@ -44,7 +44,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly , Category = UI)
 	FGuid GUID;
 
-	//Ä³Ğ©ËşÎŞËÀÍö¶¯»­£¬ËÀÍöÊ±²¥·ÅÌØĞ§£¬¹ÊĞèÒªÒ»¸öÑÓ³ÙDestroyÊ±¼ä
+	//æŸäº›å¡”æ— æ­»äº¡åŠ¨ç”»ï¼Œæ­»äº¡æ—¶æ’­æ”¾ç‰¹æ•ˆï¼Œæ•…éœ€è¦ä¸€ä¸ªå»¶è¿ŸDestroyæ—¶é—´
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Death)
 	float DeathDelayTime;
 
@@ -66,7 +66,7 @@ public:
 	FORCEINLINE ATD_PlayerState* GetPlayerState() {
 		return GetGameController()->GetPlayerState<ATD_PlayerState>();
 	}
-	//±©Â¶¸ø·´ÉäÏµÍ³
+	//æš´éœ²ç»™åå°„ç³»ç»Ÿ
 	FORCEINLINE USceneComponent* GetHomingPoint() const { return HomingPoint; }
 	FORCEINLINE UArrowComponent* GetFirePoint() const { return OpenFirePoint; }
 
@@ -78,7 +78,6 @@ protected:
 
 	UFUNCTION()
 	virtual void OnClicked(UPrimitiveComponent* TouchedComponent, FKey ButtonPressed);
-
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -87,7 +86,7 @@ public:
 	bool IsActive() { return !IsDeath(); };
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CharacterAttribute")
-	bool Isattack;//ÎªÁËÇø±ğÍ¬Ãûº¯ÊıÓë±äÁ¿£¬º¯ÊıËùÓĞÊ××ÖÄ¸´óĞ´£¬±äÁ¿½ö¿ªÍ·×ÖÄ¸´óĞ´
+	bool Isattack;//ä¸ºäº†åŒºåˆ«åŒåå‡½æ•°ä¸å˜é‡ï¼Œå‡½æ•°æ‰€æœ‰é¦–å­—æ¯å¤§å†™ï¼Œå˜é‡ä»…å¼€å¤´å­—æ¯å¤§å†™
 
 	UFUNCTION(Blueprintable, BlueprintPure, Category = "Towers|Test")
 	UStaticMesh* GetDollMesh(FTransform& Transform);
@@ -99,6 +98,12 @@ public:
 	virtual ETeam GetTeamType();
 	virtual FCharacterData& GetCharacterData();
 	void UpdataUI();
-	//¸Ã½Ó¿ÚÓÉ·şÎñÆ÷µ÷ÓÃ£¬¶ø·Ç¿Í»§¶Ë
+	//è¯¥æ¥å£ç”±æœåŠ¡å™¨è°ƒç”¨ï¼Œè€Œéå®¢æˆ·ç«¯
 	virtual void RegisterTeam();
+
+
+	UFUNCTION()
+		void AddSkillSlot_Client(const FGuid& SlotID);
+	UFUNCTION()
+		void RemoveSkillSlot_Client(const FGuid& SlotID);
 };

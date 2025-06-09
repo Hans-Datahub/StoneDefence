@@ -22,11 +22,12 @@ class STONEDEFENCE_API ATD_PlayerController : public APlayerController
 	ATD_PlayerController();
 
 public:
-	//°´ÏÂÓëËÉ¿ªÊó±êÖĞ¼ü´úÀí
+	//æŒ‰ä¸‹ä¸æ¾å¼€é¼ æ ‡ä¸­é”®ä»£ç†
 	FSimpleDelegate EventMouseMiddlePressed;
 	FSimpleDelegate EventMouseMiddleReleased;
-	//¼¼ÄÜÌí¼Ó´úÀí
+	//æŠ€èƒ½æ·»åŠ ä»£ç†
 	FSkillAddingDelegate SkillAddingDelegate;
+	FSkillAddingDelegate SkillRemovingDelegate;
 
 	FProjectileSpawnDelegate ProjectileSpawnDelegate;
 	UFUNCTION()
@@ -36,19 +37,19 @@ public:
 
 	class ATD_GameMode* GetGameMode();
 
-	//Tickº¯Êı
+	//Tickå‡½æ•°
 	virtual void Tick(float DeltaSeconds)override;
 
-	//³õÊ¼»¯²Ù×÷
+	//åˆå§‹åŒ–æ“ä½œ
 	virtual void BeginPlay();
 
-	//Ëø¶¨Êó±ê
+	//é”å®šé¼ æ ‡
 	void SetInputModeGameAndUI();
 
-	//ÔÊĞíÍæ¼Ò¸üĞÂ×Ô¼ºµÄ°ó¶¨ÏàÓ¦
+	//å…è®¸ç©å®¶æ›´æ–°è‡ªå·±çš„ç»‘å®šç›¸åº”
 	virtual void SetupInputComponent()override;
 
-	//Êó±ê¹öÂÖ¿ØÖÆÉùÃ÷
+	//é¼ æ ‡æ»šè½®æ§åˆ¶å£°æ˜
 	void MouseWheelUp();	
 	void MouseWheelDown();
 
@@ -58,9 +59,11 @@ public:
 	const FHitResult& GetHitResult();
 
 	UFUNCTION()
-	void AddSkillSlot_Client(const FGuid& SlotID);
+	void AddSkillSlot_Server(const FGuid& CharacterID, const FGuid& SlotID);
 	UFUNCTION()
-	void Spawn_Projectile_Client(const FGuid& CharacterID, UClass* InClass);
+	void RemoveSkillSlot_Server(const FGuid& CharacterID, const FGuid& SlotID);
+	UFUNCTION()
+	void Spawn_Projectile_Server(const FGuid& CharacterID, UClass* InClass);
 protected:
 	FScreenMoveUnits ScreenMoveUnits;
 
