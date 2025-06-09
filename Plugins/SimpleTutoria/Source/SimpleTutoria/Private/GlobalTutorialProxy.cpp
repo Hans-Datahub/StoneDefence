@@ -1,0 +1,3 @@
+#include "GlobalTutorialProxy.h"
+
+FSimpleTutoriaMulticastDelegate SimpleTutoriaMulticastDelegate;
