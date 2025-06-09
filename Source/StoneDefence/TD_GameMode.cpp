@@ -17,7 +17,7 @@
 
 ATD_GameMode::ATD_GameMode()
 {
-	//½«UEÖĞµÄpawn£¬	contorller£¬PlayerStateµÈÊı¾İÓëC++´úÂë°ó¶¨ÆğÀ´
+	//å°†UEä¸­çš„pawnï¼Œ	contorllerï¼ŒPlayerStateç­‰æ•°æ®ä¸C++ä»£ç ç»‘å®šèµ·æ¥
 	GameStateClass = ATD_GameState::StaticClass();
 	PlayerControllerClass = ATD_PlayerController::StaticClass();
 	DefaultPawnClass = ATD_GameCamera::StaticClass();
@@ -28,7 +28,7 @@ ATD_GameMode::ATD_GameMode()
 void ATD_GameMode::BeginPlay() {
 	Super::BeginPlay();
 	if (ATD_GameState* TempGameState = GetGameState<ATD_GameState>()) {
-		TempGameState->GetGameData().AssignedMonsterAmount();//·ÖÅäÃ¿²¨¹ÖÎïÊıÁ¿
+		TempGameState->GetGameData().AssignedMonsterAmount();//åˆ†é…æ¯æ³¢æ€ªç‰©æ•°é‡
 	}
 
 	//if (1) {
@@ -44,7 +44,7 @@ void ATD_GameMode::Tick(float DeltaSeconds) {
 
 		CallUpdateAllClient([&](ATD_PlayerController* MyPlayerController) {
 				if (ATD_PlayerState* PlayerState = MyPlayerController->GetPlayerState<ATD_PlayerState>()) {
-					//Ã¿1.25Ãë+1½ğ±Ò
+					//æ¯1.25ç§’+1é‡‘å¸
 					PlayerState->GetPlayerData().GameGoldTime += DeltaSeconds;
 					if (PlayerState->GetPlayerData().GameGoldTime > PlayerState->GetPlayerData().MaxGameGoldTime) {
 						PlayerState->GetPlayerData().GameGoldTime = 0.f;
@@ -79,9 +79,9 @@ void ATD_GameMode::Tick(float DeltaSeconds) {
 
 void ATD_GameMode::SpawnRuleOfMonster(float DeltaSeconds) {
 	if (ATD_GameState* TempGameState = GetGameState<ATD_GameState>()) {
-		if (!TempGameState->GetGameData().bCurrentLevelMissionSuccess)/*µ±Ç°¹Ø¿¨ÊÇ·ñÊ¤Àû*/ {
-			if (!TempGameState->GetGameData().bGameOver) {//ÓÎÏ·ÊÇ·ñ½áÊø
-				if (TempGameState->GetGameData().MobNumberinCurrentStage.Num()) {//ÊÇ·ñ»¹ÓĞ²¨Êı
+		if (!TempGameState->GetGameData().bCurrentLevelMissionSuccess)/*å½“å‰å…³å¡æ˜¯å¦èƒœåˆ©*/ {
+			if (!TempGameState->GetGameData().bGameOver) {//æ¸¸æˆæ˜¯å¦ç»“æŸ
+				if (TempGameState->GetGameData().MobNumberinCurrentStage.Num()) {//æ˜¯å¦è¿˜æœ‰æ³¢æ•°
 					TempGameState->GetGameData().CurrentSpawnMonsterTime += DeltaSeconds;
 					if (TempGameState->GetGameData().bAllowSpawnMonster()) {
 						TempGameState->GetGameData().ResetCurrentSpawn();
@@ -135,28 +135,28 @@ int32 ATD_GameMode::GetTowerDifficultyParam_Level(UWorld* InWorld) {
 		float Concentration; //Combination -> Concentration
 		float Attack;
 		float Defense;
-		float Variance; //±íÊ¾Êı¾İÀëÉ¢³Ì¶È
+		float Variance; //è¡¨ç¤ºæ•°æ®ç¦»æ•£ç¨‹åº¦
 	};
 
 	auto GetTowerDifficultyParam_Level = [&](TArray<ARuleOfCharacter*> RuleOfCharacter) ->FDifficultyParam {
 		int32 Index = 0;
 		FDifficultyParam DifficultyParam;
-		//¼ÆËã·ÀÓùËşÆ½¾ùÊıÖµ
+		//è®¡ç®—é˜²å¾¡å¡”å¹³å‡æ•°å€¼
 		for (ARuleOfCharacter* Temp : RuleOfCharacter) {
-			if (Temp->IsActive()) {//ÀÛ¼ÓµÈ¼¶¡¢¹¥»÷ºÍ·ÀÓù
+			if (Temp->IsActive()) {//ç´¯åŠ ç­‰çº§ã€æ”»å‡»å’Œé˜²å¾¡
 				DifficultyParam.AverageLevel += (float)Temp->GetCharacterData().Level;
 				DifficultyParam.Attack += Temp->GetCharacterData().GetAttack();
 				DifficultyParam.Defense += Temp->GetCharacterData().GetArmor();
 				Index++;
 			}
 		}
-		// ÇóµÃÆ½¾ùµÈ¼¶¡¢¹¥»÷ºÍ·ÀÓù
+		// æ±‚å¾—å¹³å‡ç­‰çº§ã€æ”»å‡»å’Œé˜²å¾¡
 		DifficultyParam.AverageLevel /= Index;
 		DifficultyParam.Attack /= Index;
 		DifficultyParam.Defense /= Index;
 
 
-		//¼ÆËã¹ÖÎïÊıÖµ
+		//è®¡ç®—æ€ªç‰©æ•°å€¼
 		for (ARuleOfCharacter* Temp : RuleOfCharacter) {
 			if (Temp->IsActive()) {
 				DifficultyParam.Variance += FMath::Square((float)Temp->GetCharacterData().Level - DifficultyParam.AverageLevel);
@@ -208,13 +208,13 @@ ARuleOfCharacter* ATD_GameMode::SpawnCharacter(int32 CharacterID,
 			};
 
 			if (FCharacterData* CharacterData = GetCharacterData(CharacterID)) {
-				UClass* NewClass = CharacterData->CharacterBlueprintKey.LoadSynchronous();//¸ºÔØÍ¬²½
+				UClass* NewClass = CharacterData->CharacterBlueprintKey.LoadSynchronous();//è´Ÿè½½åŒæ­¥
 				if (GetWorld())
 					if (ARuleOfCharacter* RuleOfCharacter = GetWorld()->SpawnActor<ARuleOfCharacter>(NewClass, Location, Rotator)) {
 						FCharacterData& CharacterDataInstance = TempGameState->AddCharacterData(RuleOfCharacter->GUID, *CharacterData);
 						CharacterDataInstance.UpdateHealth();
 
-						//³õÊ¼»¯µÈ¼¶
+						//åˆå§‹åŒ–ç­‰çº§
 						if (CharacterLevel > 1) {
 							for (int32 i = 0; i < CharacterLevel; i++) {
 								CharacterDataInstance.UpdateExp(CharacterData->AddEmpiricalValue);
@@ -254,18 +254,18 @@ void ATD_GameMode::UpdateSkill(float DeltaSeconds) {
 				if (AttackRange != 0) {
 					float Distance = (Target.Value.Location - InOwner.Value.Location).Size();
 					if (Distance <= AttackRange) {
-						//½«·¶Î§ÄÚµÄµ¥Î»ÄÉÈë¼¼ÄÜ³ĞÊÜ¶ÓÁĞ
+						//å°†èŒƒå›´å†…çš„å•ä½çº³å…¥æŠ€èƒ½æ‰¿å—é˜Ÿåˆ—
 						TeamArray.Add(&Target);
 					}
 				}
-				else {//Èô¾àÀëÎªÁã£¬ÔòÎŞÊÓ¾àÀë
+				else {//è‹¥è·ç¦»ä¸ºé›¶ï¼Œåˆ™æ— è§†è·ç¦»
 					TeamArray.Add(&Target);
 				}
 			};
 			
 			for (auto& Temp : NewGameState->GetSaveData()->CharacterDatas) {
 				if (bAllies) {
-					if (Temp.Value.Team == InOwner.Value.Team) {//´Ë´¦InOwnerºÍTempµÄ¹ØÏµ¼ûÏÂ·½FindMostClosedTargetInRangeÖĞµÄ½âÊÍ
+					if (Temp.Value.Team == InOwner.Value.Team) {//æ­¤å¤„InOwnerå’ŒTempçš„å…³ç³»è§ä¸‹æ–¹FindMostClosedTargetInRangeä¸­çš„è§£é‡Š
 						TeamIner(TeamArray, Temp, AttackRange);
 					}
 				}
@@ -277,7 +277,7 @@ void ATD_GameMode::UpdateSkill(float DeltaSeconds) {
 			}
 		};
 
-		auto IsVerificationSkill = [](FCharacterData& SkillList, int32 SkillID)-> bool {//´Ë´¦SkillListÇ°µÄconstÓÉÓÚÔÚAddSkill±í´ïÊ½ÖĞ£¬TMap.Add()²»ÄÜ´«ÈëConstÖµ£¬¹ÊÉ¾µô
+		auto IsVerificationSkill = [](FCharacterData& SkillList, int32 SkillID)-> bool {//æ­¤å¤„SkillListå‰çš„constç”±äºåœ¨AddSkillè¡¨è¾¾å¼ä¸­ï¼ŒTMap.Add()ä¸èƒ½ä¼ å…¥Constå€¼ï¼Œæ•…åˆ æ‰
 			for (auto& AdditionalSkill : SkillList.AdditionalSkillData) {
 				if (AdditionalSkill.Value.SkillID == SkillID) {
 					return true;
@@ -285,21 +285,21 @@ void ATD_GameMode::UpdateSkill(float DeltaSeconds) {
 			}
 			return false;
 		};
-		//Îªµ¥¸ö½ÇÉ«Ìí¼Ó¼¼ÄÜ
+		//ä¸ºå•ä¸ªè§’è‰²æ·»åŠ æŠ€èƒ½
 		auto AddSkill = [&](TPair<FGuid, FCharacterData>& SkillTakerData, FSkillData& InSkill) {
 			if (!IsVerificationSkill(SkillTakerData.Value, InSkill.SkillID)) {
 				FGuid TempSkillID = FGuid::NewGuid();	
 
 				SkillTakerData.Value.AdditionalSkillData.Add(TempSkillID, InSkill);
 
-				//Í¨Öª´úÀí ÔÚUIÄ£¿éÏÔÊ¾ÏàÓ¦¼¼ÄÜÍ¼±ê	
+				//é€šçŸ¥ä»£ç† åœ¨UIæ¨¡å—æ˜¾ç¤ºç›¸åº”æŠ€èƒ½å›¾æ ‡	
 				CallUpdateAllClient([&](ATD_PlayerController* MyPlayerController) {
 					MyPlayerController->AddSkillSlot_Client(TempSkillID);
 					}
 				);
 			}
 		};
-		//Îª¶à¸ö½ÇÉ«Ìí¼Ó¼¼ÄÜ
+		//ä¸ºå¤šä¸ªè§’è‰²æ·»åŠ æŠ€èƒ½
 		auto AddSkills = [&](TArray<TPair<FGuid, FCharacterData>*>& SkillTakerDataArray, FSkillData& InSkill) {
 			for (auto& Data : SkillTakerDataArray) {
 				AddSkill(*Data, InSkill);
@@ -322,16 +322,16 @@ void ATD_GameMode::UpdateSkill(float DeltaSeconds) {
 			};
 
 			for (auto& Temp : NewGameState->GetSaveData()->CharacterDatas) {
-				if (InOwner.Key != Temp.Key) {//ÅÅ³ı×Ô¼º
+				if (InOwner.Key != Temp.Key) {//æ’é™¤è‡ªå·±
 					if (bAllies) {
-						//´Ë´¦µÄInOwnerÊÇÖ÷Ìå£¬TempÊÇ¿ÍÌå¡£ InOwnerÔÚµÚÒ»²ã±éÀúÖĞ±»Ñ¡ÖĞ£¬È»ºóÔÚµÚ¶ş²ã±éÀúÖĞºÍÃ¿Ò»¸öÆäËû¿ÍÌå½øĞĞ¶ÓÎé±È½Ï
-						//Ñ°µĞ
+						//æ­¤å¤„çš„InOwneræ˜¯ä¸»ä½“ï¼ŒTempæ˜¯å®¢ä½“ã€‚ InOwneråœ¨ç¬¬ä¸€å±‚éå†ä¸­è¢«é€‰ä¸­ï¼Œç„¶ååœ¨ç¬¬äºŒå±‚éå†ä¸­å’Œæ¯ä¸€ä¸ªå…¶ä»–å®¢ä½“è¿›è¡Œé˜Ÿä¼æ¯”è¾ƒ
+						//å¯»æ•Œ
 						if (InOwner.Value.Team != Temp.Value.Team) {
 							InitMostCloseTarget(Temp);
 						}
 					}
 					else {
-						//Ñ°ÕÒÓÑ¾ü
+						//å¯»æ‰¾å‹å†›
 						if (InOwner.Value.Team == Temp.Value.Team) {
 							InitMostCloseTarget(Temp);
 						}
@@ -346,16 +346,16 @@ void ATD_GameMode::UpdateSkill(float DeltaSeconds) {
 			return nullptr;
 		};
 
-		//»ñÈ¡¼¼ÄÜ¶ÓÁĞ
+		//è·å–æŠ€èƒ½é˜Ÿåˆ—
 		const TArray<FSkillData*>& SkillDataTemplate = NewGameState->GetSkillDataFromTable();
-		//»ñÈ¡ËùÓĞ¼¼ÄÜ
+		//è·å–æ‰€æœ‰æŠ€èƒ½
 		for (auto& Temp : NewGameState->GetSaveData()->CharacterDatas) {
-			//¼ÆËãÓë¸üĞÂÇå³ıÁĞ±í
+			//è®¡ç®—ä¸æ›´æ–°æ¸…é™¤åˆ—è¡¨
 			TArray<FGuid> RemoveSkillArray;
 			for (auto& SkillTemp : Temp.Value.AdditionalSkillData) {
 				if (SkillTemp.Value.SkillType.SkillTimeType == ESkillTimeType::BURST)
 					RemoveSkillArray.Add(SkillTemp.Key);
-				//ÈôÎª
+				//è‹¥ä¸º
 				if (SkillTemp.Value.SkillType.SkillTimeType == ESkillTimeType::SECTION ||
 					SkillTemp.Value.SkillType.SkillTimeType == ESkillTimeType::ITERATION) {
 					SkillTemp.Value.SkillDuration += DeltaSeconds;
@@ -363,12 +363,12 @@ void ATD_GameMode::UpdateSkill(float DeltaSeconds) {
 						RemoveSkillArray.Add(SkillTemp.Key);
 					}
 				}
-				//ÈôÎª³ÖĞøĞÔ¼¼ÄÜ£¬Ã¿XÃëÖ´ĞĞÒ»´ÎÔö¼õÒæ
+				//è‹¥ä¸ºæŒç»­æ€§æŠ€èƒ½ï¼Œæ¯Xç§’æ‰§è¡Œä¸€æ¬¡å¢å‡ç›Š
 				if (SkillTemp.Value.SkillType.SkillTimeType == ESkillTimeType::ITERATION) {
 					SkillTemp.Value.SkillDuration += DeltaSeconds;
 					if (SkillTemp.Value.SkillDuration >= 1.0f) {
 						SkillTemp.Value.SkillDuration = 0.f;
-						//ÈôÎªÔöÒæ
+						//è‹¥ä¸ºå¢ç›Š
 						if (SkillTemp.Value.SkillType.SkillBoostType == ESkillBoostType::ADD) {
 							Temp.Value.Health += SkillTemp.Value.HealthModify;
 							Temp.Value.PhysicalAttack += SkillTemp.Value.PhysicalAttackModify;
@@ -377,7 +377,7 @@ void ATD_GameMode::UpdateSkill(float DeltaSeconds) {
 							Temp.Value.Gold += SkillTemp.Value.GoldModify;
 
 						}
-						else {//ÈôÎª¼õÒæ
+						else {//è‹¥ä¸ºå‡ç›Š
 							Temp.Value.Health -= SkillTemp.Value.HealthModify;
 							Temp.Value.PhysicalAttack -= SkillTemp.Value.PhysicalAttackModify;
 							Temp.Value.Armor -= SkillTemp.Value.ArmorModify;
@@ -386,22 +386,22 @@ void ATD_GameMode::UpdateSkill(float DeltaSeconds) {
 						}
 					}
 				}
-				//Í¨Öª¿Í»§¶ËäÖÈ¾Projectile
+				//é€šçŸ¥å®¢æˆ·ç«¯æ¸²æŸ“Projectile
 				CallUpdateAllClient([&](ATD_PlayerController* MyPlayerController) {
 					MyPlayerController->Spawn_Projectile_Client(Temp.Key, SkillTemp.Value.ProjectileClass);
 					});
 			}
 
-			//Çå³ı
+			//æ¸…é™¤
 			for (FGuid& RemoveID : RemoveSkillArray)
 				Temp.Value.AdditionalSkillData.Remove(RemoveID);
 
-			//¸üĞÂÃ¿Ò»¸ö¼¼ÄÜµÄCD
+			//æ›´æ–°æ¯ä¸€ä¸ªæŠ€èƒ½çš„CD
 			for (auto& InSkill : Temp.Value.CharacterSkill) {
 				InSkill.CDTime += DeltaSeconds;
 				if (InSkill.CDTime >= Temp.Value.CD) {
 					InSkill.CDTime = 0.f;
-					//ÅĞ¶Ï¸Ã¼¼ÄÜÊÇÈºÌå »òµ¥Ìå¹¥»÷					
+					//åˆ¤æ–­è¯¥æŠ€èƒ½æ˜¯ç¾¤ä½“ æˆ–å•ä½“æ”»å‡»					
 					if (InSkill.SkillType.SkillTargetNumType == ESkillTargetNumType::MULTIPLE) {
 						TArray<TPair<FGuid, FCharacterData>*> SkillTakerDataArray;
 						if (InSkill.SkillType.SkillTargetType == ESkillTargetType::ALLIES)
@@ -436,3 +436,5 @@ void ATD_GameMode::CallUpdateAllClient(TFunction<void(ATD_PlayerController* MyPl
 		}
 	}
 }
+
+//test1

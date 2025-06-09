@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Character/AIController/MonsterAIController.h"
 #include "Character/CharacterCore/Towers.h"
 #include "../StoneDefenceUtils.h"
@@ -8,16 +7,16 @@
 
 
 AActor* AMonsterAIController::FindTarget() {
-	//Èç¹ûÄ¿±ê²»´æÔÚ»òÕßÒÑËÀÍö£¬²ÅÖ´ÐÐÐÂÒ»ÂÖFIndTarget
+	//å¦‚æžœç›®æ ‡ä¸å­˜åœ¨æˆ–è€…å·²æ­»äº¡ï¼Œæ‰æ‰§è¡Œæ–°ä¸€è½®FIndTarget
 	if (!Target.IsValid() || !Target->IsActive()) {
-		//ÉùÃ÷Ëþ´æ·ÅÊý×é
+		//å£°æ˜Žå¡”å­˜æ”¾æ•°ç»„
 		TArray<ARuleOfCharacter*>TargetMainTowerArray;
 		TArray<ARuleOfCharacter*>TargetTowersArray;
 
 		for (TActorIterator<ATowers>it(GetWorld(), ATowers::StaticClass()); it; ++it) {
 			ATowers* TheCharacter = *it;
 			if (TheCharacter && TheCharacter->IsActive()) {
-				//Èô·¢ÏÖÄ¿±êÎªËþ£¬Ôò·ÅÈëÄ¿±êËþÊý×é£»ÈôÎªÖ÷Ëþ£¬·ÅÈëÄ¿±êÖ÷ËþÊý×é
+				//è‹¥å‘çŽ°ç›®æ ‡ä¸ºå¡”ï¼Œåˆ™æ”¾å…¥ç›®æ ‡å¡”æ•°ç»„ï¼›è‹¥ä¸ºä¸»å¡”ï¼Œæ”¾å…¥ç›®æ ‡ä¸»å¡”æ•°ç»„
 				if (TheCharacter->GetType() == EGameCharacterType::Type::MINI) {
 					TargetTowersArray.Add(TheCharacter);
 				}
@@ -31,7 +30,7 @@ AActor* AMonsterAIController::FindTarget() {
 		ATowers* MainTowers = Cast<ATowers>(StoneDefenceUtils::FindMostClosedTarget(TargetMainTowerArray, GetPawn()->GetActorLocation()));
 		ATowers* NormalTowers = Cast<ATowers>(StoneDefenceUtils::FindMostClosedTarget(TargetTowersArray, GetPawn()->GetActorLocation()));
 
-		//ÓÅÏÈ¹¥»÷Ö÷Ëþ£¬Æä´ÎÆÕÍ¨Ëþ
+		//ä¼˜å…ˆæ”»å‡»ä¸»å¡”ï¼Œå…¶æ¬¡æ™®é€šå¡”
 		if (MainTowers) { return MainTowers; }
 		return NormalTowers;
 	}
