@@ -156,6 +156,16 @@ FSkillData& ATD_GameState::GetSkillData(const FGuid& SkillID) {
 	}
 	return SkillDataNULL;
 }
+
+const FSkillData* ATD_GameState::GetSkillData(const int32& SkillID)
+{
+	const TArray<FSkillData*>& SkillArray = GetSkillDataFromTable();
+	f() {
+
+	}
+	return 
+}
+
 FSkillData& ATD_GameState::GetSkillData(const FGuid& CharacterID, const FGuid& SkillID){
 	FCharacterData& CharacterData = GetCharacterData(CharacterID);
 	if (CharacterData.IsValid()) {
@@ -173,23 +183,34 @@ int32 ATD_GameState::RemoveSkillData(const FGuid& SkillID) {
 	return INDEX_NONE;
 }
 
-void ATD_GameState::InitSkill(FCharacterData& InCharacterData) {
-	const TArray<FSkillData*>& InSkillData = GetSkillDataFromTable();
-	for (auto& Temp : InCharacterData.CharacterSkillID) {
-		for (const FSkillData* NewSkill : InSkillData) {
-			if (NewSkill->SkillID == Temp) {
-				InCharacterData.CharacterSkill.Add(*NewSkill); 
-				InCharacterData.CharacterSkill[InCharacterData.CharacterSkill.Num() - 1].ResetCD();
+void ATD_GameState::AddSkillDataTemplateToCharacterData(const FGuid& CharacterID, int32 SkillID) {
+	if (const FSkillData* InData = GetSkillData(SkillID)) {
+		for (auto& Temp : GetSaveData()->CharacterDatas) {
+			if(CharacterID == Temp.Key) {
+				Temp.Value.CharacterSkill.Add(*InData);
+				Temp.Value.CharacterSkill[Temp.Value.CharacterSkill.Num() - 1].ResetCD();
 				break;
 			}
 		}
 	}
 }
 
+bool ATD_GameState::IsVerificationSkillTemplate(const FCharacterData& CharacterData, int32 SkillID) {
+	for (auto& Inkill : CharacterData.CharacterSkill) {
+		if (InSkill.ID == SKillID) {
+			return true;
+		}
+	}
+	return false;
+}
 
-
-
-
+bool ATD_GameState::IsVerificationSkillTemplate(const FGuid& CharacterID, int32 SkillID) {
+	const FCharacterData& InData = GetCharacterData(CharacterID);
+	if (InData.IsValid()) {
+		return IsVerificationSkillTemplate(InData,SkillID);
+	}
+	return false;
+}
 
 
 

@@ -56,11 +56,20 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 	UParticleSystem* OpenFireParticle;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
+		int32 SkillID;//所属技能ID
+
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile_Tracking2")
 	float SplineOffset;
 	UFUNCTION()
 	void RadialDamage(const FVector& Origin, ARuleOfCharacter* InstigatorInOverlap);
 
+
+
+	const FSkillData* GetSkillData(int32 SkillID);
+
+	UFUNCTION(BlueprintCallable, Category = "SkillAdding Request")
+	void SubmissionSkillRequest();
 
 
 private:

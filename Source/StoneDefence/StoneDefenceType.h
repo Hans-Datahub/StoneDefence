@@ -24,6 +24,7 @@ namespace EGameCharacterType{
 
 UENUM(BlueprintType)
 enum class EProjectileType :uint8 {
+	PROJECTILE_NONE,
 	PROJECTILE_LASER,//激光，无阻挡，穿透
 	PROJECTILE_TRACKING,//普通类型，可阻挡
 	PROJECTILE_TRACKING2,

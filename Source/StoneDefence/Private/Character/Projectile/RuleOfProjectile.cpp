@@ -32,12 +32,14 @@ ARuleOfProjectile::ARuleOfProjectile()
 
 	ProjectileType = EProjectileType::PROJECTILE_RANGE;
 	
-	InitialLifeSpan = 4.0f;//ÉùÃ÷ÖÜÆÚÎª4Ãë 
+	InitialLifeSpan = 4.0f;//å£°æ˜å‘¨æœŸä¸º4ç§’ 
 
 	Spline = nullptr;
 	CurrentSplineTime = 0.f;
 	SplineOffset = 0.f;
 	ChainAttackCount = 2;
+
+	SkillID = INDEX_NONE;
 }
 
 
@@ -55,7 +57,7 @@ void ARuleOfProjectile::BeginPlay()
 				switch (ProjectileType) {
 
 					/*----------------------------------------------------------------------------------------*/
-					/*--------------------------------------¼¤¹â¹¥»÷-------------------------------------------*/
+					/*--------------------------------------æ¿€å…‰æ”»å‡»-------------------------------------------*/
 					/*----------------------------------------------------------------------------------------*/
 					case EProjectileType::PROJECTILE_LASER:
 					{
@@ -65,7 +67,7 @@ void ARuleOfProjectile::BeginPlay()
 
 
 					/*----------------------------------------------------------------------------------------*/
-					/*--------------------------------------¸ú×Ù¹¥»÷-------------------------------------------*/
+					/*--------------------------------------è·Ÿè¸ªæ”»å‡»-------------------------------------------*/
 					/*----------------------------------------------------------------------------------------*/
 					case EProjectileType::PROJECTILE_TRACKING:
 					{
@@ -79,7 +81,7 @@ void ARuleOfProjectile::BeginPlay()
 
 
 					/*----------------------------------------------------------------------------------------*/
-					/*--------------------------------------¸ú×Ù¹¥»÷2------------------------------------------*/
+					/*--------------------------------------è·Ÿè¸ªæ”»å‡»2------------------------------------------*/
 					/*----------------------------------------------------------------------------------------*/
 					case EProjectileType::PROJECTILE_TRACKING2:
 					{
@@ -101,7 +103,7 @@ void ARuleOfProjectile::BeginPlay()
 
 
 					/*----------------------------------------------------------------------------------------*/
-					/*--------------------------------------Êµµ¯¹¥»÷-------------------------------------------*/
+					/*--------------------------------------å®å¼¹æ”»å‡»-------------------------------------------*/
 					/*----------------------------------------------------------------------------------------*/
 					case EProjectileType::PROJECTILE_BULLET:
 					{
@@ -111,7 +113,7 @@ void ARuleOfProjectile::BeginPlay()
 
 
 					/*----------------------------------------------------------------------------------------*/
-					/*---------------------------------Å×ÉäÎï·¶Î§¹¥»÷£¨ÊÖÀ×£©-------------------------------------*/
+					/*---------------------------------æŠ›å°„ç‰©èŒƒå›´æ”»å‡»ï¼ˆæ‰‹é›·ï¼‰-------------------------------------*/
 					/*----------------------------------------------------------------------------------------*/
 
 					case EProjectileType::PROJECTILE_GRENADE:
@@ -139,7 +141,7 @@ void ARuleOfProjectile::BeginPlay()
 
 
 					/*----------------------------------------------------------------------------------------*/
-					/*-------------------------------------·¶Î§¹¥»÷--------------------------------------------*/
+					/*-------------------------------------èŒƒå›´æ”»å‡»--------------------------------------------*/
 					/*----------------------------------------------------------------------------------------*/
 					case EProjectileType::PROJECTILE_RANGE:
 					{
@@ -151,7 +153,7 @@ void ARuleOfProjectile::BeginPlay()
 
 
 					/*----------------------------------------------------------------------------------------*/
-					/*-------------------------------------À×µç¹¥»÷--------------------------------------------*/
+					/*-------------------------------------é›·ç”µæ”»å‡»--------------------------------------------*/
 					/*----------------------------------------------------------------------------------------*/
 					case EProjectileType::PROJECTILE_LIGHTING:
 					{
@@ -159,6 +161,21 @@ void ARuleOfProjectile::BeginPlay()
 						ProjectileCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 						UGameplayStatics::SpawnEmitterAttached(DamageParticle, TargetCharacter->GetHomingPoint());
 						GetWorld()->GetTimerManager().SetTimer(ChainAttackHandle, this, &ARuleOfProjectile::ChainAttack,0.4f);
+
+						SubmissionSkillRequest();
+						break;
+					}
+
+					/*----------------------------------------------------------------------------------------*/
+					/*--------------------------------------æ— ç±»å‹---------------------------------------------*/
+					/*----------------------------------------------------------------------------------------*/
+					case EProjectileType::PROJECTILE_NONE:
+					{
+						UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), OpenFireParticle, GetActorLocation());
+						ProjectileMovement->StopMovementImmediately();
+						ProjectileCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+						SubmissionSkillRequest();
 						break;
 					}
 				}
@@ -167,39 +184,55 @@ void ARuleOfProjectile::BeginPlay()
 	}
 }
 
-void ARuleOfProjectile::BeginOverlap(UPrimitiveComponent* ObjectiveOverlappedComponent,/*Ö÷ÌåËùÖØµşµÄ×é¼ş*/ //OverlappedComponent -> ObjectiveOverlappedComponent
-									 AActor* SubjectiveActor,						  /*Ä¿±êActor*/      //OtherActor -> SubjectiveActor
-									 UPrimitiveComponent* SubjectiveComp,			 /*Ä¿±êÖØµş×é¼ş*/    //OtherComp -> OtherComp
-									 int32 SubjectIndex,							/*Ä¿±êID*/         //OtherBodyIndex -> SubjectIndex
-									 bool IsScanning,							   /*ÊÇ·ñ¿ªÊ¼É¨Ãè*/    //bFromSweep -> IsScanning
-									 const FHitResult& ScanResult)				  /*É¨Ãè½á¹û*/       //SweepResult -> ScanResult 
+void ARuleOfProjectile::BeginOverlap(UPrimitiveComponent* ObjectiveOverlappedComponent,/*ä¸»ä½“æ‰€é‡å çš„ç»„ä»¶*/ //OverlappedComponent -> ObjectiveOverlappedComponent
+									 AActor* SubjectiveActor,						  /*ç›®æ ‡Actor*/      //OtherActor -> SubjectiveActor
+									 UPrimitiveComponent* SubjectiveComp,			 /*ç›®æ ‡é‡å ç»„ä»¶*/    //OtherComp -> OtherComp
+									 int32 SubjectIndex,							/*ç›®æ ‡ID*/         //OtherBodyIndex -> SubjectIndex
+									 bool IsScanning,							   /*æ˜¯å¦å¼€å§‹æ‰«æ*/    //bFromSweep -> IsScanning
+									 const FHitResult& ScanResult)				  /*æ‰«æç»“æœ*/       //SweepResult -> ScanResult 
 	/*--------------------------------------------------------------------------------------*/
 {
-	//ÅĞ¶Ï¶şÕßÊÇ·ñÍ¬¶Ó
-	if (ARuleOfCharacter* InstigatorInOverlap = Cast<ARuleOfCharacter>(GetInstigator())) {//InstigatorCharacter -> InstigatorInOverlap
-		if (ARuleOfCharacter* TakerInOverlap = Cast<ARuleOfCharacter>(SubjectiveActor)) {//OtherCharacter -> TakerInOverlap
-			if (InstigatorInOverlap->GetTeamType() != TakerInOverlap->GetTeamType()) {
-				if (TakerInOverlap->IsActive()) {
+	if (const FSkillData* InData = GetSkillData()) {
+		//åˆ¤æ–­äºŒè€…æ˜¯å¦åŒé˜Ÿ
+		if (ARuleOfCharacter* InstigatorInOverlap = Cast<ARuleOfCharacter>(GetInstigator())) {//InstigatorCharacter -> InstigatorInOverlap
+			if (ARuleOfCharacter* TakerInOverlap = Cast<ARuleOfCharacter>(SubjectiveActor)) {//OtherCharacter -> TakerInOverlap
+				auto VerifyConsistency = [&]()-> bool {
+					bool bVerifyConsistency = false;
+					if (InData->SkillType.SkillTargetType == ESkillTargetType::ALLIES) {
+						bVerifyConsistency = InstigatorInOverlap->GetTeamType() == TakerInOverlap->GetTeamType();
+					}
+					else if (InData->SkillType.SkillTargetType == ESkillTargetType::ENEMY){
+						bVerifyConsistency = InstigatorInOverlap->GetTeamType() != TakerInOverlap->GetTeamType();
+					}
+					return bVerifyConsistency;
+				};
 
-					//Éú³ÉÉËº¦ÌØĞ§
-					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), DamageParticle, ScanResult.Location);
 
-					float DamageValue = Expression::GetDamage(InstigatorInOverlap, TakerInOverlap);
-					switch (ProjectileType) {
-						case EProjectileType::PROJECTILE_TRACKING:
-						case EProjectileType::PROJECTILE_BULLET:
-						case EProjectileType::PROJECTILE_TRACKING2:
-						{
-							UGameplayStatics::ApplyDamage(TakerInOverlap, DamageValue, InstigatorInOverlap->GetController(), InstigatorInOverlap, UDamageType::StaticClass());
-							Destroy();
-							break;
-						}
 
-						case EProjectileType::PROJECTILE_RANGE:
-						{
-							RadialDamage(TakerInOverlap->GetActorLocation(), InstigatorInOverlap);
-							Destroy();
-							break;
+				if (VerifyConsistency()) {
+					if (TakerInOverlap->IsActive()) {
+
+						//ç”Ÿæˆä¼¤å®³ç‰¹æ•ˆ
+						UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), DamageParticle, ScanResult.Location);
+
+						float DamageValue = Expression::GetDamage(InstigatorInOverlap, TakerInOverlap);
+						switch (ProjectileType) {
+							case EProjectileType::PROJECTILE_TRACKING:
+							case EProjectileType::PROJECTILE_BULLET:
+							case EProjectileType::PROJECTILE_TRACKING2:
+							{
+								UGameplayStatics::ApplyDamage(TakerInOverlap, DamageValue, InstigatorInOverlap->GetController(), InstigatorInOverlap, UDamageType::StaticClass());
+								SubmissionSkillRequest();
+								Destroy();
+								break;
+							}
+
+							case EProjectileType::PROJECTILE_RANGE:
+							{
+								RadialDamage(TakerInOverlap->GetActorLocation(), InstigatorInOverlap);
+								Destroy();
+								break;
+							}
 						}
 					}
 				}
@@ -223,7 +256,7 @@ void ARuleOfProjectile::Tick(float DeltaTime)
 						RootComponent->GetChildrenComponents(true, SceneComponent);
 						for (auto& Temp : SceneComponent) {
 							if (UParticleSystemComponent* ParticleSystem = Cast<UParticleSystemComponent>(Temp)) {
-								//²ÎÊı1Îª·¢ÉäÆ÷Index£¬2ÎªÌØĞ§·¢ÉúÎ»ÖÃ£¬3Îª¹âÊøIndex
+								//å‚æ•°1ä¸ºå‘å°„å™¨Indexï¼Œ2ä¸ºç‰¹æ•ˆå‘ç”Ÿä½ç½®ï¼Œ3ä¸ºå…‰æŸIndex
 								ParticleSystem->SetBeamTargetPoint(0, TargetCharacter->GetHomingPoint()->GetComponentLocation(), 0);
 								ParticleSystem->SetBeamSourcePoint(0, InstigatorInOverlap->GetFirePoint()->GetComponentLocation(), 0);
 								break;
@@ -235,7 +268,7 @@ void ARuleOfProjectile::Tick(float DeltaTime)
 						if (Spline) {
 							FVector DistanceVector = TargetCharacter->GetActorLocation() - InstigatorInOverlap->GetActorLocation();
 							CurrentSplineTime += DeltaTime;
-							//ÇúÏß³¤¶È * £¨µ±Ç°Ê±¼ä / £¨Ä¿±ê¾àÀë / ×Óµ¯³õËÙ£©£©
+							//æ›²çº¿é•¿åº¦ * ï¼ˆå½“å‰æ—¶é—´ / ï¼ˆç›®æ ‡è·ç¦» / å­å¼¹åˆé€Ÿï¼‰ï¼‰
 							float Distance = Spline -> GetSplineLength() * (CurrentSplineTime / (DistanceVector.Size() / 1000.f));
 							FVector Location = Spline->GetWorldLocationAtDistanceAlongSpline(Distance);
 							FRotator Rotation = Spline->GetRotationAtDistanceAlongSpline(Distance, ESplineCoordinateSpace::Local);
@@ -256,7 +289,7 @@ void ARuleOfProjectile::Tick(float DeltaTime)
 				}
 			}
 			else {
-				Destroy();//ÈôËù»ñµÃÄ¿±êËÀÍö»òÕßÎŞĞ§£¬Ïú»Ù×Óµ¯
+				Destroy();//è‹¥æ‰€è·å¾—ç›®æ ‡æ­»äº¡æˆ–è€…æ— æ•ˆï¼Œé”€æ¯å­å¼¹
 			}
 		}
 	}
@@ -264,46 +297,90 @@ void ARuleOfProjectile::Tick(float DeltaTime)
 
 void ARuleOfProjectile::RadialDamage(const FVector& Origin, ARuleOfCharacter* InstigatorInOverlap) {
 	if (InstigatorInOverlap) {
-		TArray<AActor*> IgnoreActors;//½¨Á¢ºöÂÔ×é
-		//TArray<ARuleOfCharacter*> HostileActors;
-		//µü´úÌí¼ÓºöÂÔ¶ÔÏó»òµĞ¶Ô¶ÔÏó
-		for (TActorIterator<ARuleOfCharacter>it(GetWorld(), ARuleOfCharacter::StaticClass()); it; ++it) {
-			if (ARuleOfCharacter* IgnoreTarget = *it) {
-				FVector Distance = IgnoreTarget->GetActorLocation() - InstigatorInOverlap->GetActorLocation();//¼ÆËã¾àÀë
-				if (Distance.Size() <= 10000) {//ÈôÔÚ·¶Î§ÄÚ
-					if (IgnoreTarget->GetTeamType() == InstigatorInOverlap->GetTeamType()) {
-						IgnoreActors.Add(IgnoreTarget);//Ìí¼ÓºöÂÔ¶ÔÏó
-					}
-					else {
-						//Éú³ÉÉËº¦ÌØĞ§
-						UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), DamageParticle, IgnoreTarget->GetActorLocation());
-						//HostileActors.Add(IgnoreTarget);//Ìí¼ÓµĞ¶Ô¶ÔÏó
+		if (const FSkillData* InData = GetSkillData()) {
+			auto SpawnEffect = [&](ARuleOfCharacter* NewCharacter) {
+				//ç”Ÿæˆä¼¤å®³ç‰¹æ•ˆ
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), DamageParticle, NewCharacter->GetActorLocation());
+				//æäº¤æŠ€èƒ½ç”³è¯·
+				SubmissionSkillRequest();
+			};
+
+
+			TArray<AActor*> IgnoreActors;//å»ºç«‹å¿½ç•¥ç»„
+			//TArray<ARuleOfCharacter*> HostileActors;
+			//è¿­ä»£æ·»åŠ å¿½ç•¥å¯¹è±¡æˆ–æ•Œå¯¹å¯¹è±¡
+			for (TActorIterator<ARuleOfCharacter>it(GetWorld(), ARuleOfCharacter::StaticClass()); it; ++it) {
+				if (ARuleOfCharacter* IgnoreTarget = *it) {
+					FVector Distance = IgnoreTarget->GetActorLocation() - InstigatorInOverlap->GetActorLocation();//è®¡ç®—è·ç¦»
+					if (Distance.Size() <= InData->AttackRange) {//è‹¥åœ¨èŒƒå›´å†…
+						if (InData->SkillType.SkillTargetType == ESkillTargetType::ALLIES) {
+							if (IgnoreTarget->GetTeamType() == InstigatorInOverlap->GetTeamType()) {
+								SpawnEffect(IgnoreTarget);
+							}
+							else {
+								IgnoreActors.Add(IgnoreTarget);
+							}
+						}
+						else if (InData->SkillType.SkillTargetType == ESkillTargetType::ENEMY) {
+							if (IgnoreTarget->GetTeamType() != InstigatorInOverlap->GetTeamType()) {
+								SpawnEffect(IgnoreTarget);
+							}
+							else {
+								IgnoreActors.Add(IgnoreTarget);
+							}
+						}
 					}
 				}
+
 			}
 
-		}
+			UGameplayStatics::ApplyRadialDamageWithFalloff
+			(GetWorld(),	                //ä¸Šä¸‹æ–‡
+				100.f, 10.f,				//åŸºç¡€ä¼¤å®³ï¼Œæœ€å°ä¼¤å®³
+				GetActorLocation(),			//çˆ†ç‚¸ä¸­å¿ƒ
+				400.f, 10000.f, 1.f,			//çˆ†ç‚¸å†…åŠå¾„ï¼Œå¤–åŠå¾„ï¼Œè¡°å‡ç³»æ•°
+				UDamageType::StaticClass(), //ä¼¤å®³ç±»å‹
+				IgnoreActors,				//å¿½ç•¥ç›®æ ‡
+				GetInstigator(),
+				GetInstigator()->GetController(),
+				ECollisionChannel::ECC_MAX);		//ä¼¤å®³è¾“å‡ºè€…
 
-		UGameplayStatics::ApplyRadialDamageWithFalloff
-		(GetWorld(),	                //ÉÏÏÂÎÄ
-			100.f, 10.f,				//»ù´¡ÉËº¦£¬×îĞ¡ÉËº¦
-			GetActorLocation(),			//±¬Õ¨ÖĞĞÄ
-			400.f, 10000.f, 1.f,			//±¬Õ¨ÄÚ°ë¾¶£¬Íâ°ë¾¶£¬Ë¥¼õÏµÊı
-			UDamageType::StaticClass(), //ÉËº¦ÀàĞÍ
-			IgnoreActors,				//ºöÂÔÄ¿±ê
-			GetInstigator(),
-			GetInstigator()->GetController(),
-			ECollisionChannel::ECC_MAX);		//ÉËº¦Êä³öÕß
+		}
 		
 	}
 }
 
+void ARuleOfProjectile::SubmissionSkillRequest()
+{
+	if (SkillID != INDEX_NONE) {
+		if (ARuleOfCharacter* InstigatorCharacter = Cast<ARuleOfCharacter>(Instigator)) {
+			if (ATD_GameState* InGameState = GetWorld()->GetGameState<ATD_GameState>()) {
+				const FCharacterData& CharacterData = InstigatorCharacter->GetCharacterData();
+				if (CharacterData.IsValid()) {
+					if (!InGameState->IsVerificationSkillTemplate(CharacterData, SkillID)) {
+						//æäº¤
+						InGameState->AddSkillDataTemplateToCharacterData(InstigatorCharacter->GUID, SkillID);
+					}
+				}
+			}
+		}
+	}
+}
+
+const FSkillData* ARuleOfProjectile::GetSkillData(int32 SkillID)
+{
+	if (ATD_GameState* InGameState = GetWorld()->GetGameState<ATD_GameState>()) {
+		return InGameState->GetSkillData(SkillID);
+	}
+	return nullptr;
+}
+
 void ARuleOfProjectile::ChainAttack() {
-	if (ChainAttackHandle.IsValid()) {//Èô¾ä±úÊ§Ğ§£¬Çå³ı¼ÆÊ±Æ÷
+	if (ChainAttackHandle.IsValid()) {//è‹¥å¥æŸ„å¤±æ•ˆï¼Œæ¸…é™¤è®¡æ—¶å™¨
 		GetWorld()->GetTimerManager().ClearTimer(ChainAttackHandle);
 	}
 
-	//¹¥»÷Ğ§¹ûÊµÏÖ
+	//æ”»å‡»æ•ˆæœå®ç°
 	if (ARuleOfCharacter* InstigatorInOverlap = Cast<ARuleOfCharacter>(GetInstigator())) {//InstigatorCharacter -> InstigatorInOverlap
 		if (ARuleOfAIController* InstigatorController = Cast<ARuleOfAIController>(InstigatorInOverlap->GetController())) {//OtherCharacter -> TakerInOverlap
 			if (ARuleOfCharacter* TargetCharacter = InstigatorController->Target.Get()) {
@@ -318,8 +395,8 @@ void ARuleOfProjectile::ChainAttack() {
 
 
 
-	//¼ÆÊ±Æ÷ÖØÖÃ
-	ChainAttackCount--;//¹²Ö´ĞĞ3´Î
+	//è®¡æ—¶å™¨é‡ç½®
+	ChainAttackCount--;//å…±æ‰§è¡Œ3æ¬¡
 	if (ChainAttackCount > 0) {
 		GetWorld()->GetTimerManager().SetTimer(ChainAttackHandle, this, &ARuleOfProjectile::ChainAttack, 0.4f);
 	}

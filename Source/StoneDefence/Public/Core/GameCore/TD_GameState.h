@@ -39,7 +39,7 @@ class STONEDEFENCE_API ATD_GameState : public AGameState
 	UPROPERTY()
 	UGameSaveSlotList* SlotList;
 
-	//»º´æ³Ø
+	//ç¼“å­˜æ± 
 	TArray<FCharacterData*> CacheTowerDatas;
 	TArray<FCharacterData*> CacheMonsterDatas;
 	TArray<FSkillData*> CacheSkillDatas;
@@ -54,19 +54,24 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Save")
 	bool ReadGameData(int32 SaveIndex);
 
-	//½ÇÉ«Êı¾İÔöÉ¾
+	//è§’è‰²æ•°æ®å¢åˆ 
 	FCharacterData& AddCharacterData(const FGuid& ID, const FCharacterData &Data);
 	bool RemoveCharacterData(const FGuid& ID);
 
-	/*---------------------------------½ÇÉ«¼¼ÄÜÔöÉ¾²é¸Ä------------------------------------*/
+	/*---------------------------------è§’è‰²æŠ€èƒ½å¢åˆ æŸ¥æ”¹------------------------------------*/
 	FSkillData& AddSkillData(const FGuid& CharacterID, const FGuid& SkillID, const FSkillData& Data);
 	FSkillData& GetSkillData(const FGuid& SkillID);
+	const FSkillData* GetSkillData(const int32& SkillID);
 	FSkillData& GetSkillData(const FGuid& CharacterID, const FGuid& SkillID);
 	int32 RemoveSkillData(const FGuid& SkillID);
 
-	void InitSkill(FCharacterData& InCharacterData);
+	UFUNCTION(/*Server*/)
+	void AddSkillDataTemplateToCharacterData(const FGuid& CharacterID, int32 SkillID);
 
-	/*--------------------------------Êı¾İ»ñÈ¡------------------------------------*/
+	bool IsVerificationSkillTemplate(const FCharacterData& CharacterData, int32 SkillID);
+	bool IsVerificationSkillTemplate(const FGuid& CharacterID, int32 SkillID);
+
+	/*--------------------------------æ•°æ®è·å–------------------------------------*/
 	FCharacterData& GetCharacterData(const FGuid& ID);
 
 
@@ -74,7 +79,7 @@ public:
 	const TArray<FCharacterData*>& GetTowerDataFromTable();
 	//bool GetMonsterDataFormTable(TArray<const FCharacterData*>& Datas);
 	const TArray<FCharacterData*>& GetMonsterDataFormTable();
-	//Ä£°å¼¼ÄÜ
+	//æ¨¡æ¿æŠ€èƒ½
 	const TArray<FSkillData*>& GetSkillDataFromTable();
 
 	const FCharacterData& GetCharacterDataByID(int32 ID, ECharacterType Type);
