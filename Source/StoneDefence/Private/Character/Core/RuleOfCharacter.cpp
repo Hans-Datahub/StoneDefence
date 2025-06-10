@@ -9,12 +9,16 @@
 #include "../StoneDefenceUtils.h"
 #include "Actor/DrawText.h"
 #include "Components/StaticMeshComponent.h"
+
 #include "Particles/ParticleSystemComponent.h"
 #include "Particles/TypeData/ParticleModuleTypeDataMesh.h"
 #include "Particles/ParticleEmitter.h"
 #include "Particles/ParticleLODLevel.h" 
 #include "Particles/ParticleEmitter.h"  
+
 #include "../StoneDefenceMacro.h"
+#include "Interface/Character/RuleCharacter.h"
+#include "Core/GameCore/TD_PlayerController.h"
 
 // Sets default values
 ARuleOfCharacter::ARuleOfCharacter()
@@ -39,6 +43,21 @@ ARuleOfCharacter::ARuleOfCharacter()
 	TraceShowCharacterInformation->SetBoxExtent(FVector(38, 38, 100));
 
 	CharacterType = EGameCharacterType::MINI;
+}
+
+ATD_PlayerController* ARuleOfCharacter::GetGameController()
+{
+	return GetWorld() ? GetWorld()->GetFirstPlayerController<ATD_PlayerController>() : nullptr;
+}
+
+ATD_GameState* ARuleOfCharacter::GetGameState()
+{
+	return GetWorld() ? GetWorld()->GetGameState<ATD_GameState>() : nullptr;
+}
+
+ATD_PlayerState* ARuleOfCharacter::GetPlayerState()
+{
+	return GetGameController()->GetPlayerState<ATD_PlayerState>();
 }
 
 // Called when the game starts or when spawned
@@ -222,10 +241,14 @@ UStaticMesh* ARuleOfCharacter::GetDollMesh(FTransform& Transform) {
 
 void ARuleOfCharacter::AddSkillSlot_Client(const FGuid& SlotID) {
 	if (UUI_Health* HealthUI = Cast<UUI_Health>(Widget->GetUserWidgetObject()))
-		HealthUI->AddSkillSlot(SlotID);
+		HealthUI->AddTakenSkillSlot(SlotID);
 }
 
-void ARuleOfCharacter::RemoveSkillSlot_Client(const FGuid& SlotID) {
-	if (UUI_Health* HealthUI = Cast<UUI_Health>(Widget->GetUserWidgetObject()))
-		HealthUI->RemoveSkillSlot(SlotID);
+bool ARuleOfCharacter::RemoveSkillSlot_Client(const FGuid& SlotID) {
+	if (UUI_Health* HealthUI = Cast<UUI_Health>(Widget->GetUserWidgetObject())) {
+		HealthUI->RemoveTakenSkillSlot(SlotID);
+		return true;
+	}
+	return false;
 }
+

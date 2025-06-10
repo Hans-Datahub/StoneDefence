@@ -26,12 +26,12 @@ void AMonsters::RegisterTeam() {
 void AMonsters::OnClicked(UPrimitiveComponent* TouchedComponent, FKey ButtonPressed) {
 	Super::OnClicked(TouchedComponent, ButtonPressed);
 
-	if (ClickedMonster) {
-		ClickedMonster = nullptr;
-		UE_LOG(LogTemp, Warning, TEXT("nullptr"));
-	}
-	else {
-		ClickedMonster = this;
-		UE_LOG(LogTemp, Warning, TEXT("this"));
-	}
+	//if (ClickedMonster) {
+	//	ClickedMonster = nullptr;
+	//	UE_LOG(LogTemp, Warning, TEXT("nullptr"));
+	//}
+	//else {
+	//	ClickedMonster = this;
+	//	UE_LOG(LogTemp, Warning, TEXT("this"));
+	//}
 }

@@ -109,14 +109,14 @@ const FHitResult& ATD_PlayerController::GetHitResult() {
 
 void ATD_PlayerController::AddSkillSlot_Server(const FGuid& CharacterID, const FGuid& SlotID) {
 	TArray<ARuleOfCharacter*> CharacterArray;
-	StoneDefenceUtils::FindFitTargetAndExecution(CharacterID, [&](ARuleOfCharacter* InCharacter) {
+	StoneDefenceUtils::FindFitTargetAndExecution(GetWorld(), CharacterID, [&](ARuleOfCharacter* InCharacter) {
 		InCharacter->AddSkillSlot_Client(SlotID);
 	});
 }
 
 void ATD_PlayerController::RemoveSkillSlot_Server(const FGuid& CharacterID, const FGuid& SlotID) {
 	TArray<ARuleOfCharacter*> CharacterArray;
-	StoneDefenceUtils::FindFitTargetAndExecution(CharacterID, [&](ARuleOfCharacter* InCharacter) {
+	StoneDefenceUtils::FindFitTargetAndExecution(GetWorld(), CharacterID, [&](ARuleOfCharacter* InCharacter) {
 		InCharacter->RemoveSkillSlot_Client(SlotID);
 	});
 }

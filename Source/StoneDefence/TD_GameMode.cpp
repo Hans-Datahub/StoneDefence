@@ -340,7 +340,7 @@ void ATD_GameMode::UpdateSkill(float DeltaSeconds) {
 			}
 
 			if (Index != FGuid()) 
-				for (TPair<FGuid, FCharacterData> GameTemp : NewGameState->GetSaveData()->CharacterDatas) 
+				for (TPair<FGuid, FCharacterData>& GameTemp : NewGameState->GetSaveData()->CharacterDatas) 
 					if (GameTemp.Key == Index)
 						return &GameTemp;
 			return nullptr;
@@ -348,7 +348,7 @@ void ATD_GameMode::UpdateSkill(float DeltaSeconds) {
 
 		//获取技能队列
 		const TArray<FSkillData*>& SkillDataTemplate = NewGameState->GetSkillDataFromTable();
-		//获取所有技能
+		//获取所有角色的所有技能
 		for (auto& Temp : NewGameState->GetSaveData()->CharacterDatas) {
 			//计算与更新清除列表
 			TArray<FGuid> RemoveSkillArray;

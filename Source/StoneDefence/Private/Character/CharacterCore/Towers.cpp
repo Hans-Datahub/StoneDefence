@@ -37,10 +37,10 @@ void ATowers::RegisterTeam() {
 void ATowers::OnClicked(UPrimitiveComponent* TouchedComponent, FKey ButtonPressed) {
 	Super::OnClicked(TouchedComponent, ButtonPressed);
 
-	if (ClickedTower) {
-		ClickedTower = nullptr;
-	}
-	else {
-		ClickedTower = this;
-	}
+	//if (ClickedTower) {
+	//	ClickedTower = nullptr;
+	//}
+	//else {
+	//	ClickedTower = this;
+	//}
 }

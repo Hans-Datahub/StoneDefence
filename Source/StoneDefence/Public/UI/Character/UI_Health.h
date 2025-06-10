@@ -30,6 +30,6 @@ public:
 	virtual void NativeConstruct() override;
 	void SetTitle(const FString& Msg);
 	void SetHealth(float HealthValue);
-	void AddTakenSkillSlot(FGuid TakenSkillID);
-	bool RemoveTakenSkillSlot(FGuid TakenSkillID);
+	void AddTakenSkillSlot(const FGuid &TakenSkillID);
+	bool RemoveTakenSkillSlot(const FGuid &TakenSkillID);
 };

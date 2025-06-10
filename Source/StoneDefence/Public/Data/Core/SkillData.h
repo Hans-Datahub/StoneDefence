@@ -3,9 +3,8 @@
 #include "CoreMinimal.h"
 #include "Data/Core/SkillDataCore.h"
 #include "../StoneDefenceType.h"
+#include "Character/Projectile/RuleOfProjectile.h"
 #include "SkillData.generated.h"
-
-class ARuleOfProjectile;
 
 USTRUCT(BlueprintType)
 struct FSkillData : public FSkillDataCore {
@@ -22,6 +21,8 @@ public:
 		UTexture2D* SkillIcon;
 	UPROPERTY(EditDefaultsOnly, Category = "Skill Attribute")
 		TSubclassOf<ARuleOfProjectile> ProjectileClass;
+	UPROPERTY(EditDefaultsOnly, Category = "Skill Attribute")
+		FText SkillIntroduction;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Skill Profit")
 		float GoldModify;

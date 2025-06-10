@@ -3,6 +3,7 @@
 
 #include "UI/GameUI/UMG/Tip/UI_TowerTip.h"
 #include "Components/TextBlock.h"
+#include "Components/ProgressBar.h"
 #include "Data/Core/CharacterData.h"
 #include "Components/MultiLineEditableTextBox.h"
 

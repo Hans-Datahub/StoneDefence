@@ -5,9 +5,10 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "../StoneDefenceType.h"
-#include "Character/Core/RuleOfCharacter.h"
 #include "Components/SplineComponent.h"
 #include "RuleOfProjectile.generated.h"
+
+class ARuleOfCharacter;
 
 UCLASS()
 class STONEDEFENCE_API ARuleOfProjectile : public AActor
@@ -18,13 +19,13 @@ public:
 	// Sets default values for this actor's properties
 	ARuleOfProjectile();
 
-	//Åö×²Ïä
+	//ç¢°æ’ç®±
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BaseAttrubute", meta = (AllowPrivateAccess = true))
 	class USphereComponent* ProjectileCollision;
-	//×÷Îª¸ù×é¼ş
+	//ä½œä¸ºæ ¹ç»„ä»¶
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BaseAttrubute", meta = (AllowPrivateAccess = true))
 	class USceneComponent* RootProjectile;
-	//ÒÆ¶¯×é¼ş
+	//ç§»åŠ¨ç»„ä»¶
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BaseAttrubute", meta = (AllowPrivateAccess = true))
 	class UProjectileMovementComponent* ProjectileMovement;
 
@@ -35,12 +36,12 @@ protected:
 	void ChainAttack();
 
 	UFUNCTION()
-	void BeginOverlap(UPrimitiveComponent* ObjectiveOverlappedComponent,/*Ö÷ÌåËùÖØµşµÄ×é¼ş*/
-					  AActor* SubjectiveActor,						   /*Ä¿±êActor*/
-					  UPrimitiveComponent* SubjectiveComp,			  /*Ä¿±êÖØµş×é¼ş*/
-					  int32 SubjectIndex,							 /*Ä¿±êID*/
-					  bool IsScanning,								/*ÊÇ·ñ¿ªÊ¼É¨Ãè*/
-					  const FHitResult& ScanResult);			   /*É¨Ãè½á¹û*/
+	void BeginOverlap(UPrimitiveComponent* ObjectiveOverlappedComponent,/*ä¸»ä½“æ‰€é‡å çš„ç»„ä»¶*/
+					  AActor* SubjectiveActor,						   /*ç›®æ ‡Actor*/
+					  UPrimitiveComponent* SubjectiveComp,			  /*ç›®æ ‡é‡å ç»„ä»¶*/
+					  int32 SubjectIndex,							 /*ç›®æ ‡ID*/
+					  bool IsScanning,								/*æ˜¯å¦å¼€å§‹æ‰«æ*/
+					  const FHitResult& ScanResult);			   /*æ‰«æç»“æœ*/
 
 public:	
 	// Called every frame
@@ -48,10 +49,10 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 	TEnumAsByte<EProjectileType> ProjectileType;
-	//×Óµ¯ÉËº¦ÌØĞ§
+	//å­å¼¹ä¼¤å®³ç‰¹æ•ˆ
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 	UParticleSystem* DamageParticle;
-	//¿ª»ğÌØĞ§
+	//å¼€ç«ç‰¹æ•ˆ
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 	UParticleSystem* OpenFireParticle;
 

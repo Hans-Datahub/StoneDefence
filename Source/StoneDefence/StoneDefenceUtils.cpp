@@ -155,13 +155,15 @@ AActor* StoneDefenceUtils::SpawnProjectile(UWorld* World, APawn* NewPawn, UClass
 	return nullptr;
 }
 
-void FindFitTargetAndExecution(const FGuid& CharacterID, TFunction<void(ARuleOfCharacter* InCharacter)>Code) {
-	TArray<ARuleOfCharacter*> CharacterArray;
-	StoneDefenceUtils::GetAllActor(GetWorld(), CharacterArray);
-	for (ARuleOfCharacter* Temp : CharacterArray) {
-		if (Temp->GUID == CharacterID) {
-			Code(Temp);	//此处是把Temp传给了InCharacter，即传给Code这个函数的形参,并非反之	
-			break;
+void StoneDefenceUtils::FindFitTargetAndExecution(UWorld* World, const FGuid& CharacterID, TFunction<void(ARuleOfCharacter* InCharacter)>Code) {
+	if (World) {
+		TArray<ARuleOfCharacter*> CharacterArray;
+		StoneDefenceUtils::GetAllActor(World, CharacterArray);
+		for (ARuleOfCharacter* Temp : CharacterArray) {
+			if (Temp->GUID == CharacterID) {
+				Code(Temp);	//此处是把Temp传给了InCharacter，即传给Code这个函数的形参,并非反之	
+				break;
+			}
 		}
 	}
 }

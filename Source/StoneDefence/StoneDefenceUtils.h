@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "EngineUtils.h"
 #include "Character/Core/RuleOfCharacter.h"
 #include "Data/Core/CharacterData.h"
 #include "Engine/StaticMeshActor.h"
@@ -11,6 +12,8 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "Particles/TypeData/ParticleModuleTypeDataMesh.h"
 #include "Core/GameCore/TD_GameState.h"
+
+#include "CHaracter/CharacterCore/Towers.h"
 
 
 class AActor;
@@ -34,7 +37,7 @@ namespace StoneDefenceUtils {
 	template<class T1, class T2>
 	void GetAllActor(UWorld* World, TArray<T2*>& Array) {
 		for (TActorIterator<T1>It(World, T1::StaticClass()); It; ++It) {
-			if (T2* A = Cast<T1>(*It)) {
+			if (T2* A = Cast<T2>(*It)) {//T1更改为T2后，*It到A的转换便由隐式转换变为了显式转换（即Cast），不知为何教程为T1
 				Array.Add(A);
 			}
 		}
@@ -62,7 +65,7 @@ namespace StoneDefenceUtils {
 	}
 
 	//Execution() -> FindFitTargetAndExecution()
-	void FindFitTargetAndExecution(const FGuid& CharacterID, TFunction<void(ARuleOfCharacter* InCharacter)>Code);
+	void FindFitTargetAndExecution(UWorld* World, const FGuid& CharacterID, TFunction<void(ARuleOfCharacter* InCharacter)>Code);
 }
 
 namespace Expression {

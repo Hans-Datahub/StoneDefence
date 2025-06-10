@@ -4,12 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "../StoneDefenceType.h"
 #include "Interface/Character/RuleCharacter.h"
-#include "Core/GameCore/TD_PlayerController.h"
-#include "Core/GameCore/TD_GameState.h"
-#include "Core/GameCore/TD_PlayerState.h"
+#include "../StoneDefenceType.h"
 #include "RuleOfCharacter.generated.h"
+
+//class ATD_PlayerController;
+class ATD_GameState;
+class ATD_PlayerState;
 
 UCLASS()
 class STONEDEFENCE_API ARuleOfCharacter : public ACharacter , public IRuleCharacter
@@ -49,47 +50,34 @@ public:
 	float DeathDelayTime;
 
 	UPROPERTY(EditDefaultsOnly, Category = Type)
-		TEnumAsByte<EGameCharacterType::Type> CharacterType;
+	TEnumAsByte<EGameCharacterType::Type> CharacterType;
 
-
-
-public:
 	// Sets default values for this character's properties
 	ARuleOfCharacter();
 
-	FORCEINLINE ATD_PlayerController* GetGameController(){
-		return GetWorld() ? GetWorld()->GetFirstPlayerController<ATD_PlayerController>() : NULL;
-	}
-	FORCEINLINE ATD_GameState* GetGameState() {
-		return GetWorld() ? GetWorld()-> GetGameState<ATD_GameState>(): NULL;
-	}
-	FORCEINLINE ATD_PlayerState* GetPlayerState() {
-		return GetGameController()->GetPlayerState<ATD_PlayerState>();
-	}
+	class ATD_PlayerController* GetGameController();
+
+	class ATD_GameState* GetGameState();
+
+	class ATD_PlayerState* GetPlayerState();
+
+
 	//暴露给反射系统
 	FORCEINLINE USceneComponent* GetHomingPoint() const { return HomingPoint; }
 	FORCEINLINE UArrowComponent* GetFirePoint() const { return OpenFirePoint; }
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
-	virtual bool IsAttack();
 
-	UFUNCTION()
-	virtual void OnClicked(UPrimitiveComponent* TouchedComponent, FKey ButtonPressed);
-public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(Blueprintable, BlueprintPure, Category = "Towers|Attribute")
-	bool IsActive() { return !IsDeath(); };
+		bool IsActive() { return !IsDeath(); };
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CharacterAttribute")
-	bool Isattack;//为了区别同名函数与变量，函数所有首字母大写，变量仅开头字母大写
+		bool Isattack;//为了区别同名函数与变量，函数所有首字母大写，变量仅开头字母大写
 
 	UFUNCTION(Blueprintable, BlueprintPure, Category = "Towers|Test")
-	UStaticMesh* GetDollMesh(FTransform& Transform);
+		UStaticMesh* GetDollMesh(FTransform& Transform);
 
 	virtual EGameCharacterType::Type GetType();
 	virtual bool IsDeath();
@@ -105,5 +93,15 @@ public:
 	UFUNCTION()
 		void AddSkillSlot_Client(const FGuid& SlotID);
 	UFUNCTION()
-		void RemoveSkillSlot_Client(const FGuid& SlotID);
+		bool RemoveSkillSlot_Client(const FGuid& SlotID);
+
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+	virtual bool IsAttack();
+
+	UFUNCTION()
+	virtual void OnClicked(UPrimitiveComponent* TouchedComponent, FKey ButtonPressed);
+
 };

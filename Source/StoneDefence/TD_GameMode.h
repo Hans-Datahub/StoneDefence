@@ -40,7 +40,7 @@ protected:
 		return Cast<T>(SpawnCharacter(CharacterID, CharacterLevel, InCharacterData, Location, Rotator));
 	}
 
-	//¼¼ÄÜÏµÍ³¸üÐÂ
+	//æŠ€èƒ½ç³»ç»Ÿæ›´æ–°
 	void UpdateSkill(float DeltaSeconds);
 
 	void CallUpdateAllClient(TFunction<void(ATD_PlayerController* MyPlayerController)> InImplement);

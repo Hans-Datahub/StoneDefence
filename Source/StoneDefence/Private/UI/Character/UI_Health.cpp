@@ -4,6 +4,7 @@
 #include "UI/Character/UI_Health.h"
 
 
+
 void UUI_Health::NativeConstruct() {
 	Super::NativeConstruct();
 }
@@ -15,16 +16,20 @@ void UUI_Health::SetTitle(const FString& Msg) {
 void UUI_Health::SetHealth(float HealthValue) {
 	Health->SetPercent(HealthValue);
 }
-void UUI_Health::AddTakenSkillSlot(FGuid TakenSkillID) {
+void UUI_Health::AddTakenSkillSlot(const FGuid& TakenSkillID) {
 	if (TakenSkillSlotClass) {
 		if (UUI_TakenSkillSlot* SkillSlot = CreateWidget<UUI_TakenSkillSlot>(GetWorld(), TakenSkillSlotClass)) {
 			SkillSlot->GUID = TakenSkillID;
-			TakenSkillList->AddChild(SkillSlot);
+			if (SkillSlot->GetSkillData().IsValid()) {
+				UTexture2D* SkillICON = SkillSlot->GetSkillData().SkillIcon/*.LoadSynchronous()*/;
+				SkillSlot->SetTexture(SkillICON);
+				TakenSkillList->AddChild(SkillSlot);
+			}			
 		}
 	}
 }
 
-bool UUI_Health::RemoveTakenSkillSlot(FGuid TakenSkillID) {
+bool UUI_Health::RemoveTakenSkillSlot(const FGuid& TakenSkillID) {
 	UUI_TakenSkillSlot* RemoveSlot = nullptr;
 	for (UPanelSlot* PanelSlot : TakenSkillList->GetSlots()) {
 		if (UUI_TakenSkillSlot* SkillSlot = Cast<UUI_TakenSkillSlot>(PanelSlot->Content)) {
