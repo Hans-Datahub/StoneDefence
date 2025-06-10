@@ -3,25 +3,26 @@
 
 #include "Core/GameCore/TD_PlayerState.h"
 #include "../StoneDefenceUtils.h"
+#include "../StoneDefenceMacro.h"
 
 ATD_PlayerState::ATD_PlayerState() {
-	//¸øBuildingTowers¼ÓÈë21¸ö¶ÔÏó£¬¶ÔÓ¦UIÉÏµÄ21¸ö·ÀÓùËş²ÛÎ»
+	//ç»™BuildingTowersåŠ å…¥21ä¸ªå¯¹è±¡ï¼Œå¯¹åº”UIä¸Šçš„21ä¸ªé˜²å¾¡å¡”æ§½ä½
 	for (int32 i = 0; i < 21; i++)
 		GetSaveData()->BuildingTowers.Add(FGuid::NewGuid(), FBuildingTowers());
 }
 
 FPlayerData& ATD_PlayerState::GetPlayerData() {
 	//if (ATD_GameState* GameState = GetGameState<ATD_GameState>())
-	//	TD_LOGPRINT(Error, "ATD_PlayerState::GetPlayerData() £º GetGameState Successed.");
+	//	TD_LOGPRINT(Error, "ATD_PlayerState::GetPlayerData() ï¼š GetGameState Successed.");
 	//else 
-	//	TD_LOGPRINT(Error, "ATD_PlayerState::GetPlayerData() £º GetGameState failed.");
+	//	TD_LOGPRINT(Error, "ATD_PlayerState::GetPlayerData() ï¼š GetGameState failed.");
 
 	return GetSaveData()->PlayerDatas;
 
 }
 
 FBuildingTowers& ATD_PlayerState::GetBuildingTower(const FGuid& ID) {
-	//ÈôIDËùÖ¸Ä¿±êÔÚCharacterDatasÖĞÎ´µÇ¼Ç£¬Ôò±¨´í"The Current [ID] was not found"
+	//è‹¥IDæ‰€æŒ‡ç›®æ ‡åœ¨CharacterDatasä¸­æœªç™»è®°ï¼Œåˆ™æŠ¥é”™"The Current [ID] was not found"
 	if (GetSaveData()->BuildingTowers.Contains(ID)) {//BuildingTowers
 		return GetSaveData()->BuildingTowers[ID];
 	}
@@ -45,15 +46,15 @@ const FBuildingTowers& ATD_PlayerState::AddBuildingTower(const FGuid& ID, const 
 	return GetSaveData()->BuildingTowers.Add(ID, Data);
 }
 
-void ATD_PlayerState::RequestInventorySlotSwap(const FGuid& A, const FGuid& B) {//AÎªÄ¿±êÎ»ÖÃ£¬BÎªÔ­Î»ÖÃ
+void ATD_PlayerState::RequestInventorySlotSwap(const FGuid& A, const FGuid& B) {//Aä¸ºç›®æ ‡ä½ç½®ï¼ŒBä¸ºåŸä½ç½®
 	FBuildingTowers& ASlot = GetBuildingTower(A);
 	FBuildingTowers& BSlot = GetBuildingTower(B);
-	if (ASlot.IsValid()) {//ÈôÄ¿±êÎ»ÖÃÓĞÖµ£¬½»»»
+	if (ASlot.IsValid()) {//è‹¥ç›®æ ‡ä½ç½®æœ‰å€¼ï¼Œäº¤æ¢
 		FBuildingTowers TempSlot = ASlot;
 		ASlot = BSlot;
 		BSlot = TempSlot;
 	}
-	else {//·ñÔòÒÆ¶¯
+	else {//å¦åˆ™ç§»åŠ¨
 		ASlot = BSlot;
 		BSlot.Init();
 	}

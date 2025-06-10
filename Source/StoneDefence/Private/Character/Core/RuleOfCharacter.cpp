@@ -252,3 +252,7 @@ bool ARuleOfCharacter::RemoveSkillSlot_Client(const FGuid& SlotID) {
 	return false;
 }
 
+void ARuleOfCharacter::ResetGUID() {
+	GUID = FGuid::NewGuid();
+}
+

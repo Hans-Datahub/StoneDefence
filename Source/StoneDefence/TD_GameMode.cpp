@@ -211,6 +211,7 @@ ARuleOfCharacter* ATD_GameMode::SpawnCharacter(int32 CharacterID,
 				UClass* NewClass = CharacterData->CharacterBlueprintKey.LoadSynchronous();//负载同步
 				if (GetWorld())
 					if (ARuleOfCharacter* RuleOfCharacter = GetWorld()->SpawnActor<ARuleOfCharacter>(NewClass, Location, Rotator)) {
+						RuleOfCharacter->ResetGUID();
 						FCharacterData& CharacterDataInstance = TempGameState->AddCharacterData(RuleOfCharacter->GUID, *CharacterData);
 						CharacterDataInstance.UpdateHealth();
 
@@ -285,12 +286,12 @@ void ATD_GameMode::UpdateSkill(float DeltaSeconds) {
 			}
 			return false;
 		};
-		//为单个角色添加技能
+		//为单个角色添加承受技能
 		auto AddSkill = [&](TPair<FGuid, FCharacterData>& SkillTakerData, FSkillData& InSkill) {
 			if (!IsVerificationSkill(SkillTakerData.Value, InSkill.SkillID)) {
 				FGuid TempSkillID = FGuid::NewGuid();	
 
-				SkillTakerData.Value.AdditionalSkillData.Add(TempSkillID, InSkill);
+				SkillTakerData.Value.AdditionalSkillData.Add(TempSkillID, InSkill).ResetDuration();
 
 				//通知代理 在UI模块显示相应技能图标	
 				CallUpdateAllClient([&](ATD_PlayerController* MyPlayerController) {
@@ -299,7 +300,7 @@ void ATD_GameMode::UpdateSkill(float DeltaSeconds) {
 				);
 			}
 		};
-		//为多个角色添加技能
+		//为多个角色添加承受技能
 		auto AddSkills = [&](TArray<TPair<FGuid, FCharacterData>*>& SkillTakerDataArray, FSkillData& InSkill) {
 			for (auto& Data : SkillTakerDataArray) {
 				AddSkill(*Data, InSkill);
@@ -353,6 +354,7 @@ void ATD_GameMode::UpdateSkill(float DeltaSeconds) {
 			//计算与更新清除列表
 			TArray<FGuid> RemoveSkillArray;
 			for (auto& SkillTemp : Temp.Value.AdditionalSkillData) {
+				SkillTemp.Value.SkillDuration -= DeltaSeconds;
 				if (SkillTemp.Value.SkillType.SkillTimeType == ESkillTimeType::BURST)
 					RemoveSkillArray.Add(SkillTemp.Key);
 				//若为
@@ -365,9 +367,8 @@ void ATD_GameMode::UpdateSkill(float DeltaSeconds) {
 				}
 				//若为持续性技能，每秒执行一次增减益
 				if (SkillTemp.Value.SkillType.SkillTimeType == ESkillTimeType::ITERATION) {
-					SkillTemp.Value.SkillDuration += DeltaSeconds;
-					if (SkillTemp.Value.SkillDuration >= 1.0f) {
-						SkillTemp.Value.SkillDuration = 0.f;
+					
+					if (SkillTemp.Value.SkillDuration <= 0.f) {
 						//若为增益
 						if (SkillTemp.Value.SkillType.SkillBoostType == ESkillBoostType::ADD) {
 							Temp.Value.Health += SkillTemp.Value.HealthModify;
@@ -404,9 +405,9 @@ void ATD_GameMode::UpdateSkill(float DeltaSeconds) {
 
 			//更新每一个技能的CD
 			for (auto& InSkill : Temp.Value.CharacterSkill) {
-				InSkill.SkillCD += DeltaSeconds;
-				if (InSkill.SkillCD >= InSkill.MaxSkillCD) {
-					InSkill.SkillCD = 0.f;
+				InSkill.SkillCD -= DeltaSeconds;
+				if (InSkill.SkillCD <= 0.f) {
+					InSkill.SkillCD = InSkill.MaxSkillCD;
 					//判断该技能是群体 或单体攻击					
 					if (InSkill.SkillType.SkillTargetNumType == ESkillTargetNumType::MULTIPLE) {
 						TArray<TPair<FGuid, FCharacterData>*> SkillTakerDataArray;

@@ -21,7 +21,7 @@ class AMonsters;
 ATD_GameState::ATD_GameState() {
 	PrimaryActorTick.bCanEverTick = true;
 
-	//½ÇÉ«ÅäÖÃ±íÂ·¾¶²éÕÒÓë¸³Öµ
+	//è§’è‰²é…ç½®è¡¨è·¯å¾„æŸ¥æ‰¾ä¸èµ‹å€¼
 	static ConstructorHelpers::FObjectFinder<UDataTable> MyTable_Towers(TEXT("/Game/GameData/TowersData"));
 	static ConstructorHelpers::FObjectFinder<UDataTable> MyTable_Monsters(TEXT("/Game/GameData/MonstersData"));
 	static ConstructorHelpers::FObjectFinder<UDataTable> MyTable_Skill(TEXT("/Game/GameData/CharacterSkillData"));
@@ -74,7 +74,7 @@ bool ATD_GameState::RemoveCharacterData(const FGuid& ID) {
 }
 
 FCharacterData& ATD_GameState::GetCharacterData(const FGuid& ID) {
-	//ÈôIDËùÖ¸Ä¿±êÔÚCharacterDatasÖĞÎ´µÇ¼Ç£¬Ôò±¨´í"The Current [ID] is invalid"
+	//è‹¥IDæ‰€æŒ‡ç›®æ ‡åœ¨CharacterDatasä¸­æœªç™»è®°ï¼Œåˆ™æŠ¥é”™"The Current [ID] is invalid"
 	if (GetSaveData()->CharacterDatas.Contains(ID)) {
 		return GetSaveData()->CharacterDatas[ID];
 	}
@@ -85,19 +85,19 @@ FCharacterData& ATD_GameState::GetCharacterData(const FGuid& ID) {
 }
 
 const TArray<FCharacterData*>& ATD_GameState::GetTowerDataFromTable() {
-	if (!CacheTowerDatas.Num()) //Èô»º´æÄÚÎŞÊı¾İ£¬Ö±½Ó¶ÁÈ¡ĞĞ
+	if (!CacheTowerDatas.Num()) //è‹¥ç¼“å­˜å†…æ— æ•°æ®ï¼Œç›´æ¥è¯»å–è¡Œ
 		AITowerCharacterData->GetAllRows(TEXT("Character Data"), CacheTowerDatas);
 	return CacheTowerDatas;
 }
 
 const TArray<FCharacterData*>& ATD_GameState::GetMonsterDataFormTable() {
-	if (!CacheMonsterDatas.Num()) //Èô»º´æÄÚÎŞÊı¾İ£¬Ö±½Ó¶ÁÈ¡ĞĞ
+	if (!CacheMonsterDatas.Num()) //è‹¥ç¼“å­˜å†…æ— æ•°æ®ï¼Œç›´æ¥è¯»å–è¡Œ
 		AIMonsterCharacterData->GetAllRows(TEXT("Character Data"), CacheMonsterDatas);
 	return CacheMonsterDatas;
 }
 
 const TArray<FSkillData*>& ATD_GameState::GetSkillDataFromTable() {
-	if (!CacheSkillDatas.Num()) //Èô»º´æÄÚÎŞÊı¾İ£¬Ö±½Ó¶ÁÈ¡ĞĞ
+	if (!CacheSkillDatas.Num()) //è‹¥ç¼“å­˜å†…æ— æ•°æ®ï¼Œç›´æ¥è¯»å–è¡Œ
 		CharacterSkillData->GetAllRows(TEXT("Skill Data"), CacheSkillDatas);
 	return CacheSkillDatas;
 }
@@ -133,9 +133,9 @@ const FCharacterData& ATD_GameState::GetCharacterDataByID(int32 ID, ECharacterTy
 }
 
 FCharacterData& ATD_GameState::GetCharacterDataNULL() {
-	//´Ë´¦½«CharacterDataNULL»»ÎªDummyDataÊÇÎªÁËÔÚ±à¼­Æ÷×´Ì¬ÏÂ²»´¥·¢½âÒıÓÃ¿ÕÖ¸ÕëµÄ±¨´í
-	//ÒòÎª±à¼­Æ÷×´Ì¬ÏÂ»ñÈ¡²»µ½GameState£¬´Ó¶øGetCharacterDataÊÇÔÚ½âÒıÓÃ¿ÕÖ¸Õë
-	//¾²Ì¬±äÁ¿ÄÜ¹»ÔÚÕû¸ö³ÌĞòÉúÃüÖÜÆÚÄÚ´æÔÚ£¬¹Ê²»»á³öÏÖ½âÒıÓÃ¿ÕÖ¸ÕëµÄÇé¿ö£¬ËäÈ»¿ÉÄÜÃ»Öµ£¬µ«Ò»¶¨ÓĞµØÖ·
+	//æ­¤å¤„å°†CharacterDataNULLæ¢ä¸ºDummyDataæ˜¯ä¸ºäº†åœ¨ç¼–è¾‘å™¨çŠ¶æ€ä¸‹ä¸è§¦å‘è§£å¼•ç”¨ç©ºæŒ‡é’ˆçš„æŠ¥é”™
+	//å› ä¸ºç¼–è¾‘å™¨çŠ¶æ€ä¸‹è·å–ä¸åˆ°GameStateï¼Œä»è€ŒGetCharacterDataæ˜¯åœ¨è§£å¼•ç”¨ç©ºæŒ‡é’ˆ
+	//é™æ€å˜é‡èƒ½å¤Ÿåœ¨æ•´ä¸ªç¨‹åºç”Ÿå‘½å‘¨æœŸå†…å­˜åœ¨ï¼Œæ•…ä¸ä¼šå‡ºç°è§£å¼•ç”¨ç©ºæŒ‡é’ˆçš„æƒ…å†µï¼Œè™½ç„¶å¯èƒ½æ²¡å€¼ï¼Œä½†ä¸€å®šæœ‰åœ°å€
 	static FCharacterData DummyData;
 	return DummyData;
 }
@@ -150,10 +150,8 @@ FSkillData& ATD_GameState::AddSkillData(const FGuid& CharacterID, const FGuid& S
 }
 FSkillData& ATD_GameState::GetSkillData(const FGuid& SkillID) {
 	for (auto& Temp : GetSaveData()->CharacterDatas) {
-		for (auto& SkillTemp: Temp.Value.AdditionalSkillData) {
-			if (SkillTemp.Key == SkillID) {
-				return SkillTemp.Value;
-			}
+		if(Temp.Value.AdditionalSkillData.Contains(SkillID)){
+			return Temp.Value.AdditionalSkillData[SkillID];
 		}
 	}
 	return SkillDataNULL;
@@ -161,11 +159,9 @@ FSkillData& ATD_GameState::GetSkillData(const FGuid& SkillID) {
 FSkillData& ATD_GameState::GetSkillData(const FGuid& CharacterID, const FGuid& SkillID){
 	FCharacterData& CharacterData = GetCharacterData(CharacterID);
 	if (CharacterData.IsValid()) {
-		for (auto& Temp : CharacterData.AdditionalSkillData) {
-			if (Temp.Key == SkillID) {
-				return Temp.Value;
-			}
-		}
+		if (CharacterData.AdditionalSkillData.Contains(SkillID))
+			return CharacterData.AdditionalSkillData[SkillID];
+
 	}
 	return SkillDataNULL;
 }
@@ -183,6 +179,7 @@ void ATD_GameState::InitSkill(FCharacterData& InCharacterData) {
 		for (const FSkillData* NewSkill : InSkillData) {
 			if (NewSkill->SkillID == Temp) {
 				InCharacterData.CharacterSkill.Add(*NewSkill); 
+				InCharacterData.CharacterSkill[InCharacterData.CharacterSkill.Num() - 1].ResetCD();
 				break;
 			}
 		}

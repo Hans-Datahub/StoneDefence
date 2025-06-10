@@ -6,9 +6,10 @@
 #include "Components/Border.h"
 #include "Components/Image.h"
 #include "Data/Core/SkillData.h"
+#include "UI/Core/UI_RuleOfWidget.h"
 #include "UI_TakenSkillSlot.generated.h"
 
-//±¾ÀàÔÚ½Ì³ÌÖĞÔ­Ãû£º¡°UICharacterSkillSlot¡±
+//æœ¬ç±»åœ¨æ•™ç¨‹ä¸­åŸåï¼šâ€œUICharacterSkillSlotâ€
 UCLASS()
 class STONEDEFENCE_API UUI_TakenSkillSlot : public UUI_RuleOfWidget {
 	GENERATED_BODY()

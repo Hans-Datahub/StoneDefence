@@ -95,6 +95,8 @@ public:
 	UFUNCTION()
 		bool RemoveSkillSlot_Client(const FGuid& SlotID);
 
+	void ResetGUID();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

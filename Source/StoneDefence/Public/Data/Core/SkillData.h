@@ -24,6 +24,20 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Skill Attribute")
 		FText SkillIntroduction;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Skill Attribute")
+		float MaxSkillDuration;
+	UPROPERTY()
+		float SkillDuration;
+
+	UPROPERTY()//进行技能计时，随时间累加，每秒重置一次
+		float SkillCountTime;//SkillDuratoinTime -> SkillCountTime
+
+	UPROPERTY(EditDefaultsOnly, Category = "Skill Attribute")
+		float SkillCD;
+	UPROPERTY(EditDefaultsOnly, Category = "Skill Attribute")
+		float MaxSkillCD; // = CDTime
+
+
 	UPROPERTY(EditDefaultsOnly, Category = "Skill Profit")
 		float GoldModify;
 	UPROPERTY(EditDefaultsOnly, Category = "Skill Profit")
@@ -38,18 +52,12 @@ public:
 		float CDModify;
 	UPROPERTY(EditDefaultsOnly, Category = "Skill Profit")
 		float AttackRange;//若为多单位攻击，0代表全场景所有敌人
-	UPROPERTY(EditDefaultsOnly, Category = "Skill Profit")
-		float MaxSkillDuration;
-	UPROPERTY()
-		float SkillDuration;
 
 
-	UPROPERTY(EditDefaultsOnly, Category = "Skill Profit")
-		float SkillCD;
-	UPROPERTY(EditDefaultsOnly, Category = "Skill Profit")
-		float MaxSkillCD;
-
-	float GetSkillCDPercentage() const;
+	float GetDurationPercentage() const;
+	float GetSkillCDPercentage() const;// = GetCDPercent()
+	void ResetDuration();
+	void ResetCD();
 };
 
 

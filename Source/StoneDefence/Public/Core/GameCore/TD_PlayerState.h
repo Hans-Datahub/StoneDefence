@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerState.h"
 #include "Data/Save/PlayerSaveData.h"
 #include "Data/Save/GameSaveData.h"
+#include "Kismet/GameplayStatics.h"
 #include "TD_PlayerState.generated.h"
 
 
@@ -22,7 +23,7 @@ public:
 	FPlayerData& GetPlayerData();
 	FBuildingTowers& GetBuildingTower(const FGuid& ID);
 	const TArray<const FGuid*> GetBuildingTowersID();
-	//Ëş½¨Ôì¶ÓÁĞÊı¾İÔöÉ¾
+	//å¡”å»ºé€ é˜Ÿåˆ—æ•°æ®å¢åˆ 
 	const FBuildingTowers& AddBuildingTower(const FGuid& ID, const FBuildingTowers& Data);
 	void RequestInventorySlotSwap(const FGuid& A, const FGuid& B);
 	UPlayerSaveData* GetSaveData();
