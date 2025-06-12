@@ -42,7 +42,7 @@ void ATD_GameMode::Tick(float DeltaSeconds) {
 
 	if (ATD_GameState* TempGameState = GetGameState<ATD_GameState>()) {
 
-		CallUpdateAllClient([&](ATD_PlayerController* MyPlayerController) {
+		StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATD_PlayerController* MyPlayerController) {
 				if (ATD_PlayerState* PlayerState = MyPlayerController->GetPlayerState<ATD_PlayerState>()) {
 					//每1.25秒+1金币
 					PlayerState->GetPlayerData().GameGoldTime += DeltaSeconds;
@@ -278,34 +278,6 @@ void ATD_GameMode::UpdateSkill(float DeltaSeconds) {
 			}
 		};
 
-		auto IsVerificationSkill = [](FCharacterData& SkillList, int32 SkillID)-> bool {//此处SkillList前的const由于在AddSkill表达式中，TMap.Add()不能传入Const值，故删掉
-			for (auto& AdditionalSkill : SkillList.AdditionalSkillData) {
-				if (AdditionalSkill.Value.SkillID == SkillID) {
-					return true;
-				}
-			}
-			return false;
-		};
-		//为单个角色添加承受技能
-		auto AddSkill = [&](TPair<FGuid, FCharacterData>& SkillTakerData, FSkillData& InSkill) {
-			if (!IsVerificationSkill(SkillTakerData.Value, InSkill.SkillID)) {
-				FGuid TempSkillID = FGuid::NewGuid();	
-
-				SkillTakerData.Value.AdditionalSkillData.Add(TempSkillID, InSkill).ResetDuration();
-
-				//通知代理 在UI模块显示相应技能图标	
-				CallUpdateAllClient([&](ATD_PlayerController* MyPlayerController) {
-					MyPlayerController->AddSkillSlot_Server(SkillTakerData.Key, TempSkillID);
-					}
-				);
-			}
-		};
-		//为多个角色添加承受技能
-		auto AddSkills = [&](TArray<TPair<FGuid, FCharacterData>*>& SkillTakerDataArray, FSkillData& InSkill) {
-			for (auto& Data : SkillTakerDataArray) {
-				AddSkill(*Data, InSkill);
-			}
-		};
 
 		auto FindMostClosedTargetInRange = [&](TPair<FGuid, FCharacterData>& InOwner, bool bAllies = false) -> TPair<FGuid, FCharacterData>* {
 			float TargetDistance = 9999999999;
@@ -351,95 +323,119 @@ void ATD_GameMode::UpdateSkill(float DeltaSeconds) {
 		const TArray<FSkillData*>& SkillDataTemplate = NewGameState->GetSkillDataFromTable();
 		//获取所有角色的所有技能
 		for (auto& Temp : NewGameState->GetSaveData()->CharacterDatas) {
-			//计算与更新清除列表
-			TArray<FGuid> RemoveSkillArray;
-			for (auto& SkillTemp : Temp.Value.AdditionalSkillData) {
-				SkillTemp.Value.SkillDuration -= DeltaSeconds;
-				if (SkillTemp.Value.SkillType.SkillTimeType == ESkillTimeType::BURST)
-					RemoveSkillArray.Add(SkillTemp.Key);
-				//若为
-				if (SkillTemp.Value.SkillType.SkillTimeType == ESkillTimeType::SECTION ||
-					SkillTemp.Value.SkillType.SkillTimeType == ESkillTimeType::ITERATION) {
-					SkillTemp.Value.SkillDuration += DeltaSeconds;
-					if (SkillTemp.Value.SkillDuration >= SkillTemp.Value.MaxSkillDuration) {
+			if (Temp.Value.Health > 0.f) {
+				//计算与更新清除列表
+				TArray<FGuid> RemoveSkillArray;//存储爆发类，作用时间结束的持续类技能
+				for (auto& SkillTemp : Temp.Value.AdditionalSkillData) {
+					SkillTemp.Value.SkillDuration -= DeltaSeconds;
+					if (SkillTemp.Value.SkillType.SkillTimeType == ESkillTimeType::BURST)
 						RemoveSkillArray.Add(SkillTemp.Key);
+					//若为
+					if (SkillTemp.Value.SkillType.SkillTimeType == ESkillTimeType::SECTION ||
+						SkillTemp.Value.SkillType.SkillTimeType == ESkillTimeType::ITERATION) {
+						SkillTemp.Value.SkillDuration += DeltaSeconds;
+						if (SkillTemp.Value.SkillDuration <= 0.f) {
+							RemoveSkillArray.Add(SkillTemp.Key);
+						}
+					}
+					//若为持续性技能，每秒执行一次增减益
+					if (SkillTemp.Value.SkillType.SkillTimeType == ESkillTimeType::ITERATION) {
+
+						if (SkillTemp.Value.SkillDuration <= 0.f) {
+							//若为增益
+							if (SkillTemp.Value.SkillType.SkillBoostType == ESkillBoostType::ADD) {
+								Temp.Value.Health += SkillTemp.Value.HealthModify;
+								Temp.Value.PhysicalAttack += SkillTemp.Value.PhysicalAttackModify;
+								Temp.Value.Armor += SkillTemp.Value.ArmorModify;
+								Temp.Value.AttackSpeed += SkillTemp.Value.AttackSpeedModify;
+								Temp.Value.Gold += SkillTemp.Value.GoldModify;
+
+							}
+							else {//若为减益
+								Temp.Value.Health -= SkillTemp.Value.HealthModify;
+								Temp.Value.PhysicalAttack -= SkillTemp.Value.PhysicalAttackModify;
+								Temp.Value.Armor -= SkillTemp.Value.ArmorModify;
+								Temp.Value.AttackSpeed -= SkillTemp.Value.AttackSpeedModify;
+								Temp.Value.Gold -= SkillTemp.Value.GoldModify;
+							}
+						}
+					}
+					//通知客户端渲染Projectile
+					StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATD_PlayerController* MyPlayerController) {
+						MyPlayerController->Spawn_Projectile_Server(Temp.Key, SkillTemp.Value.ProjectileClass);
+						});
+				}
+
+				//清除爆发类，作用时间结束的持续类技能
+				for (FGuid& RemoveID : RemoveSkillArray) {
+					//通知客户端移除技能图标
+					StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATD_PlayerController* MyPlayerController) {
+						MyPlayerController->RemoveSkillSlot_Server(Temp.Key, RemoveID);
+						});
+					Temp.Value.AdditionalSkillData.Remove(RemoveID);
+
+				}
+
+				TArray<FSkillData> RemoveRepeatedSkillArray;//存储重复施加的持续性技能
+				//更新每一个技能的CD
+				for (auto& InSkill : Temp.Value.CharacterSkill) {
+					InSkill.SkillCD -= DeltaSeconds;
+					if (InSkill.SkillCD <= 0.f) {
+						InSkill.SkillCD = InSkill.MaxSkillCD;
+
+						//为防止同种技能叠加，此处过滤掉已生效的技能
+						if (!InSkill.bSkillEffected) {//若技能未触发过，触发						
+							//判断该技能是群体 或单体攻击					
+							if (InSkill.SkillType.SkillTargetNumType == ESkillTargetNumType::MULTIPLE) {
+								TArray<TPair<FGuid, FCharacterData>*> SkillTakerDataArray;
+								if (InSkill.SkillType.SkillTargetType == ESkillTargetType::ALLIES)
+									GetSkillTaker(SkillTakerDataArray, Temp, InSkill.AttackRange, true);
+								else if (InSkill.SkillType.SkillTargetType == ESkillTargetType::ENEMY)
+									GetSkillTaker(SkillTakerDataArray, Temp, InSkill.AttackRange, false);
+								NewGameState->AddSkills(SkillTakerDataArray, InSkill);
+							}
+							else if (InSkill.SkillType.SkillTargetNumType == ESkillTargetNumType::SINGLE) {
+								TPair<FGuid, FCharacterData>* MostCloseTarget = nullptr;
+								if (InSkill.SkillType.SkillTargetType == ESkillTargetType::ALLIES) {
+									MostCloseTarget = FindMostClosedTargetInRange(Temp);
+								}
+								else if (InSkill.SkillType.SkillTargetType == ESkillTargetType::ENEMY) {
+									MostCloseTarget = FindMostClosedTargetInRange(Temp, true);
+								}
+								if (MostCloseTarget) {
+									NewGameState->AddSkill(*MostCloseTarget, InSkill);
+								}
+							}
+							InSkill.bSkillEffected = true;
+						}
+						else {
+							//若技能释放重复，重置CD , 并将该技能加入重复移除队列
+							InSkill.ResetCD();
+							RemoveRepeatedSkillArray.Add(InSkill);
+						}
 					}
 				}
-				//若为持续性技能，每秒执行一次增减益
-				if (SkillTemp.Value.SkillType.SkillTimeType == ESkillTimeType::ITERATION) {
+
+				//移除重复施加的持续性技能
+				for (FSkillData& RepeatedSkill : RemoveRepeatedSkillArray){
+					Temp.Value.CharacterSkill.Remove(RepeatedSkill);
+					if (RepeatedSkill.SubmissionSkillRequestType == ESubmissionSkillRequestType::AUTO) {
+						StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATD_PlayerController* MyPlayerController) {
+							MyPlayerController->Spawn_Projectile_Server(Temp.Key, RepeatedSkill.ProjectileClass);
+						});  
+					}
+					else if(RepeatedSkill.SubmissionSkillRequestType == ESubmissionSkillRequestType::MANUAL){
+						//手动不进行更新
+					}
 					
-					if (SkillTemp.Value.SkillDuration <= 0.f) {
-						//若为增益
-						if (SkillTemp.Value.SkillType.SkillBoostType == ESkillBoostType::ADD) {
-							Temp.Value.Health += SkillTemp.Value.HealthModify;
-							Temp.Value.PhysicalAttack += SkillTemp.Value.PhysicalAttackModify;
-							Temp.Value.Armor += SkillTemp.Value.ArmorModify;
-							Temp.Value.AttackSpeed += SkillTemp.Value.AttackSpeedModify;
-							Temp.Value.Gold += SkillTemp.Value.GoldModify;
-
-						}
-						else {//若为减益
-							Temp.Value.Health -= SkillTemp.Value.HealthModify;
-							Temp.Value.PhysicalAttack -= SkillTemp.Value.PhysicalAttackModify;
-							Temp.Value.Armor -= SkillTemp.Value.ArmorModify;
-							Temp.Value.AttackSpeed -= SkillTemp.Value.AttackSpeedModify;
-							Temp.Value.Gold -= SkillTemp.Value.GoldModify;
-						}
-					}
-				}
-				//通知客户端渲染Projectile
-				CallUpdateAllClient([&](ATD_PlayerController* MyPlayerController) {
-					MyPlayerController->Spawn_Projectile_Server(Temp.Key, SkillTemp.Value.ProjectileClass);
-					});
-			}
-
-			//清除
-			for (FGuid& RemoveID : RemoveSkillArray) {
-				//通知客户端移除技能图标
-				CallUpdateAllClient([&](ATD_PlayerController* MyPlayerController) {
-					MyPlayerController->RemoveSkillSlot_Server(Temp.Key, RemoveID);
-				});
-				Temp.Value.AdditionalSkillData.Remove(RemoveID);
-
-			}
-
-			//更新每一个技能的CD
-			for (auto& InSkill : Temp.Value.CharacterSkill) {
-				InSkill.SkillCD -= DeltaSeconds;
-				if (InSkill.SkillCD <= 0.f) {
-					InSkill.SkillCD = InSkill.MaxSkillCD;
-					//判断该技能是群体 或单体攻击					
-					if (InSkill.SkillType.SkillTargetNumType == ESkillTargetNumType::MULTIPLE) {
-						TArray<TPair<FGuid, FCharacterData>*> SkillTakerDataArray;
-						if (InSkill.SkillType.SkillTargetType == ESkillTargetType::ALLIES)
-							GetSkillTaker(SkillTakerDataArray, Temp, InSkill.AttackRange, true);
-						else if (InSkill.SkillType.SkillTargetType == ESkillTargetType::ENEMY)
-							GetSkillTaker(SkillTakerDataArray, Temp, InSkill.AttackRange, false);
-						AddSkills(SkillTakerDataArray, InSkill);
-					}
-					else if (InSkill.SkillType.SkillTargetNumType == ESkillTargetNumType::SINGLE) {
-						TPair<FGuid, FCharacterData>* MostCloseTarget = nullptr;
-						if (InSkill.SkillType.SkillTargetType == ESkillTargetType::ALLIES) {
-							MostCloseTarget = FindMostClosedTargetInRange(Temp);
-						}
-						else if (InSkill.SkillType.SkillTargetType == ESkillTargetType::ENEMY) {
-							MostCloseTarget = FindMostClosedTargetInRange(Temp, true);
-						}
-						if (MostCloseTarget) {
-							AddSkill(*MostCloseTarget, InSkill);
-						}
-					}
+					////通知客户端移除技能图标
+					//StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATD_PlayerController* MyPlayerController) {
+					//	MyPlayerController->RemoveSkillSlot_Server(Temp.Key, RepeatedSkill.SkillID);
+					//	});
+					//Temp.Value.AdditionalSkillData.Remove(RepeatedSkill.SkillID);
 				}
 			}
 		}
 	}
 }
 
-
-void ATD_GameMode::CallUpdateAllClient(TFunction<void(ATD_PlayerController* MyPlayerController)> InImplement) {
-	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It) {
-		if (ATD_PlayerController* MyPlayerController = Cast<ATD_PlayerController>(It->Get())) {
-			InImplement(MyPlayerController);
-		}
-	}
-}

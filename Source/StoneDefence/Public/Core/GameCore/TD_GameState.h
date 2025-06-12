@@ -70,6 +70,13 @@ public:
 
 	bool IsVerificationSkillTemplate(const FCharacterData& CharacterData, int32 SkillID);
 	bool IsVerificationSkillTemplate(const FGuid& CharacterID, int32 SkillID);
+	bool IsVerificationSkill(const FCharacterData& SkillList, int32 SkillID);
+	bool IsVerificationSkill(const FGuid& CharacterID, int32 SkillID);
+
+	void AddSkill(TPair<FGuid, FCharacterData>& SkillTakerData, FSkillData& InSkill);
+	void AddSkills(TArray<TPair<FGuid, FCharacterData>*>& SkillTakerDataArray, FSkillData& InSkill);
+
+	bool SetSubmissionDataType(FGuid CharacterID, int32 SkillID, ESubmissionSkillRequestType Type);
 
 	/*--------------------------------数据获取------------------------------------*/
 	FCharacterData& GetCharacterData(const FGuid& ID);

@@ -25,6 +25,8 @@ class AStaticMeshActor;
 
 namespace StoneDefenceUtils {
 
+	void CallUpdateAllClient(UWorld* World, TFunction<void(ATD_PlayerController* MyPlayerController)> InImplement);
+
 	AActor* SpawnProjectile(UWorld* World, FGuid CharacterID, UClass* ProjectileClass);//用于服务端通知客户端
 	AActor* SpawnProjectile(UWorld* World, APawn* NewPawn, UClass* InClass, const FVector& Loc, const FRotator& Rot);//用于动画通知
 	

@@ -58,6 +58,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 		int32 SkillID;//所属技能ID
+	UPROPERTY()
+		ESubmissionSkillRequestType SubmissionSkillRequestType;
+
 
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile_Tracking2")
 	float SplineOffset;
@@ -71,7 +74,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "SkillAdding Request")
 	void SubmissionSkillRequest();
 
-
+	void InitSkill();
 private:
 	UPROPERTY()
 	USplineComponent* Spline;

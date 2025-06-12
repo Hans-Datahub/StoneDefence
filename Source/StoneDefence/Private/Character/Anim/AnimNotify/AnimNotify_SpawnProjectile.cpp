@@ -30,7 +30,7 @@ FString UAnimNotify_SpawnProjectile::GetNotifyName_Implementation() const {
 void UAnimNotify_SpawnProjectile::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) {
 
 #if WITH_EDITORONLY_DATA
-	//µ±ÊÂ¼ş´¥·¢£¬´«Èë¹Ç÷ÀÃûºÍ¶¯»­ÃûÒÔ»ñµÃTransform
+	//å½“äº‹ä»¶è§¦å‘ï¼Œä¼ å…¥éª¨éª¼åå’ŒåŠ¨ç”»åä»¥è·å¾—Transform
 	FVector ComponentLocation = MeshComp->GetSocketLocation(InSocketName);
 	FRotator ComponentRotation = MeshComp->GetSocketRotation(InSocketName);
 	if (APawn* Character = Cast<APawn>(MeshComp->GetOuter()))
@@ -38,21 +38,13 @@ void UAnimNotify_SpawnProjectile::Notify(USkeletalMeshComponent* MeshComp, UAnim
 	FVector ComponentLocation = Character->GetFirePoint()->GetComponentLocation();
 	FRotator ComponentRotation = Character->GetFirePoint()->GetComponentRotation();
 #endif
-	if (ARuleOfCharacter* AnimNotifyCharacter = Cast<ARuleOfCharacter>(MeshComp->GetOuter())){//´Ë´¦²»ÄÜÓÃGetOwner()£¬¶øÒªÓÃGetOuter() ËÄÕÂÈı½Ú17:30×÷¸ü¸Ä
+	if (ARuleOfCharacter* AnimNotifyCharacter = Cast<ARuleOfCharacter>(MeshComp->GetOuter())){//æ­¤å¤„ä¸èƒ½ç”¨GetOwner()ï¼Œè€Œè¦ç”¨GetOuter() å››ç« ä¸‰èŠ‚17:30ä½œæ›´æ”¹
+		if (ARuleOfProjectile* Projectile = StoneDefenceUtils::SpawnProjectile(Character->GetWorld(), Cast<APawn>(AnimNotifyCharacter), ProjectileClass, ComponentLocation, ComponentRotation)) {
+			Projectile->SubmissionSkillRequestType = ESubmissionSkillRequestType::MANUAL;
+			Projectile->InitSkill();
 
-		StoneDefenceUtils::SpawnProjectile(Character->GetWorld(), Cast<APawn>(AnimNotifyCharacter), ProjectileClass, ComponentLocation, ComponentRotation);
+		}
 
-//		FTransform Transform;
-//		Transform.SetLocation(ComponentLocation);
-//		Transform.SetRotation(ComponentRotation.Quaternion());
-//
-//		FActorSpawnParameters ActorSpawnParameters;
-////#if WITH_EDITORONLY_DATA  ½Ì³Ì11-7 19:02´¦½«´Ë´¦É¾³ı 
-//		ActorSpawnParameters.Instigator = Character;
-////#endif
-//		if (ARuleOfProjectile* Projectile
-//			= Character->GetWorld()->SpawnActor<ARuleOfProjectile>
-//			(ProjectileClass, Transform, ActorSpawnParameters))
-//		{}
+
 	}
 }

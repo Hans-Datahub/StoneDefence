@@ -23,6 +23,10 @@ public:
 		TSubclassOf<ARuleOfProjectile> ProjectileClass;
 	UPROPERTY(EditDefaultsOnly, Category = "Skill Attribute")
 		FText SkillIntroduction;
+	UPROPERTY(EditDefaultsOnly, Category = "Skill Attribute")
+		bool bSkillEffected;// = bBecomeEffective
+	UPROPERTY(EditDefaultsOnly, Category = "Skill Attribute")
+		ESubmissionSkillRequestType SubmissionSkillRequestType;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Skill Attribute")
 		float MaxSkillDuration;

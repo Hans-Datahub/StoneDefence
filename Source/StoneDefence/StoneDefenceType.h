@@ -5,7 +5,16 @@
 #include "CoreMinimal.h"
 #include "StoneDefenceType.generated.h"
 
-UENUM() 
+
+
+UENUM(BlueprintType)
+enum class ESubmissionSkillRequestType :uint8
+{
+	AUTO,     //生成权利交由服务端
+	MANUAL,   //生成权利交由客户端
+};
+
+UENUM(BlueprintType)
 enum ETeam {
 	RED,
 	BLUE,
@@ -25,13 +34,13 @@ namespace EGameCharacterType{
 UENUM(BlueprintType)
 enum class EProjectileType :uint8 {
 	PROJECTILE_NONE,
-	PROJECTILE_LASER,//���⣬���赲����͸
-	PROJECTILE_TRACKING,//��ͨ���ͣ����赲
+	PROJECTILE_LASER,//激光，无阻挡，穿透
+	PROJECTILE_TRACKING,//普通类型，可阻挡
 	PROJECTILE_TRACKING2,
-	PROJECTILE_BULLET,//����
-	PROJECTILE_RANGE,//��Χ�˺�
-	PROJECTILE_LIGHTING,//�׻��������˺�
-	PROJECTILE_GRENADE,//���䣬��������
+	PROJECTILE_BULLET,//跟踪
+	PROJECTILE_RANGE,//范围伤害
+	PROJECTILE_LIGHTING,//雷击，链条伤害
+	PROJECTILE_GRENADE,//抛射，类似手雷
 };
 
 UENUM(BlueprintType)
@@ -43,7 +52,7 @@ enum class ECharacterType :uint8
 
 
 /*----------------------------------------------------------------------------------------------------*/
-/*-------------------------------------------����ö��--------------------------------------------------*/
+/*-------------------------------------------技能枚举--------------------------------------------------*/
 /*----------------------------------------------------------------------------------------------------*/
 
 UENUM(BlueprintType)
@@ -62,8 +71,8 @@ enum class ESkillTargetNumType : uint8 {//ESkillAttackNumType -> ESkillTargetNum
 
 UENUM(BlueprintType)
 enum class ESkillBoostType : uint8 {//ESkillEffectType -> ESkillBoostType
-	ADD,//��Ѫ
-	SUBTRACT,//��Ѫ
+	ADD,//加血
+	SUBTRACT,//减血
 };
 
 UENUM(BlueprintType)

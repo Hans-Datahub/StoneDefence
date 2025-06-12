@@ -40,6 +40,7 @@ ARuleOfProjectile::ARuleOfProjectile()
 	ChainAttackCount = 2;
 
 	SkillID = INDEX_NONE;
+	SubmissionSkillRequestType = ESubmissionSkillRequestType::AUTO;
 }
 
 
@@ -48,6 +49,11 @@ void ARuleOfProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 
+	//12-4 14:25 处对比发现有该代码。补充
+	//ProjectileCollision->OnComponentBeginOverlap.AddUniqueDynamic(this, &ARuleOfProjectile::BeginOverlap);
+}
+
+void ARuleOfProjectile::InitSkill() {
 	if (ARuleOfCharacter* InstigatorInOverlap = Cast<ARuleOfCharacter>(GetInstigator())) {//InstigatorCharacter -> InstigatorInOverlap
 		if (ARuleOfAIController* InstigatorController = Cast<ARuleOfAIController>(InstigatorInOverlap->GetController())) {//OtherCharacter -> TakerInOverlap
 			if (ARuleOfCharacter* TargetCharacter = InstigatorController->Target.Get()) {
@@ -59,130 +65,132 @@ void ARuleOfProjectile::BeginPlay()
 					/*----------------------------------------------------------------------------------------*/
 					/*--------------------------------------激光攻击-------------------------------------------*/
 					/*----------------------------------------------------------------------------------------*/
-					case EProjectileType::PROJECTILE_LASER:
-					{
-						UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), OpenFireParticle, GetActorLocation());
-						break;
-					}
+				case EProjectileType::PROJECTILE_LASER:
+				{
+					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), OpenFireParticle, GetActorLocation());
+					break;
+				}
 
 
-					/*----------------------------------------------------------------------------------------*/
-					/*--------------------------------------跟踪攻击-------------------------------------------*/
-					/*----------------------------------------------------------------------------------------*/
-					case EProjectileType::PROJECTILE_TRACKING:
-					{
-						UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), OpenFireParticle, GetActorLocation());
-						ProjectileMovement->bIsHomingProjectile = true;
-						ProjectileMovement->bRotationFollowsVelocity = true;
-						ProjectileMovement->HomingAccelerationMagnitude = 4000.f;
-						ProjectileMovement->HomingTargetComponent = TargetCharacter->GetHomingPoint();
-						break;
-					}
+				/*----------------------------------------------------------------------------------------*/
+				/*--------------------------------------跟踪攻击-------------------------------------------*/
+				/*----------------------------------------------------------------------------------------*/
+				case EProjectileType::PROJECTILE_TRACKING:
+				{
+					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), OpenFireParticle, GetActorLocation());
+					ProjectileMovement->bIsHomingProjectile = true;
+					ProjectileMovement->bRotationFollowsVelocity = true;
+					ProjectileMovement->HomingAccelerationMagnitude = 4000.f;
+					ProjectileMovement->HomingTargetComponent = TargetCharacter->GetHomingPoint();
+					break;
+				}
 
 
-					/*----------------------------------------------------------------------------------------*/
-					/*--------------------------------------跟踪攻击2------------------------------------------*/
-					/*----------------------------------------------------------------------------------------*/
-					case EProjectileType::PROJECTILE_TRACKING2:
-					{
-						//ProjectileMovement->StopMovementImmediately();
-						UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), OpenFireParticle, GetActorLocation());
+				/*----------------------------------------------------------------------------------------*/
+				/*--------------------------------------跟踪攻击2------------------------------------------*/
+				/*----------------------------------------------------------------------------------------*/
+				case EProjectileType::PROJECTILE_TRACKING2:
+				{
+					//ProjectileMovement->StopMovementImmediately();
+					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), OpenFireParticle, GetActorLocation());
 
-						Spline = NewObject<USplineComponent>(this, TEXT("SplineInstance"));
-						Spline->RegisterComponent();
+					Spline = NewObject<USplineComponent>(this, TEXT("SplineInstance"));
+					Spline->RegisterComponent();
 
-						Spline->SetLocationAtSplinePoint(0, GetActorLocation(), ESplineCoordinateSpace::Local);
-						FVector DistanceVector = InstigatorInOverlap->GetActorLocation() - TargetCharacter->GetActorLocation();
-						FVector Position = (DistanceVector / 2) + TargetCharacter->GetActorLocation();
-						Position.Y += SplineOffset;
-						Position.Z = (DistanceVector.Size() / 2.f) * 0.5f;
-						Spline->SetLocationAtSplinePoint(1, Position, ESplineCoordinateSpace::Local);
-						Spline->AddSplinePoint(TargetCharacter->GetActorLocation(), ESplineCoordinateSpace::Local);
-						break;
-					}
-
-
-					/*----------------------------------------------------------------------------------------*/
-					/*--------------------------------------实弹攻击-------------------------------------------*/
-					/*----------------------------------------------------------------------------------------*/
-					case EProjectileType::PROJECTILE_BULLET:
-					{
-						UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), OpenFireParticle, GetActorLocation());
-						break;
-					}
+					Spline->SetLocationAtSplinePoint(0, GetActorLocation(), ESplineCoordinateSpace::Local);
+					FVector DistanceVector = InstigatorInOverlap->GetActorLocation() - TargetCharacter->GetActorLocation();
+					FVector Position = (DistanceVector / 2) + TargetCharacter->GetActorLocation();
+					Position.Y += SplineOffset;
+					Position.Z = (DistanceVector.Size() / 2.f) * 0.5f;
+					Spline->SetLocationAtSplinePoint(1, Position, ESplineCoordinateSpace::Local);
+					Spline->AddSplinePoint(TargetCharacter->GetActorLocation(), ESplineCoordinateSpace::Local);
+					break;
+				}
 
 
-					/*----------------------------------------------------------------------------------------*/
-					/*---------------------------------抛射物范围攻击（手雷）-------------------------------------*/
-					/*----------------------------------------------------------------------------------------*/
-
-					case EProjectileType::PROJECTILE_GRENADE:
-					{
-						ProjectileMovement->StopMovementImmediately();
-						ProjectileMovement->ProjectileGravityScale = 0.f;
-
-						FVector Distance = TargetCharacter->GetActorLocation() - GetActorLocation();
-
-						float ProjectileFlyTime = (Distance.Size() / ProjectileMovement->InitialSpeed);
-						float YSpeed = ProjectileMovement->GetGravityZ() * ProjectileFlyTime;
-						float XSpeed = ProjectileMovement->InitialSpeed * ProjectileFlyTime;
-						float Speed = FMath::Sqrt(XSpeed * XSpeed + YSpeed * YSpeed);
-
-						float CosRadian = FMath::Acos(Distance.Size() / Speed * (ProjectileFlyTime * (PI * 0.1f)));
-						FRotator Rot = GetActorRotation();
-						Rot.Pitch = CosRadian * (180 / PI);
-						SetActorRotation(Rot);
-
-						ProjectileMovement->SetVelocityInLocalSpace(FVector(1.f, 0.f, 0.f) * ProjectileMovement->InitialSpeed);
-
-						RadialDamage(GetActorLocation(), Cast<ARuleOfCharacter>(GetInstigator()));
-						break;
-					}
+				/*----------------------------------------------------------------------------------------*/
+				/*--------------------------------------实弹攻击-------------------------------------------*/
+				/*----------------------------------------------------------------------------------------*/
+				case EProjectileType::PROJECTILE_BULLET:
+				{
+					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), OpenFireParticle, GetActorLocation());
+					break;
+				}
 
 
-					/*----------------------------------------------------------------------------------------*/
-					/*-------------------------------------范围攻击--------------------------------------------*/
-					/*----------------------------------------------------------------------------------------*/
-					case EProjectileType::PROJECTILE_RANGE:
-					{
-						ProjectileMovement->StopMovementImmediately();
-						ProjectileCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-						RadialDamage(GetActorLocation(), Cast<ARuleOfCharacter>(GetInstigator()));
-						break;
-					}
+				/*----------------------------------------------------------------------------------------*/
+				/*---------------------------------抛射物范围攻击（手雷）-------------------------------------*/
+				/*----------------------------------------------------------------------------------------*/
+
+				case EProjectileType::PROJECTILE_GRENADE:
+				{
+					ProjectileMovement->StopMovementImmediately();
+					ProjectileMovement->ProjectileGravityScale = 0.f;
+
+					FVector Distance = TargetCharacter->GetActorLocation() - GetActorLocation();
+
+					float ProjectileFlyTime = (Distance.Size() / ProjectileMovement->InitialSpeed);
+					float YSpeed = ProjectileMovement->GetGravityZ() * ProjectileFlyTime;
+					float XSpeed = ProjectileMovement->InitialSpeed * ProjectileFlyTime;
+					float Speed = FMath::Sqrt(XSpeed * XSpeed + YSpeed * YSpeed);
+
+					float CosRadian = FMath::Acos(Distance.Size() / Speed * (ProjectileFlyTime * (PI * 0.1f)));
+					FRotator Rot = GetActorRotation();
+					Rot.Pitch = CosRadian * (180 / PI);
+					SetActorRotation(Rot);
+
+					ProjectileMovement->SetVelocityInLocalSpace(FVector(1.f, 0.f, 0.f) * ProjectileMovement->InitialSpeed);
+
+					RadialDamage(GetActorLocation(), Cast<ARuleOfCharacter>(GetInstigator()));
+					break;
+				}
 
 
-					/*----------------------------------------------------------------------------------------*/
-					/*-------------------------------------雷电攻击--------------------------------------------*/
-					/*----------------------------------------------------------------------------------------*/
-					case EProjectileType::PROJECTILE_LIGHTING:
-					{
-						ProjectileMovement->StopMovementImmediately();
-						ProjectileCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-						UGameplayStatics::SpawnEmitterAttached(DamageParticle, TargetCharacter->GetHomingPoint());
-						GetWorld()->GetTimerManager().SetTimer(ChainAttackHandle, this, &ARuleOfProjectile::ChainAttack,0.4f);
+				/*----------------------------------------------------------------------------------------*/
+				/*-------------------------------------范围攻击--------------------------------------------*/
+				/*----------------------------------------------------------------------------------------*/
+				case EProjectileType::PROJECTILE_RANGE:
+				{
+					ProjectileMovement->StopMovementImmediately();
+					ProjectileCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+					RadialDamage(GetActorLocation(), Cast<ARuleOfCharacter>(GetInstigator()));
+					break;
+				}
 
-						SubmissionSkillRequest();
-						break;
-					}
 
-					/*----------------------------------------------------------------------------------------*/
-					/*--------------------------------------无类型---------------------------------------------*/
-					/*----------------------------------------------------------------------------------------*/
-					case EProjectileType::PROJECTILE_NONE:
-					{
-						UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), OpenFireParticle, GetActorLocation());
-						ProjectileMovement->StopMovementImmediately();
-						ProjectileCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+				/*----------------------------------------------------------------------------------------*/
+				/*-------------------------------------雷电攻击--------------------------------------------*/
+				/*----------------------------------------------------------------------------------------*/
+				case EProjectileType::PROJECTILE_LIGHTING:
+				{
+					ProjectileMovement->StopMovementImmediately();
+					ProjectileCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+					UGameplayStatics::SpawnEmitterAttached(DamageParticle, TargetCharacter->GetHomingPoint());
+					GetWorld()->GetTimerManager().SetTimer(ChainAttackHandle, this, &ARuleOfProjectile::ChainAttack, 0.4f);
 
-						SubmissionSkillRequest();
-						break;
-					}
+					SubmissionSkillRequest();
+					break;
+				}
+
+				/*----------------------------------------------------------------------------------------*/
+				/*--------------------------------------无类型---------------------------------------------*/
+				/*----------------------------------------------------------------------------------------*/
+				case EProjectileType::PROJECTILE_NONE:
+				{
+					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), OpenFireParticle, GetActorLocation());
+					ProjectileMovement->StopMovementImmediately();
+					ProjectileCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+					SubmissionSkillRequest();
+					break;
+				}
 				}
 			}
 		}
 	}
+
 }
+
 
 void ARuleOfProjectile::BeginOverlap(UPrimitiveComponent* ObjectiveOverlappedComponent,/*主体所重叠的组件*/ //OverlappedComponent -> ObjectiveOverlappedComponent
 									 AActor* SubjectiveActor,						  /*目标Actor*/      //OtherActor -> SubjectiveActor
@@ -360,6 +368,9 @@ void ARuleOfProjectile::SubmissionSkillRequest()
 					if (!InGameState->IsVerificationSkillTemplate(CharacterData, SkillID)) {
 						//提交
 						InGameState->AddSkillDataTemplateToCharacterData(InstigatorCharacter->GUID, SkillID);
+
+						//设置类型
+						InGameState->SetSubmissionDataType(InstigatorCharacter->GUID, SkillID,SubmissionSkillRequestType);
 					}
 				}
 			}

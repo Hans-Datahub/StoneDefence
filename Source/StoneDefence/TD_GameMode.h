@@ -43,9 +43,6 @@ protected:
 	//技能系统更新
 	void UpdateSkill(float DeltaSeconds);
 
-	void CallUpdateAllClient(TFunction<void(ATD_PlayerController* MyPlayerController)> InImplement);
-
-
 private:
 	int32 GetTowerDifficultyParam_Level(UWorld* InWorld);
 };

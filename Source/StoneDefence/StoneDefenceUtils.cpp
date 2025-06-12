@@ -168,6 +168,16 @@ void StoneDefenceUtils::FindFitTargetAndExecution(UWorld* World, const FGuid& Ch
 	}
 }
 
+void StoneDefenceUtils::CallUpdateAllClient(UWorld* World, TFunction<void(ATD_PlayerController* MyPlayerController)> InImplement) {
+	if (World) {
+		for (FConstPlayerControllerIterator It = World->GetPlayerControllerIterator(); It; ++It) {
+			if (ATD_PlayerController* MyPlayerController = Cast<ATD_PlayerController>(It->Get())) {
+				InImplement(MyPlayerController);
+			}
+		}
+	}
+}
+
 
 float Expression::GetDamage(IRuleCharacter* Enemy, IRuleCharacter* Taker) {
 	if (Enemy && Taker) {

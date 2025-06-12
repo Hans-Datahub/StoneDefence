@@ -18,6 +18,11 @@ void FSkillData::Init() {
 	//0代表技能作用于全场景所有敌人
 	AttackRange = 0.f;
 
+	SubmissionSkillRequestType = ESubmissionSkillRequestType::AUTO;
+
+	//技能是否发挥过作用
+	bSkillEffected = false;
+
 	//技能持续时间
 	MaxSkillDuration = 0.f;
 	SkillDuration = 0.f;

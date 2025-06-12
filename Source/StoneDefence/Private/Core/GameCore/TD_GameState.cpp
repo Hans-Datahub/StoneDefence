@@ -11,8 +11,9 @@
 #include "EngineUtils.h"
 //#include "Item/SpawnPoint.h"
 #include "Data/Core/GameData.h"
-//#include "../StoneDefenceUtils.h"
+#include "../StoneDefenceUtils.h"
 #include "Character/CharacterCore/Monsters.h"
+#include "Core/GameCore/TD_PlayerController.h"
 
 
 class ATowers;
@@ -208,6 +209,55 @@ bool ATD_GameState::IsVerificationSkillTemplate(const FGuid& CharacterID, int32 
 	const FCharacterData& InData = GetCharacterData(CharacterID);
 	if (InData.IsValid()) {
 		return IsVerificationSkillTemplate(InData,SkillID);
+	}
+	return false;
+}
+
+bool ATD_GameState::IsVerificationSkill(const FCharacterData& SkillList, int32 SkillID)
+{
+	for (auto& AdditionalSkill : SkillList.AdditionalSkillData) {
+		if (AdditionalSkill.Value.SkillID == SkillID) {
+			return true;
+		}
+	}
+	return false;
+}
+
+bool ATD_GameState::IsVerificationSkill(const FGuid& CharacterID, int32 SkillID)
+{
+	const FCharacterData& InData = GetCharacterData(CharacterID);
+	if (InData.IsValid()) {
+		return IsVerificationSkill(InData, SkillID);
+	}
+	return false;
+}
+
+void ATD_GameState::AddSkill(TPair<FGuid, FCharacterData>& SkillTakerData, FSkillData& InSkill) {
+	if (!IsVerificationSkill(SkillTakerData.Value, InSkill.SkillID)) {
+		FGuid TempSkillID = FGuid::NewGuid();
+
+		SkillTakerData.Value.AdditionalSkillData.Add(TempSkillID, InSkill).ResetDuration();
+
+		//通知代理 在UI模块显示相应技能图标	
+		StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATD_PlayerController* MyPlayerController) {
+			MyPlayerController->AddSkillSlot_Server(SkillTakerData.Key, TempSkillID); });
+	}
+}
+
+void ATD_GameState::AddSkills(TArray<TPair<FGuid, FCharacterData>*>& SkillTakerDataArray, FSkillData& InSkill) {
+	for (auto& Data : SkillTakerDataArray)
+		AddSkill(*Data, InSkill);
+}
+
+bool ATD_GameState::SetSubmissionDataType(FGuid CharacterID, int32 SkillID, ESubmissionSkillRequestType Type) {
+	FCharacterData& InCharacterData = GetCharacterData(CharacterID);
+	if (InCharacterData.IsValid()) {
+		for (auto& Temp : InCharacterData.CharacterSkill) {
+			if (SkillID == Temp.SkillID) {
+				Temp.SubmissionSkillRequestType = Type;
+				return true;
+			}
+		}	
 	}
 	return false;
 }
