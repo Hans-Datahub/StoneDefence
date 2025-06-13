@@ -62,6 +62,10 @@ public:
 	float GetSkillCDPercentage() const;// = GetCDPercent()
 	void ResetDuration();
 	void ResetCD();
+
+	friend bool operator==(const FSkillData& X, const FSkillData& Y) {
+		return X.SkillID == Y.SkillID;
+	}
 };
 
 

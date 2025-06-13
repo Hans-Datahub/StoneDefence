@@ -52,6 +52,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = Type)
 	TEnumAsByte<EGameCharacterType::Type> CharacterType;
 
+	//本游戏的防御塔，主技能为普通攻击，被动技能放在下面的数组里
+	UPROPERTY(EditDefaultsOnly, Category = "Skill")
+		TArray<int32> PassiveSkillIDArray;// = SkillIDs
+
 	// Sets default values for this character's properties
 	ARuleOfCharacter();
 
@@ -85,7 +89,12 @@ public:
 	virtual float GetMaxHealth();
 	virtual ETeam GetTeamType();
 	virtual FCharacterData& GetCharacterData();
+
 	void UpdataUI();
+	void UpdatePassiveSkill(int32 SkillID);// = UpdateSkill
+	UFUNCTION(/*Client*/)
+	void InitPassiveSkill();// = InitSkill
+
 	//该接口由服务器调用，而非客户端
 	virtual void RegisterTeam();
 

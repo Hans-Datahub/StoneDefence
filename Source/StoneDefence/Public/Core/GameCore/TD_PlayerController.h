@@ -63,7 +63,7 @@ public:
 	UFUNCTION()
 	void RemoveSkillSlot_Server(const FGuid& CharacterID, const FGuid& SlotID);
 	UFUNCTION()
-	void Spawn_Projectile_Server(const FGuid& CharacterID, UClass* InClass);
+	void Spawn_Projectile_Client(const FGuid& CharacterID, const int32 &SkillID);
 protected:
 	FScreenMoveUnits ScreenMoveUnits;
 

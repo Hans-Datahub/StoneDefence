@@ -17,7 +17,7 @@
 #include "Particles/ParticleEmitter.h"  
 
 #include "../StoneDefenceMacro.h"
-#include "Interface/Character/RuleCharacter.h"
+#include "Character/Projectile/RuleOfProjectile.h"
 #include "Core/GameCore/TD_PlayerController.h"
 
 // Sets default values
@@ -254,5 +254,26 @@ bool ARuleOfCharacter::RemoveSkillSlot_Client(const FGuid& SlotID) {
 
 void ARuleOfCharacter::ResetGUID() {
 	GUID = FGuid::NewGuid();
+} 
+
+void ARuleOfCharacter::InitPassiveSkill() {// = InitSkill
+	for (auto& Temp : PassiveSkillIDArray) {
+		if (ARuleOfProjectile* Projectile = StoneDefenceUtils::SpawnProjectile(GetWorld(), this, Temp, OpenFirePoint->GetComponentLocation(), OpenFirePoint->GetComponentRotation())) {
+			Projectile->InitSkill();
+		}
+	}
 }
+
+void ARuleOfCharacter::UpdatePassiveSkill(int32 SkillID) {// = UpdateSkill
+	for (auto& Temp : PassiveSkillIDArray) {
+		if (Temp == SkillID) {
+			if (ARuleOfProjectile* Projectile = StoneDefenceUtils::SpawnProjectile(GetWorld(), this, Temp, OpenFirePoint->GetComponentLocation(), OpenFirePoint->GetComponentRotation())) {
+				Projectile->InitSkill();
+			}
+			break;
+		}
+	}
+}
+
+
 

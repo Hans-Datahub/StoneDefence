@@ -7,6 +7,7 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Character/Core/RuleOfCharacter.h"
 #include "Character/Core/RuleOfAIController.h"
+#include "Character/Projectile/RuleOfProjectile.h"
 #include "Kismet/GameplayStatics.h"
 #include "EngineUtils.h"
 #include "Components/ArrowComponent.h"
@@ -361,7 +362,7 @@ void ARuleOfProjectile::RadialDamage(const FVector& Origin, ARuleOfCharacter* In
 void ARuleOfProjectile::SubmissionSkillRequest()
 {
 	if (SkillID != INDEX_NONE) {
-		if (ARuleOfCharacter* InstigatorCharacter = Cast<ARuleOfCharacter>(Instigator)) {
+		if (ARuleOfCharacter* InstigatorCharacter = Cast<ARuleOfCharacter>(GetInstigator())) {
 			if (ATD_GameState* InGameState = GetWorld()->GetGameState<ATD_GameState>()) {
 				const FCharacterData& CharacterData = InstigatorCharacter->GetCharacterData();
 				if (CharacterData.IsValid()) {
@@ -369,8 +370,11 @@ void ARuleOfProjectile::SubmissionSkillRequest()
 						//提交
 						InGameState->AddSkillDataTemplateToCharacterData(InstigatorCharacter->GUID, SkillID);
 
-						//设置类型
-						InGameState->SetSubmissionDataType(InstigatorCharacter->GUID, SkillID,SubmissionSkillRequestType);
+						if(SubmissionSkillRequestType == ESubmissionSkillRequestType::MANUAL) {
+							//根据子弹数据提交类型 设置其所属技能的 数据提交类型
+							InGameState->SetSubmissionDataType(InstigatorCharacter->GUID, SkillID, SubmissionSkillRequestType);
+
+						}
 					}
 				}
 			}
@@ -378,7 +382,7 @@ void ARuleOfProjectile::SubmissionSkillRequest()
 	}
 }
 
-const FSkillData* ARuleOfProjectile::GetSkillData(int32 SkillID)
+const FSkillData* ARuleOfProjectile::GetSkillData()
 {
 	if (ATD_GameState* InGameState = GetWorld()->GetGameState<ATD_GameState>()) {
 		return InGameState->GetSkillData(SkillID);

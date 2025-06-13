@@ -18,6 +18,7 @@
 
 #include "Character/Projectile/RuleOfProjectile.h"
 #include "Components/ArrowComponent.h"
+#include "Core/GameCore/TD_PlayerController.h"
 
 
 class ARuleOfCharacter;
@@ -114,7 +115,7 @@ AStaticMeshActor* StoneDefenceUtils::SpawnTowerDoll(UWorld* World, int32 ID) {
 	return OutActor;
 }
 
-AActor* StoneDefenceUtils::SpawnProjectile(UWorld* World, FGuid CharacterID, UClass* ProjectileClass) {
+ARuleOfProjectile* StoneDefenceUtils::SpawnProjectile(UWorld* World, FGuid CharacterID, UClass* ProjectileClass) {
 	TArray <ARuleOfCharacter*> Characters;
 	StoneDefenceUtils::GetAllActor(World, Characters);
 
@@ -137,7 +138,7 @@ AActor* StoneDefenceUtils::SpawnProjectile(UWorld* World, FGuid CharacterID, UCl
 	return nullptr;
 }
 
-AActor* StoneDefenceUtils::SpawnProjectile(UWorld* World, APawn* NewPawn, UClass* InClass, const FVector& Loc, const FRotator& Rot) {
+ARuleOfProjectile* StoneDefenceUtils::SpawnProjectile(UWorld* World, APawn* NewPawn, UClass* InClass, const FVector& Loc, const FRotator& Rot) {
 	if (World && NewPawn && InClass) {
 		FTransform Transform;
 		Transform.SetLocation(Loc);
@@ -153,6 +154,20 @@ AActor* StoneDefenceUtils::SpawnProjectile(UWorld* World, APawn* NewPawn, UClass
 		}
 	}
 	return nullptr;
+}
+
+ARuleOfProjectile* StoneDefenceUtils::SpawnProjectile(UWorld* World, ARuleOfCharacter* Owner, const int32 SKillID, const FVector& Loc, const FRotator& Rot) {
+	ARuleOfProjectile* NewProjectile = nullptr;
+	if (World) {
+		if (ATD_GameState* InGameState = World->GetGameState<ATD_GameState>()) {
+			if (const FSkillData* InData = InGameState->GetSkillData(SKillID)) {
+				if (ARuleOfProjectile* Projectile = StoneDefenceUtils::SpawnProjectile(World, Owner, InData->ProjectileClass, Loc, Rot)) {
+					NewProjectile = Projectile;
+				}
+			}
+		}
+	}
+	return NewProjectile;
 }
 
 void StoneDefenceUtils::FindFitTargetAndExecution(UWorld* World, const FGuid& CharacterID, TFunction<void(ARuleOfCharacter* InCharacter)>Code) {
@@ -177,6 +192,9 @@ void StoneDefenceUtils::CallUpdateAllClient(UWorld* World, TFunction<void(ATD_Pl
 		}
 	}
 }
+
+
+/*----------------------------------------------------------------------------------------------------------------------*/
 
 
 float Expression::GetDamage(IRuleCharacter* Enemy, IRuleCharacter* Taker) {

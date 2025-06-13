@@ -6,6 +6,8 @@
 #include "Components/InputComponent.h"
 #include "../StoneDefenceUtils.h"
 
+class ATD_GameState;
+
 
 ATD_PlayerController::ATD_PlayerController() {
 	bShowMouseCursor = true;
@@ -121,6 +123,10 @@ void ATD_PlayerController::RemoveSkillSlot_Server(const FGuid& CharacterID, cons
 	});
 }
 
-void ATD_PlayerController::Spawn_Projectile_Server(const FGuid& CharacterID, UClass* InClass) {
-	ProjectileSpawnDelegate.ExecuteIfBound(CharacterID, InClass);
+void ATD_PlayerController::Spawn_Projectile_Client(const FGuid& CharacterID, const int32& SkillID) {
+	if (const FSkillData* InData = GetWorld()->GetGameState<ATD_GameState>()->GetSkillData(SkillID)) {
+		StoneDefenceUtils::FindFitTargetAndExecution(GetWorld(), CharacterID, [&](ARuleOfCharacter* InCharacter) {
+			InCharacter->UpdatePassiveSkill(SkillID);
+			});
+	}
 }

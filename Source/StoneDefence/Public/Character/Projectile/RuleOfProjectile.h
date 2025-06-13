@@ -9,6 +9,7 @@
 #include "RuleOfProjectile.generated.h"
 
 class ARuleOfCharacter;
+struct FSkillData;
 
 UCLASS()
 class STONEDEFENCE_API ARuleOfProjectile : public AActor
@@ -69,7 +70,7 @@ public:
 
 
 
-	const FSkillData* GetSkillData(int32 SkillID);
+	const FSkillData* GetSkillData();
 
 	UFUNCTION(BlueprintCallable, Category = "SkillAdding Request")
 	void SubmissionSkillRequest();

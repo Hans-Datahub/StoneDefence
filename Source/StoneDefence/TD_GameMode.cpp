@@ -221,8 +221,8 @@ ARuleOfCharacter* ATD_GameMode::SpawnCharacter(int32 CharacterID,
 								CharacterDataInstance.UpdateExp(CharacterData->AddEmpiricalValue);
 							}
 						}
-
-						TempGameState->InitSkill(CharacterDataInstance);
+						//初始话防御塔被动技能
+						RuleOfCharacter->InitPassiveSkill();
 						RuleOfCharacter->RegisterTeam();
 						InCharacter = RuleOfCharacter;
 					}
@@ -358,12 +358,14 @@ void ATD_GameMode::UpdateSkill(float DeltaSeconds) {
 								Temp.Value.AttackSpeed -= SkillTemp.Value.AttackSpeedModify;
 								Temp.Value.Gold -= SkillTemp.Value.GoldModify;
 							}
+
+							//通知客户端渲染Projectile,之所以通过子弹渲染是因为会让子弹停止运动，然后播放效果，相当于播放特效
+							StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATD_PlayerController* MyPlayerController) {
+								MyPlayerController->Spawn_Projectile_Client(Temp.Key, SkillTemp.Value.SkillID);
+							});
 						}
 					}
-					//通知客户端渲染Projectile
-					StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATD_PlayerController* MyPlayerController) {
-						MyPlayerController->Spawn_Projectile_Server(Temp.Key, SkillTemp.Value.ProjectileClass);
-						});
+					
 				}
 
 				//清除爆发类，作用时间结束的持续类技能
@@ -421,7 +423,7 @@ void ATD_GameMode::UpdateSkill(float DeltaSeconds) {
 					Temp.Value.CharacterSkill.Remove(RepeatedSkill);
 					if (RepeatedSkill.SubmissionSkillRequestType == ESubmissionSkillRequestType::AUTO) {
 						StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATD_PlayerController* MyPlayerController) {
-							MyPlayerController->Spawn_Projectile_Server(Temp.Key, RepeatedSkill.ProjectileClass);
+							MyPlayerController->Spawn_Projectile_Client(Temp.Key, RepeatedSkill.SkillID);
 						});  
 					}
 					else if(RepeatedSkill.SubmissionSkillRequestType == ESubmissionSkillRequestType::MANUAL){

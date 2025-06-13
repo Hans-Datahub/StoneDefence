@@ -27,8 +27,9 @@ namespace StoneDefenceUtils {
 
 	void CallUpdateAllClient(UWorld* World, TFunction<void(ATD_PlayerController* MyPlayerController)> InImplement);
 
-	AActor* SpawnProjectile(UWorld* World, FGuid CharacterID, UClass* ProjectileClass);//用于服务端通知客户端
-	AActor* SpawnProjectile(UWorld* World, APawn* NewPawn, UClass* InClass, const FVector& Loc, const FRotator& Rot);//用于动画通知
+	ARuleOfProjectile* SpawnProjectile(UWorld* World, ARuleOfCharacter* Owner, const int32 SKillID, const FVector& Loc, const FRotator& Rot);
+	ARuleOfProjectile* SpawnProjectile(UWorld* World, FGuid CharacterID, UClass* ProjectileClass);//用于服务端通知客户端
+	ARuleOfProjectile* SpawnProjectile(UWorld* World, APawn* NewPawn, UClass* InClass, const FVector& Loc, const FRotator& Rot);//用于动画通知
 	
 	AStaticMeshActor* SpawnTowerDoll(UWorld* World, int32 ID);
 

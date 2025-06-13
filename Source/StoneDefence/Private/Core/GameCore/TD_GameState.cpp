@@ -161,11 +161,13 @@ FSkillData& ATD_GameState::GetSkillData(const FGuid& SkillID) {
 const FSkillData* ATD_GameState::GetSkillData(const int32& SkillID)
 {
 	const TArray<FSkillData*>& SkillArray = GetSkillDataFromTable();
-	f() {
-
+	for (auto& Temp : SkillArray) {
+		if (Temp->SkillID == SkillID) {
+			return Temp;
+		}
 	}
-	return 
-}
+	return nullptr;
+}//此处没有依照教程
 
 FSkillData& ATD_GameState::GetSkillData(const FGuid& CharacterID, const FGuid& SkillID){
 	FCharacterData& CharacterData = GetCharacterData(CharacterID);
@@ -197,8 +199,8 @@ void ATD_GameState::AddSkillDataTemplateToCharacterData(const FGuid& CharacterID
 }
 
 bool ATD_GameState::IsVerificationSkillTemplate(const FCharacterData& CharacterData, int32 SkillID) {
-	for (auto& Inkill : CharacterData.CharacterSkill) {
-		if (InSkill.ID == SKillID) {
+	for (auto& InSkill : CharacterData.CharacterSkill) {
+		if (InSkill.SkillID == SkillID) {
 			return true;
 		}
 	}
