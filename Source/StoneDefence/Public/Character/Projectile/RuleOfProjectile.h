@@ -76,6 +76,8 @@ public:
 	void SubmissionSkillRequest();
 
 	void InitSkill();
+
+	void ResetIteration();
 private:
 	UPROPERTY()
 	USplineComponent* Spline;

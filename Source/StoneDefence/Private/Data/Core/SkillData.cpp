@@ -13,7 +13,8 @@ void FSkillData::Init() {
 	PhysicalAttackModify = 0.f;
 	AttackSpeedModify = 0.f;
 	ArmorModify = 0.f;
-	CDModify = 0.f;
+	CDModify = 60.f;
+	MoveSpeedModify = 0.0f
 
 	//0代表技能作用于全场景所有敌人
 	AttackRange = 0.f;
@@ -24,7 +25,7 @@ void FSkillData::Init() {
 	bSkillEffected = false;
 
 	//技能持续时间
-	MaxSkillDuration = 0.f;
+	MaxSkillDuration = 5.f;
 	SkillDuration = 0.f;
 	//技能CD
 	SkillCD = 0.f;

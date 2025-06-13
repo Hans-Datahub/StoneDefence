@@ -57,6 +57,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Character Attribute")
 		float EmpiricalValue;
 	UPROPERTY(EditDefaultsOnly, Category = "Character Attribute")
+		float MoveSpeed;// = WalkSpeed
+	UPROPERTY(EditDefaultsOnly, Category = "Character Attribute")
 		float CD;
 	UPROPERTY(EditDefaultsOnly, Category = "Character Attribute")
 		float AttackSpeed;
@@ -133,4 +135,5 @@ public:
 	float GetArmor() const;
 	float GetCD() const;
 	float GetAttackSpeed() const;
+	float GetMoveSpeed() const;
 };

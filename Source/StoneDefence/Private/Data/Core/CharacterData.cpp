@@ -25,6 +25,7 @@ void FCharacterData::Init() {
 	CD = 2.f;
 	AttackSpeed = 0.66f;
 	Gold = 80.f;
+	MoveSpeed = 356.f
 
 	AddGold = 30.f;
 	AddHealth = 50.f;
@@ -59,10 +60,10 @@ bool FCharacterData::UpdateExp(float InExp) {
 }
 
 void FCharacterData::UpdateLevel() {
-	//´Ë´¦²»Ö±½ÓÉèÁãÊÇÒòÎª¾­ÑéÖµ¿ÉÄÜ»á³¬³ö×î´ó£¬ĞèÒªÁôÏÂ³¬³öµÄ²¿·Ö
+	//æ­¤å¤„ä¸ç›´æ¥è®¾é›¶æ˜¯å› ä¸ºç»éªŒå€¼å¯èƒ½ä¼šè¶…å‡ºæœ€å¤§ï¼Œéœ€è¦ç•™ä¸‹è¶…å‡ºçš„éƒ¨åˆ†
 	EmpiricalValue = EmpiricalValue - MaxEmpiricalValue;
 
-	//Éı¼¶ºóµÄÊôĞÔ´¦Àí
+	//å‡çº§åçš„å±æ€§å¤„ç†
 	float CoEfficient = .1f;
 	Level++;
 	MaxHealth += (Level - 1) * AddHealth * CoEfficient;
@@ -73,8 +74,8 @@ void FCharacterData::UpdateLevel() {
 	RestoreHealth += (RestoreHealth * Level) / 100;
 	Gold += (Level - 1) * AddGold * CoEfficient;
 
-	//Éı¼¶ºóµÄ½±Àø
-	Health = GetMaxHealth();//Éı¼¶ºó²¹ÂúÑª
+	//å‡çº§åçš„å¥–åŠ±
+	Health = GetMaxHealth();//å‡çº§åè¡¥æ»¡è¡€
 }
 
 float FCharacterData::GetExpPercentage()const {
@@ -101,4 +102,8 @@ float FCharacterData::GetCD() const {
 }
 float FCharacterData::GetAttackSpeed() const {
 	SKILL_TABLE_ACQUISITION(AttackSpeed, AttackSpeedModify);
+}
+float GetMoveSpeed() const {
+	SKILL_TABLE_ACQUISITION(MoveSpeed, MoveSpeedModify);
+
 }

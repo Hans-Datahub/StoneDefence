@@ -19,6 +19,7 @@
 #include "../StoneDefenceMacro.h"
 #include "Character/Projectile/RuleOfProjectile.h"
 #include "Core/GameCore/TD_PlayerController.h"
+#include "Character/Damage/RuleOfDamag.h"
 
 // Sets default values
 ARuleOfCharacter::ARuleOfCharacter()
@@ -86,71 +87,147 @@ EGameCharacterType::Type ARuleOfCharacter::GetType() {
 
 float ARuleOfCharacter::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser){
 	Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
+	
+	float DamageValue = 0.f;
+	if (URuleOfDamage* DamageClass = DamageEvent.DamageTypeClass->GetDefaultObject<URuleOfDamage>()) {
+		if (const FSkillData* SkillData = DamageClass->SkillData) {
 
-	auto DrawGameText = [&](ARuleOfCharacter* InOwner, const TCHAR* InText, float Number, FLinearColor Color) {
-		if (DrawTextClass) {
-			if (ADrawText* Text = GetWorld()->SpawnActor<ADrawText>(DrawTextClass, InOwner->GetActorLocation(), FRotator::ZeroRotator)) {
-				int32 IntNumber = static_cast<int32>(Number);//去小数
+			auto DrawGameText = [&](ARuleOfCharacter* InOwner, const TCHAR* InText, float Number, FLinearColor Color) {
+				if (DrawTextClass) {
+					if (ADrawText* Text = GetWorld()->SpawnActor<ADrawText>(DrawTextClass, InOwner->GetActorLocation(), FRotator::ZeroRotator)) {
+						int32 IntNumber = static_cast<int32>(Number);//去小数
 
-				//生成数组供Format函数使用
-				TArray<FStringFormatArg>NumberArray;
-				NumberArray.Add((FStringFormatArg)IntNumber);
+						//生成数组供Format函数使用
+						TArray<FStringFormatArg>NumberArray;
+						NumberArray.Add((FStringFormatArg)IntNumber);
 
-				FString IntText = FString::Format(InText, NumberArray);
-				Text->SetTextBlock(IntText, Color, Number);
-			}
-		}
-	};
-
-	float DamageValue = Expression::GetDamage(Cast<ARuleOfCharacter>(DamageCauser), this);
-
-	GetCharacterData().Health -= Damage / 10.f;
-
-	//死亡后执行相关操作
-	if (!IsActive()) {
-		if (ATD_PlayerState* TempPlayerState = Cast<ATD_PlayerState>(GetPlayerState())) {		
-			FPlayerData PlayerData = TempPlayerState->GetPlayerData();
-			if (PlayerData.IsValid()) {
-				if (PlayerData.Team != GetTeamType()) {
-					PlayerData.GameGold += GetCharacterData().Gold;
-				}
-			}
-		}
-
-
-
-
-		GetCharacterData().Health = 0.0f;
-		SetLifeSpan(DeathDelayTime);
-		Widget->SetVisibility(false);
-
-		if (ARuleOfCharacter* CauserCharacter = Cast<ARuleOfCharacter>(DamageCauser)) {
-			if (CauserCharacter->IsActive()) {
-				if (CauserCharacter->GetCharacterData().UpdateExp(GetCharacterData().AddEmpiricalValue)) {
-					//播放升级特效
-				}
-				DrawGameText(CauserCharacter, TEXT("+Exp {0}"), GetCharacterData().AddEmpiricalValue, FLinearColor::Yellow);
-			}
-		}
-
-		//寻找范围内最近的敌人
-		TArray<ARuleOfCharacter*> EnemyCharacters;
-		StoneDefenceUtils::FindMostClosedTargetInRange(this, 1000.f, EnemyCharacters);
-		for (ARuleOfCharacter* InEnemy : EnemyCharacters) {
-			if (InEnemy != DamageCauser) {
-				if (InEnemy->IsActive()) {
-					if (InEnemy->GetCharacterData().UpdateExp(GetCharacterData().AddEmpiricalValue * 0.3f)) {
-
+						FString IntText = FString::Format(InText, NumberArray);
+						Text->SetTextBlock(IntText, Color, Number);
 					}
-					DrawGameText(InEnemy, TEXT("+Exp {0}"), GetCharacterData().AddEmpiricalValue, FLinearColor::Yellow);
+				}
+			};
+
+
+			
+
+			if (SkillData->SkillType.SkillBoostType == ESkillBoostType::SUBTRACT) {
+				DamageValue = Expression::GetDamage(Cast<ARuleOfCharacter>(DamageCauser), this);
+				if (Damage) {
+					GetCharacterData().Health -= Damage;
+					//绘制伤害数字
+					DrawGameText(this, TEXT("-{0}"), Damage, FLinearColor::Red);
+				}
+
+				//若为攻击减益
+				if (SkillData->PhysicalAttackModify) {
+					GetCharacterData().PhysicalAttack -= SkillData->PhysicalAttackModify;
+					//绘制伤害数字
+					DrawGameText(this, TEXT("-{0}"), Damage, FLinearColor::Blue);
+				}
+
+				//若为防御减益
+				if (SkillData->ArmorModify) {
+					GetCharacterData().Armor -= SkillData->ArmorModify;
+					//绘制伤害数字
+					DrawGameText(this, TEXT("-{0}"), Damage, FLinearColor::White);
+				}
+
+				//若为攻击速度减益
+				if (SkillData->AttackSpeedModify) {
+					GetCharacterData().AttackSpeed -= SkillData->AttackSpeedModify;
+					//绘制伤害数字
+					DrawGameText(this, TEXT("-{0}"), Damage, FLinearColor::Yellow);
+				}
+
+				//若为生命值减益
+				if (SkillData->HealthModify) {
+					GetCharacterData().Health -= SkillData->HealthModify;
+					if (GetCharacterData().Health > GetCharacterData().MaxHealth) {//若加血后超过最大健康，修正
+						GetCharacterData().Health = GetCharacterData().MaxHealth
+					}
+					//绘制伤害数字
+					DrawGameText(this, TEXT("-{0}"), Damage, FLinearColor::Green);
 				}
 			}
-		}
+			else if(SkillData->SkillType.SkillBoostType == ESkillBoostType::ADD){
+				//若为攻击增益
+				if (SkillData->PhysicalAttackModify) {
+					GetCharacterData().PhysicalAttack+= SkillData->PhysicalAttackModify;
+					//绘制伤害数字
+					DrawGameText(this, TEXT("-{0}"), Damage, FLinearColor::Blue);
+				}
 
-		GetGameState()->RemoveCharacterData(GUID);
+				//若为防御增益
+				if (SkillData->ArmorModify) {
+					GetCharacterData().Armor += SkillData->ArmorModify;
+					//绘制伤害数字
+					DrawGameText(this, TEXT("-{0}"), Damage, FLinearColor::White);
+				}
+
+				//若为攻击速度增益
+				if (SkillData->AttackSpeedModify) {
+					GetCharacterData().AttackSpeed += SkillData->AttackSpeedModify;
+					//绘制伤害数字
+					DrawGameText(this, TEXT("-{0}"), Damage, FLinearColor::Yellow);
+				}
+
+				//若为生命值增益
+				if (SkillData->HealthModify) {
+					GetCharacterData().Health += SkillData->HealthModify;
+					if (GetCharacterData().Health > GetCharacterData().MaxHealth) {//若加血后超过最大健康，修正
+						GetCharacterData().Health = GetCharacterData().MaxHealth
+					}
+					//绘制伤害数字
+					DrawGameText(this, TEXT("-{0}"), Damage, FLinearColor::Green);
+				}
+			}
+
+			//死亡后执行相关操作
+			if (!IsActive()) {
+				if (ATD_PlayerState* TempPlayerState = Cast<ATD_PlayerState>(GetPlayerState())) {		
+					FPlayerData PlayerData = TempPlayerState->GetPlayerData();
+					if (PlayerData.IsValid()) {
+						if (PlayerData.Team != GetTeamType()) {
+							PlayerData.GameGold += GetCharacterData().Gold;
+						}
+					}
+				}
+
+
+
+
+				GetCharacterData().Health = 0.0f;
+				SetLifeSpan(DeathDelayTime);
+				Widget->SetVisibility(false);
+
+				if (ARuleOfCharacter* CauserCharacter = Cast<ARuleOfCharacter>(DamageCauser)) {
+					if (CauserCharacter->IsActive()) {
+						if (CauserCharacter->GetCharacterData().UpdateExp(GetCharacterData().AddEmpiricalValue)) {
+							//播放升级特效
+						}
+						DrawGameText(CauserCharacter, TEXT("+Exp {0}"), GetCharacterData().AddEmpiricalValue, FLinearColor::Yellow);
+					}
+				}
+
+				//寻找范围内最近的敌人
+				TArray<ARuleOfCharacter*> EnemyCharacters;
+				StoneDefenceUtils::FindMostClosedTargetInRange(this, 1000.f, EnemyCharacters);
+				for (ARuleOfCharacter* InEnemy : EnemyCharacters) {
+					if (InEnemy != DamageCauser) {
+						if (InEnemy->IsActive()) {
+							if (InEnemy->GetCharacterData().UpdateExp(GetCharacterData().AddEmpiricalValue * 0.3f)) {
+
+							}
+							DrawGameText(InEnemy, TEXT("+Exp {0}"), GetCharacterData().AddEmpiricalValue, FLinearColor::Yellow);
+						}
+					}
+				}
+
+				GetGameState()->RemoveCharacterData(GUID);
+			}
+
+		}
 	}
-	//绘制伤害数字
-	DrawGameText(this, TEXT("-{0}"), Damage, FLinearColor::Red);
 
 	return DamageValue;
 }

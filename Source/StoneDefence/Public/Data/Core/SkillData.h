@@ -53,6 +53,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Skill Profit")
 		float ArmorModify;
 	UPROPERTY(EditDefaultsOnly, Category = "Skill Profit")
+		float MoveSpeedModify;// = WalkSpeed
+	UPROPERTY(EditDefaultsOnly, Category = "Skill Profit")
 		float CDModify;
 	UPROPERTY(EditDefaultsOnly, Category = "Skill Profit")
 		float AttackRange;//若为多单位攻击，0代表全场景所有敌人

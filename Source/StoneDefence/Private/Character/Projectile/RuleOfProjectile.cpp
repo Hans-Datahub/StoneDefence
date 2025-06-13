@@ -13,6 +13,7 @@
 #include "Components/ArrowComponent.h"
 #include "Components/SplineComponent.h"
 #include "../StoneDefenceUtils.h"
+#include "Character/Damage/RuleOfDamage.h"
 
 // Sets default values
 ARuleOfProjectile::ARuleOfProjectile()
@@ -230,7 +231,11 @@ void ARuleOfProjectile::BeginOverlap(UPrimitiveComponent* ObjectiveOverlappedCom
 							case EProjectileType::PROJECTILE_BULLET:
 							case EProjectileType::PROJECTILE_TRACKING2:
 							{
-								UGameplayStatics::ApplyDamage(TakerInOverlap, DamageValue, InstigatorInOverlap->GetController(), InstigatorInOverlap, UDamageType::StaticClass());
+								UClass* RuleOfDamage = URuleOfDamage::StaticClass();
+								if (URuleOfDamage* DamageClass = RuleOfDamage->GetDefaultObject<URuleOfDamage>())
+									DamageClass->SkillData = InData;//设置伤害类型的CDO
+
+								UGameplayStatics::ApplyDamage(TakerInOverlap, DamageValue, InstigatorInOverlap->GetController(), InstigatorInOverlap, RuleOfDamage);
 								SubmissionSkillRequest();
 								Destroy();
 								break;
@@ -343,19 +348,24 @@ void ARuleOfProjectile::RadialDamage(const FVector& Origin, ARuleOfCharacter* In
 
 			}
 
-			UGameplayStatics::ApplyRadialDamageWithFalloff
-			(GetWorld(),	                //上下文
-				100.f, 10.f,				//基础伤害，最小伤害
-				GetActorLocation(),			//爆炸中心
-				400.f, 10000.f, 1.f,			//爆炸内半径，外半径，衰减系数
-				UDamageType::StaticClass(), //伤害类型
-				IgnoreActors,				//忽略目标
-				GetInstigator(),
-				GetInstigator()->GetController(),
-				ECollisionChannel::ECC_MAX);		//伤害输出者
+			UClass* RuleOfDamage = URuleOfDamage::StaticClass();
+			if (URuleOfDamage* DamageClass = RuleOfDamage->GetDefaultObject<URuleOfDamage>()) {
+				DamageClass->SkillData = InData;//设置伤害类型的CDO
 
-		}
-		
+				UGameplayStatics::ApplyRadialDamageWithFalloff
+				(GetWorld(),	                //上下文
+					100.f, 10.f,				//基础伤害，最小伤害
+					GetActorLocation(),			//爆炸中心
+					400.f, 10000.f, 1.f,			//爆炸内半径，外半径，衰减系数
+					RuleOfDamage, //伤害类型
+					IgnoreActors,				//忽略目标
+					GetInstigator(),
+					GetInstigator()->GetController(),
+					ECollisionChannel::ECC_MAX);		//伤害输出者
+
+			}
+
+		}	
 	}
 }
 
@@ -399,11 +409,20 @@ void ARuleOfProjectile::ChainAttack() {
 	if (ARuleOfCharacter* InstigatorInOverlap = Cast<ARuleOfCharacter>(GetInstigator())) {//InstigatorCharacter -> InstigatorInOverlap
 		if (ARuleOfAIController* InstigatorController = Cast<ARuleOfAIController>(InstigatorInOverlap->GetController())) {//OtherCharacter -> TakerInOverlap
 			if (ARuleOfCharacter* TargetCharacter = InstigatorController->Target.Get()) {
-				UGameplayStatics::ApplyDamage(TargetCharacter,
-												100.f,
-												InstigatorInOverlap->GetController(),
-												InstigatorInOverlap,
-												UDamageType::StaticClass());
+
+				if (const FSkillData* InData = GetSkillData()) {
+					UClass* RuleOfDamage = URuleOfDamage::StaticClass();
+					if (URuleOfDamage* DamageClass = RuleOfDamage->GetDefaultObject<URuleOfDamage>()) {
+						DamageClass->SkillData = InData;//设置伤害类型的CDO
+
+						UGameplayStatics::ApplyDamage(TargetCharacter,
+							100.f,
+							InstigatorInOverlap->GetController(),
+							InstigatorInOverlap,
+							UDamageType::StaticClass());
+					}
+
+				}
 			}
 		}
 	}
@@ -415,4 +434,9 @@ void ARuleOfProjectile::ChainAttack() {
 	if (ChainAttackCount > 0) {
 		GetWorld()->GetTimerManager().SetTimer(ChainAttackHandle, this, &ARuleOfProjectile::ChainAttack, 0.4f);
 	}
+}
+
+void ARuleOfProjectile::ResetIteration() {
+	ProjectileType = EProjectileType::PROJECTILE_NONE;
+	InitSkill();
 }
