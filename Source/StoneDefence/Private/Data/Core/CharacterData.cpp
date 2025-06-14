@@ -25,7 +25,7 @@ void FCharacterData::Init() {
 	CD = 2.f;
 	AttackSpeed = 0.66f;
 	Gold = 80.f;
-	MoveSpeed = 356.f
+	MoveSpeed = 356.f;
 
 	AddGold = 30.f;
 	AddHealth = 50.f;
@@ -103,7 +103,7 @@ float FCharacterData::GetCD() const {
 float FCharacterData::GetAttackSpeed() const {
 	SKILL_TABLE_ACQUISITION(AttackSpeed, AttackSpeedModify);
 }
-float GetMoveSpeed() const {
+float FCharacterData::GetMoveSpeed() const {
 	SKILL_TABLE_ACQUISITION(MoveSpeed, MoveSpeedModify);
 
 }

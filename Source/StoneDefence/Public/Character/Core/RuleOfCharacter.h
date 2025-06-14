@@ -104,6 +104,9 @@ public:
 	UFUNCTION()
 		bool RemoveSkillSlot_Client(const FGuid& SlotID);
 
+	UFUNCTION(BlueprintCallable, Category = "Add Skill Request")
+		void SubmissionSkillRequest(int32 SkillID);
+
 	void ResetGUID();
 
 protected:

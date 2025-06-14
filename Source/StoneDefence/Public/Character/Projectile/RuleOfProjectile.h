@@ -77,7 +77,7 @@ public:
 
 	void InitSkill();
 
-	void ResetIteration();
+	//void ResetIteration();
 private:
 	UPROPERTY()
 	USplineComponent* Spline;

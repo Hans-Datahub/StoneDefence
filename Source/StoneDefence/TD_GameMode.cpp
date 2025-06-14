@@ -249,78 +249,81 @@ AMonsters* ATD_GameMode::SpawnMonster(int32 CharacterID,
 
 void ATD_GameMode::UpdateSkill(float DeltaSeconds) {
 	if (ATD_GameState* NewGameState = GetGameState<ATD_GameState>()) {
-		//GetTeam() -> GetSkillTaker()
-		auto GetSkillTaker = [&](TArray<TPair<FGuid, FCharacterData>*>& TeamArray, TPair<FGuid, FCharacterData>& InOwner, float AttackRange, bool bAllies = false) {
-			auto TeamIner = [&](TArray<TPair<FGuid, FCharacterData>*>& TeamArray, TPair<FGuid, FCharacterData>& Target, float AttackRange) {
-				if (AttackRange != 0) {
-					float Distance = (Target.Value.Location - InOwner.Value.Location).Size();
-					if (Distance <= AttackRange) {
-						//将范围内的单位纳入技能承受队列
-						TeamArray.Add(&Target);
-					}
-				}
-				else {//若距离为零，则无视距离
-					TeamArray.Add(&Target);
-				}
-			};
-			
-			for (auto& Temp : NewGameState->GetSaveData()->CharacterDatas) {
-				if (bAllies) {
-					if (Temp.Value.Team == InOwner.Value.Team) {//此处InOwner和Temp的关系见下方FindMostClosedTargetInRange中的解释
-						TeamIner(TeamArray, Temp, AttackRange);
-					}
-				}
-				else {
-					if (Temp.Value.Team != InOwner.Value.Team) {
-						TeamIner(TeamArray, Temp, AttackRange);
-					}
-				}
-			}
-		};
+		////GetTeam() -> GetSkillTaker()
+		//auto GetSkillTaker = [&](TArray<TPair<FGuid, FCharacterData>*>& TeamArray, TPair<FGuid, FCharacterData>& InOwner, float AttackRange, bool bAllies = false) {
+		//	auto TeamIner = [&](TArray<TPair<FGuid, FCharacterData>*>& TeamArray, TPair<FGuid, FCharacterData>& Target, float AttackRange) {
+		//		if (AttackRange != 0) {
+		//			float Distance = (Target.Value.Location - InOwner.Value.Location).Size();
+		//			if (Distance <= AttackRange) {
+		//				//将范围内的单位纳入技能承受队列
+		//				TeamArray.Add(&Target);
+		//			}
+		//		}
+		//		else {//若距离为零，则无视距离
+		//			TeamArray.Add(&Target);
+		//		}
+		//	};
+		//	
+		//	for (auto& Temp : NewGameState->GetSaveData()->CharacterDatas) {
+		//		if (bAllies) {
+		//			if (Temp.Value.Team == InOwner.Value.Team) {//此处InOwner和Temp的关系见下方FindMostClosedTargetInRange中的解释
+		//				TeamIner(TeamArray, Temp, AttackRange);
+		//			}
+		//		}
+		//		else {
+		//			if (Temp.Value.Team != InOwner.Value.Team) {
+		//				TeamIner(TeamArray, Temp, AttackRange);
+		//			}
+		//		}
+		//	}
+		//};
 
 
-		auto FindMostClosedTargetInRange = [&](TPair<FGuid, FCharacterData>& InOwner, bool bAllies = false) -> TPair<FGuid, FCharacterData>* {
-			float TargetDistance = 9999999999;
-			FGuid Index;
+		//auto FindMostClosedTargetInRange = [&](TPair<FGuid, FCharacterData>& InOwner, bool bAllies = false) -> TPair<FGuid, FCharacterData>* {
+		//	float TargetDistance = 9999999999;
+		//	FGuid Index;
 
-			auto InitMostCloseTarget = [&](TPair<FGuid, FCharacterData>& Pair) {
-				FVector Location = Pair.Value.Location;
-				FVector TempVector = Location - InOwner.Value.Location;
-				float Distance = TempVector.Size();
+		//	auto InitMostCloseTarget = [&](TPair<FGuid, FCharacterData>& Pair) {
+		//		FVector Location = Pair.Value.Location;
+		//		FVector TempVector = Location - InOwner.Value.Location;
+		//		float Distance = TempVector.Size();
 
-				if (Distance < TargetDistance && Pair.Value.Health > 0) {
-					Index = Pair.Key;
-					TargetDistance = Distance;
-				}
-			};
+		//		if (Distance < TargetDistance && Pair.Value.Health > 0) {
+		//			Index = Pair.Key;
+		//			TargetDistance = Distance;
+		//		}
+		//	};
 
-			for (auto& Temp : NewGameState->GetSaveData()->CharacterDatas) {
-				if (InOwner.Key != Temp.Key) {//排除自己
-					if (bAllies) {
-						//此处的InOwner是主体，Temp是客体。 InOwner在第一层遍历中被选中，然后在第二层遍历中和每一个其他客体进行队伍比较
-						//寻敌
-						if (InOwner.Value.Team != Temp.Value.Team) {
-							InitMostCloseTarget(Temp);
-						}
-					}
-					else {
-						//寻找友军
-						if (InOwner.Value.Team == Temp.Value.Team) {
-							InitMostCloseTarget(Temp);
-						}
-					}
-				}
-			}
+		//	for (auto& Temp : NewGameState->GetSaveData()->CharacterDatas) {
+		//		if (InOwner.Key != Temp.Key) {//排除自己
+		//			if (bAllies) {
+		//				//此处的InOwner是主体，Temp是客体。 InOwner在第一层遍历中被选中，然后在第二层遍历中和每一个其他客体进行队伍比较
+		//				//寻敌
+		//				if (InOwner.Value.Team != Temp.Value.Team) {
+		//					InitMostCloseTarget(Temp);
+		//				}
+		//			}
+		//			else {
+		//				//寻找友军
+		//				if (InOwner.Value.Team == Temp.Value.Team) {
+		//					InitMostCloseTarget(Temp);
+		//				}
+		//			}
+		//		}
+		//	}
 
-			if (Index != FGuid()) 
-				for (TPair<FGuid, FCharacterData>& GameTemp : NewGameState->GetSaveData()->CharacterDatas) 
-					if (GameTemp.Key == Index)
-						return &GameTemp;
-			return nullptr;
-		};
+		//	if (Index != FGuid()) 
+		//		for (TPair<FGuid, FCharacterData>& GameTemp : NewGameState->GetSaveData()->CharacterDatas) 
+		//			if (GameTemp.Key == Index)
+		//				return &GameTemp;
+		//	return nullptr;
+		//};
 
-		//获取技能队列
-		const TArray<FSkillData*>& SkillDataTemplate = NewGameState->GetSkillDataFromTable();
+		////获取技能队列
+		//const TArray<FSkillData*>& SkillDataTemplate = NewGameState->GetSkillDataFromTable();
+
+
+
 		//获取所有角色的所有技能
 		for (auto& Temp : NewGameState->GetSaveData()->CharacterDatas) {
 			if (Temp.Value.Health > 0.f) {
@@ -388,26 +391,6 @@ void ATD_GameMode::UpdateSkill(float DeltaSeconds) {
 						//为防止同种技能叠加，此处过滤掉已生效的技能
 						if (!InSkill.bSkillEffected) {//若技能未触发过，触发						
 							//判断该技能是群体 或单体攻击					
-							if (InSkill.SkillType.SkillTargetNumType == ESkillTargetNumType::MULTIPLE) {
-								TArray<TPair<FGuid, FCharacterData>*> SkillTakerDataArray;
-								if (InSkill.SkillType.SkillTargetType == ESkillTargetType::ALLIES)
-									GetSkillTaker(SkillTakerDataArray, Temp, InSkill.AttackRange, true);
-								else if (InSkill.SkillType.SkillTargetType == ESkillTargetType::ENEMY)
-									GetSkillTaker(SkillTakerDataArray, Temp, InSkill.AttackRange, false);
-								NewGameState->AddSkills(SkillTakerDataArray, InSkill);
-							}
-							else if (InSkill.SkillType.SkillTargetNumType == ESkillTargetNumType::SINGLE) {
-								TPair<FGuid, FCharacterData>* MostCloseTarget = nullptr;
-								if (InSkill.SkillType.SkillTargetType == ESkillTargetType::ALLIES) {
-									MostCloseTarget = FindMostClosedTargetInRange(Temp);
-								}
-								else if (InSkill.SkillType.SkillTargetType == ESkillTargetType::ENEMY) {
-									MostCloseTarget = FindMostClosedTargetInRange(Temp, true);
-								}
-								if (MostCloseTarget) {
-									NewGameState->AddSkill(*MostCloseTarget, InSkill);
-								}
-							}
 							InSkill.bSkillEffected = true;
 						}
 						else {

@@ -73,6 +73,7 @@ public:
 	bool IsVerificationSkill(const FCharacterData& SkillList, int32 SkillID);
 	bool IsVerificationSkill(const FGuid& CharacterID, int32 SkillID);
 
+	void AddSkill(const FGuid& CharacterGUID, int32 InSkillID);
 	void AddSkill(TPair<FGuid, FCharacterData>& SkillTakerData, FSkillData& InSkill);
 	void AddSkills(TArray<TPair<FGuid, FCharacterData>*>& SkillTakerDataArray, FSkillData& InSkill);
 

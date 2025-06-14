@@ -63,13 +63,6 @@ enum class ESkillTimeType : uint8 {//ESkillType -> ESkillTimeType
 };
 
 UENUM(BlueprintType)
-enum class ESkillTargetNumType : uint8 {//ESkillAttackNumType -> ESkillTargetNumType
-	SINGLE,
-	MULTIPLE,
-};
-
-
-UENUM(BlueprintType)
 enum class ESkillBoostType : uint8 {//ESkillEffectType -> ESkillBoostType
 	ADD,//加血
 	SUBTRACT,//减血
@@ -87,15 +80,11 @@ struct FSkillType {
 
 	FSkillType()
 		:SkillTimeType(ESkillTimeType::SECTION),
-		SkillTargetNumType(ESkillTargetNumType::MULTIPLE),
 		SkillBoostType(ESkillBoostType::ADD),
 		SkillTargetType(ESkillTargetType::ALLIES)
 	{ }
 	UPROPERTY(EditDefaultsOnly, Category = "SkillType")
 		ESkillTimeType SkillTimeType;
-
-	UPROPERTY(EditDefaultsOnly, Category = "SkillType")
-		ESkillTargetNumType SkillTargetNumType;
 
 	UPROPERTY(EditDefaultsOnly, Category = "SkillType")
 		ESkillBoostType SkillBoostType;

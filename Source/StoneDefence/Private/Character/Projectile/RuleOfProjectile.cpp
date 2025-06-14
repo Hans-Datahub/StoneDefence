@@ -436,7 +436,7 @@ void ARuleOfProjectile::ChainAttack() {
 	}
 }
 
-void ARuleOfProjectile::ResetIteration() {
-	ProjectileType = EProjectileType::PROJECTILE_NONE;
-	InitSkill();
-}
+//void ARuleOfProjectile::ResetIteration() {
+//	ProjectileType = EProjectileType::PROJECTILE_NONE;
+//	InitSkill();
+//}

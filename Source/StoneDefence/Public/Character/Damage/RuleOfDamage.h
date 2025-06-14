@@ -15,5 +15,5 @@ class STONEDEFENCE_API URuleOfDamage : public UDamageType
 	GENERATED_BODY()
 
 public:
-		const class FSkillData* SkillData = nullptr;
+		const struct FSkillData* SkillData = nullptr;
 };

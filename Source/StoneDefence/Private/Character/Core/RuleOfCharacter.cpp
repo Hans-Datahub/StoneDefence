@@ -19,7 +19,7 @@
 #include "../StoneDefenceMacro.h"
 #include "Character/Projectile/RuleOfProjectile.h"
 #include "Core/GameCore/TD_PlayerController.h"
-#include "Character/Damage/RuleOfDamag.h"
+#include "Character/Damage/RuleOfDamage.h"
 
 // Sets default values
 ARuleOfCharacter::ARuleOfCharacter()
@@ -143,7 +143,7 @@ float ARuleOfCharacter::TakeDamage(float Damage, struct FDamageEvent const& Dama
 				if (SkillData->HealthModify) {
 					GetCharacterData().Health -= SkillData->HealthModify;
 					if (GetCharacterData().Health > GetCharacterData().MaxHealth) {//若加血后超过最大健康，修正
-						GetCharacterData().Health = GetCharacterData().MaxHealth
+						GetCharacterData().Health = GetCharacterData().MaxHealth;
 					}
 					//绘制伤害数字
 					DrawGameText(this, TEXT("-{0}"), Damage, FLinearColor::Green);
@@ -175,7 +175,7 @@ float ARuleOfCharacter::TakeDamage(float Damage, struct FDamageEvent const& Dama
 				if (SkillData->HealthModify) {
 					GetCharacterData().Health += SkillData->HealthModify;
 					if (GetCharacterData().Health > GetCharacterData().MaxHealth) {//若加血后超过最大健康，修正
-						GetCharacterData().Health = GetCharacterData().MaxHealth
+						GetCharacterData().Health = GetCharacterData().MaxHealth;
 					}
 					//绘制伤害数字
 					DrawGameText(this, TEXT("-{0}"), Damage, FLinearColor::Green);
@@ -224,6 +224,9 @@ float ARuleOfCharacter::TakeDamage(float Damage, struct FDamageEvent const& Dama
 				}
 
 				GetGameState()->RemoveCharacterData(GUID);
+			}
+			else {
+				SubmissionSkillRequest(SkillData->SkillID);
 			}
 
 		}
@@ -349,6 +352,12 @@ void ARuleOfCharacter::UpdatePassiveSkill(int32 SkillID) {// = UpdateSkill
 			}
 			break;
 		}
+	}
+}
+
+void ARuleOfCharacter::SubmissionSkillRequest(int32 SkillID) {
+	if (!GetGameState()->IsVerificationSkill(GUID,SkillID)) {
+		GetGameState()->AddSkill(GUID, SkillID);
 	}
 }
 

@@ -14,7 +14,7 @@ void FSkillData::Init() {
 	AttackSpeedModify = 0.f;
 	ArmorModify = 0.f;
 	CDModify = 60.f;
-	MoveSpeedModify = 0.0f
+	MoveSpeedModify = 0.0f;
 
 	//0代表技能作用于全场景所有敌人
 	AttackRange = 0.f;

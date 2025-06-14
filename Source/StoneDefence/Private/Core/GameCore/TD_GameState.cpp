@@ -234,6 +234,12 @@ bool ATD_GameState::IsVerificationSkill(const FGuid& CharacterID, int32 SkillID)
 	return false;
 }
 
+
+void ATD_GameState::AddSkill(const FGuid& CharacterGUID, int32 InSkillID) {
+
+}
+
+
 void ATD_GameState::AddSkill(TPair<FGuid, FCharacterData>& SkillTakerData, FSkillData& InSkill) {
 	if (!IsVerificationSkill(SkillTakerData.Value, InSkill.SkillID)) {
 		FGuid TempSkillID = FGuid::NewGuid();
