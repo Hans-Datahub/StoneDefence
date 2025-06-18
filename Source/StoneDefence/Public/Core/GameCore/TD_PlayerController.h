@@ -64,6 +64,8 @@ public:
 	void RemoveSkillSlot_Server(const FGuid& CharacterID, const FGuid& SlotID);
 	UFUNCTION()
 	void Spawn_Projectile_Client(const FGuid& CharacterID, const int32 &SkillID);
+	UFUNCTION()
+	void UpdateInventory_Client(const FGuid& InventorySlotGUID, bool bInCD);
 protected:
 	FScreenMoveUnits ScreenMoveUnits;
 

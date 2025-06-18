@@ -22,13 +22,10 @@ void UUI_InventorySlot::NativeConstruct() {
 }
 
 void UUI_InventorySlot::OnClickedWidget() {
-	if (GetBuildingTower().IsValid()) {
-		if (/*GetBuildingTower().BuildingCost >= 1*/ 1) {
-			GetBuildingTower().TowersPrepareBuildingNumber++;
-			if (GetBuildingTower().CurrentConstructionTowersCD <= 0) {
-				GetBuildingTower().ResetCD();
-			}
-		}
+	if (GetBuildingTower().IsValid()) {//å®¢æˆ·ç«¯éªŒè¯ é™ä½ç½‘ç»œå¸¦å®½
+
+		//é€šçŸ¥æœåŠ¡å™¨å¯¹å¡”çš„æ•°é‡è¿›è¡Œå¢åŠ 
+		GetPlayerState()->TowersPrepareBuildingNumber(GUID);
 	}
 }
 
@@ -37,14 +34,9 @@ FBuildingTowers& UUI_InventorySlot::GetBuildingTower() {
 }
 
 
-
-
-
-
-
 void UUI_InventorySlot::UpdateUI() {
 	if (GetBuildingTower().Icon) {
-		TowerIcon->SetVisibility(ESlateVisibility::HitTestInvisible);//·ÀÖ¹ÕÚµ²°´Å¥
+		TowerIcon->SetVisibility(ESlateVisibility::HitTestInvisible);//é˜²æ­¢é®æŒ¡æŒ‰é’®
 		TowerIcon->SetBrushFromSoftTexture(GetBuildingTower().Icon);
 	}
 	else 
@@ -56,8 +48,8 @@ void UUI_InventorySlot::UpdateUI() {
 		TCCNumber->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 	if (GetBuildingTower().TowersPrepareBuildingNumber > 0)
 		TPBNumber->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
-	UpdateTowersBuildingInfo();//ÍÏ×§ÖÁĞÂ¸ñ×ÓÊ±¸üĞÂ²ÎÊı£¬·ÀÖ¹ÍÏ×§ºó²ÎÊıÎª0
-	DrawTowersCD(GetBuildingTower().GetTowerConstructionCDPercentage());//ÖØĞÂ»æÖÆCD·ÀÖ¹Ô­Î»ÖÃ²ĞÁô
+	UpdateTowersBuildingInfo();//æ‹–æ‹½è‡³æ–°æ ¼å­æ—¶æ›´æ–°å‚æ•°ï¼Œé˜²æ­¢æ‹–æ‹½åå‚æ•°ä¸º0
+	DrawTowersCD(GetBuildingTower().GetTowerConstructionCDPercentage());//é‡æ–°ç»˜åˆ¶CDé˜²æ­¢åŸä½ç½®æ®‹ç•™
 }
 
 
@@ -136,7 +128,7 @@ FReply UUI_InventorySlot::NativeOnMouseButtonDown(const FGeometry& InGeometry, c
 	
 	if (InMouseEvent.GetEffectingButton() == EKeys::RightMouseButton || InMouseEvent.IsTouchEvent()) {
 		FReply Reply = FReply::Handled();
-		//»ñÈ¡ÍÏ×§µÄ»º´æ
+		//è·å–æ‹–æ‹½çš„ç¼“å­˜
 		TSharedPtr<SWidget> SlateWidgetDrag = GetCachedWidget();
 		if (SlateWidgetDrag.IsValid()) {
 			Reply.DetectDrag(SlateWidgetDrag.ToSharedRef(), EKeys::RightMouseButton);
@@ -153,12 +145,13 @@ void UUI_InventorySlot::NativeOnDragDetected(const FGeometry& InGeometry, const 
 			if (USD_DragDropOperation* SD_DragDropOperation =
 				NewObject<USD_DragDropOperation>(GetTransientPackage(), USD_DragDropOperation::StaticClass())) {
 
-				SD_DragDropOperation->SetFlags(RF_StrongRefOnFrame);//´Ë´¦¡°Ç¿ÒıÓÃ¡±Ä¿µÄÊÇÍ¨Öª±à¼­Æ÷²»Òª¹ıÔç»ØÊÕ
+				SD_DragDropOperation->SetFlags(RF_StrongRefOnFrame);//æ­¤å¤„â€œå¼ºå¼•ç”¨â€ç›®çš„æ˜¯é€šçŸ¥ç¼–è¾‘å™¨ä¸è¦è¿‡æ—©å›æ”¶
 				IconDragDrop->SetDragIcon(GetBuildingTower().Icon);
-				SD_DragDropOperation->DefaultDragVisual = IconDragDrop;//ÍÏ×§Ê±ÔÚÊó±êÉú³ÉÍ¬ÑùÍ¼±ê
+				SD_DragDropOperation->DefaultDragVisual = IconDragDrop;//æ‹–æ‹½æ—¶åœ¨é¼ æ ‡ç”ŸæˆåŒæ ·å›¾æ ‡
 				SD_DragDropOperation->Payload = this;
 				OutOperation = SD_DragDropOperation;
-				GetBuildingTower().isIconDragged = true;
+
+				GetPlayerState()->SetTowersDragIconState(GUID,true);
 			}
 		}
 	}
@@ -171,10 +164,12 @@ bool UUI_InventorySlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDro
 	bool isDrop = false;
 	if (USD_DragDropOperation* SD_DragDropOperation = Cast<USD_DragDropOperation>(InOperation)) {
 		if (UUI_InventorySlot* MyInventorySlot = Cast<UUI_InventorySlot>(SD_DragDropOperation->Payload)) {
-			MyInventorySlot->GetBuildingTower().isIconDragged = false;
+			//æœåŠ¡å™¨è¯·æ±‚
+			GetPlayerState()->SetTowersDragIconState(MyInventorySlot->GUID, false);
 			GetPlayerState()->RequestInventorySlotSwap(GUID, MyInventorySlot->GUID);
-			UpdateUI();//Ä¿±êÎ»ÖÃ
-			MyInventorySlot->UpdateUI();//Ô­Î»ÖÃ
+
+			UpdateUI();//ç›®æ ‡ä½ç½®
+			MyInventorySlot->UpdateUI();//åŸä½ç½®
 			isDrop = true;
 		}
 	}

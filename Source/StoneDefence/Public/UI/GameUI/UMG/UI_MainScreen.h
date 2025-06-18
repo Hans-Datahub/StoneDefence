@@ -44,4 +44,5 @@ class STONEDEFENCE_API UUI_MainScreen : public UUI_RuleOfWidget
 public:
 	virtual void NativeConstruct()override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+	void UpdateInventorySlot(const FGuid& InventorySlotGUID, bool bInCD);
 };

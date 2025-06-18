@@ -45,7 +45,7 @@ class STONEDEFENCE_API UUI_InventorySlot : public UUI_Slot
 	UPROPERTY(EditDefaultsOnly, Category = UI)
 	FName TowersCDMaterialName;
 
-	//若CD完成后不清除会有一条线
+	//鑻D瀹屾垚鍚庝笉娓呴櫎浼氭湁涓�鏉＄嚎
 	UPROPERTY(EditDefaultsOnly, Category = UI)
 	FName TowersCDClearName;
 
@@ -72,17 +72,17 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = Tip)
 	UWidget* GetTowerTip();
 
+	void UpdateTowersBuildingInfo();
+
+	void DrawTowersCD(float InTowersCD);
+
 protected:
 	virtual FReply NativeOnMouseButtonDown (const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)override;
 	virtual void NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation)override;
 	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)override;
 	virtual void NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent);
 	virtual void NativeOnMouseLeave(const FPointerEvent& InMouseEvent);
-
-private:
 	void UpdateTowersCD(float InDeltaTime);
-	void DrawTowersCD(float InTowersCD);
 	void DisplayNumber(UTextBlock* TextNumberBlock, int32 TextNumber);
-	void UpdateTowersBuildingInfo();
 
 };

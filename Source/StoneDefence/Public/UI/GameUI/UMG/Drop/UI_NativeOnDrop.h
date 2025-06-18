@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
+#include "UI/Core/UI_RuleOfWidget.h"
 #include "UI_NativeOnDrop.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class STONEDEFENCE_API UUI_NativeOnDrop : public UUserWidget
+class STONEDEFENCE_API UUI_NativeOnDrop : public UUI_RuleOfWidget
 {
 	GENERATED_BODY()
 	

@@ -21,14 +21,30 @@ void UUI_Inventory::NativeConstruct() {
 
 }
 
+void UUI_Inventory::UpdateInventorySlot(const FGuid& InventorySlotGUID, bool bInCD) {
+	for (auto& Temp : InventorySlotArray) {
+		if (Temp->GUID == InventorySlotGUID) {
+			if (bInCD) {
+				Temp->DrawTowersCD(Temp->GetBuildingTower().GetTowerConstructionCDPercentage());
+			}
+			else {
+				Temp->DrawTowersCD(0.f);
+			}
+
+			Temp->UpdateTowersBuildingInfo();
+			break;
+		}
+	}
+}
+
 void UUI_Inventory::LogoutInventorySlot(int32 ColumnNumber, int32 RowNumber) {
 	if (InventorySlotClass) {
-		//Éú³É±³°ü¸ñ×Ó
+		//ç”ŸæˆèƒŒåŒ…æ ¼å­
 		for (int32 MyRow = 0; MyRow < RowNumber; MyRow++) {
 			for (int32 MyColumn = 0; MyColumn < ColumnNumber; MyColumn++) {
 				UUI_InventorySlot* SlotWidget = CreateWidget<UUI_InventorySlot>(GetWorld(), InventorySlotClass);
 				if (SlotWidget) {
-					//Ìí¼ÓÏà¹ØUMG
+					//æ·»åŠ ç›¸å…³UMG
 					UUniformGridSlot* GridSlot = SlotArrayInventory->AddChildToUniformGrid(SlotWidget);
 					if (GridSlot) {
 						GridSlot->SetColumn(MyColumn);
@@ -41,13 +57,13 @@ void UUI_Inventory::LogoutInventorySlot(int32 ColumnNumber, int32 RowNumber) {
 			}
 		}
 
-		//ÌîÈë·ÀÓùËşID
+		//å¡«å…¥é˜²å¾¡å¡”ID
 		const TArray<const FGuid*> ID = GetPlayerState()->GetBuildingTowersID();
 		for (int32 i = 0; i < ColumnNumber * RowNumber; i++) {
 			InventorySlotArray[i]->GUID = *ID[i];
 		}
 
-		//ÌîÈë·ÀÓùËşÊı¾İ
+		//å¡«å…¥é˜²å¾¡å¡”æ•°æ®
 		const TArray<FCharacterData*>& Datas = GetGameState()->GetTowerDataFromTable();
 		for (int32 i = 0; i < Datas.Num(); i++) {
 			InventorySlotArray[i]->GetBuildingTower().TowerID = Datas[i]->ID;

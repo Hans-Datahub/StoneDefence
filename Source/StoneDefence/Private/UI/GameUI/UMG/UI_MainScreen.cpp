@@ -8,6 +8,8 @@
 #include "Core/GameCore/TD_PlayerController.h"
 #include "Character/Core/RuleOfCharacter.h"
 #include "Components/Image.h"
+#include "UI/GameUI/UMG/UI_RucksackSystem.h"
+
 
 class USD_DragDropOperation;
 
@@ -18,7 +20,7 @@ void UUI_MainScreen::NativeConstruct() {
 void UUI_MainScreen::NativeTick(const FGeometry& MyGeometry, float InDeltaTime) {
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
-	//显示角色信息
+	//鏄剧ず瑙掕壊淇℃伅
 	if (ARuleOfCharacter* InCharacter = Cast<ARuleOfCharacter>(GetPlayerController()->GetHitResult().GetActor())) {
 		const FCharacterData& CharacterData = GetGameState()->GetCharacterData(InCharacter->GUID);
 		if (CharacterData.IsValid()) {
@@ -44,7 +46,7 @@ void UUI_MainScreen::NativeTick(const FGeometry& MyGeometry, float InDeltaTime) 
 	}
 
 
-	//显示集火对象
+	//鏄剧ず闆嗙伀瀵硅薄
 	if (ClickedMonster && ClickedMonster->IsActive()) {
 		FireConcentrationPoint->SetVisibility(ESlateVisibility::HitTestInvisible);
 		if (UCanvasPanelSlot* NewPanelSlot = Cast<UCanvasPanelSlot>(FireConcentrationPoint->Slot)) {
@@ -56,6 +58,12 @@ void UUI_MainScreen::NativeTick(const FGeometry& MyGeometry, float InDeltaTime) 
 	else {
 		ClickedMonster = nullptr;
 		FireConcentrationPoint->SetVisibility(ESlateVisibility::Hidden);
+	}
+}
+
+void UUI_MainScreen::UpdateInventorySlot(const FGuid& InventorySlotGUID, bool bInCD) {
+	if (RucksackSystem) {
+		RucksackSystem->UpdateInventorySlot(InventorySlotGUID, bInCD);
 	}
 }
 

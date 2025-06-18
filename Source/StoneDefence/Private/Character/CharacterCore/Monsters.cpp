@@ -11,7 +11,14 @@ void AMonsters::BeginPlay() {
 void AMonsters::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 
-	GetCharacterMovement()->MaxWalkSpeed = GetCharacterData().GetMoveSpeed();
+	//速度设定
+/*	if (GetCharacterData().IsValid()) {
+		if (GetCharacterData().GetWalkSpeed() != GetCharacterMovement()->MaxWalkSpeed) {
+			GetCharacterMovement()->MaxWalkSpeed = GetCharacterData().GetMoveSpeed();
+		}
+	}*/
+	//这一部分加上，角色会停止移动，后面再改
+
 }
 
 EGameCharacterType::Type AMonsters::GetCharacterType() {

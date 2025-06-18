@@ -5,6 +5,7 @@
 #include "Core/GameCore/TD_GameCamera.h"
 #include "Components/InputComponent.h"
 #include "../StoneDefenceUtils.h"
+#include "UI/GameUI/Core/RuleOfHUD.h"
 
 class ATD_GameState;
 
@@ -128,5 +129,11 @@ void ATD_PlayerController::Spawn_Projectile_Client(const FGuid& CharacterID, con
 		StoneDefenceUtils::FindFitTargetAndExecution(GetWorld(), CharacterID, [&](ARuleOfCharacter* InCharacter) {
 			InCharacter->UpdatePassiveSkill(SkillID);
 			});
+	}
+}
+
+void ATD_PlayerController::UpdateInventory_Client(const FGuid& InventorySlotGUID, bool bInCD) {
+	if (ARuleOfHUD* NewHUD = GetHUD<ARuleOfHUD>()) {
+		NewHUD->UpdateInventorySlot(InventorySlotGUID, bInCD);
 	}
 }

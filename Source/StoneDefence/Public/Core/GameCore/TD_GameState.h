@@ -10,6 +10,7 @@
 #include "Engine/StaticMeshActor.h"
 #include "Data/Core/GameData.h"
 #include "Data/Core/PlayerData.h"
+#include "Data/Save/PlayerSaveData.h"
 #include "Data/Core/SkillData.h"
 #include "TD_GameState.generated.h"
 
@@ -97,8 +98,7 @@ public:
 
 	FCharacterData& GetCharacterDataNULL();
 
-	UGameSaveData* GetSaveData();
-	/*--------------------------------------------------------------------------*/
+	UGameSaveData* GetGameSaveData();
 
 
 protected:

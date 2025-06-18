@@ -29,9 +29,8 @@ public:
 		AMonsters* SpawnMonster(int32 CharacterID, int32 CharacterLevel, const FVector& Location, const FRotator& Rotator);
 
 
-	void SpawnRuleOfMonster(float DeltaSeconds);
-	void SpawnTowerRule();
-	void SpawnMainTowerRule();
+	
+	
 	
 protected:
 	ARuleOfCharacter* SpawnCharacter(int32 CharacterID, int32 CharacterLevel, UDataTable* InCharacterData, const FVector& Location, const FRotator& Rotator);
@@ -40,8 +39,20 @@ protected:
 		return Cast<T>(SpawnCharacter(CharacterID, CharacterLevel, InCharacterData, Location, Rotator));
 	}
 
+	void SpawnTowerRule();
+	void SpawnMainTowerRule();
+
+	void UpdateMonsterSpawnRule(float DeltaSeconds);
+
+	void UpdatePlayerData(float DeltaSeconds);
+
+	void UpdateGameData(float DeltaSeconds);
+
+	void UpdatePlayerSkill(float DeltaSeconds);
 	//技能系统更新
 	void UpdateSkill(float DeltaSeconds);
+
+	void UpdateInventory(float DeltaSeconds);
 
 private:
 	int32 GetTowerDifficultyParam_Level(UWorld* InWorld);

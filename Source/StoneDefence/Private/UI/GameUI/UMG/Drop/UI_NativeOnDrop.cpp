@@ -12,10 +12,11 @@ bool UUI_NativeOnDrop::NativeOnDrop(const FGeometry& InGeometry, const FDragDrop
 	bool isDrop = false;
 	if (USD_DragDropOperation* SD_DragDropOperation = Cast<USD_DragDropOperation>(InOperation)) {
 		if (UUI_InventorySlot* MyInventorySlot = Cast<UUI_InventorySlot>(SD_DragDropOperation->Payload)) {
-			MyInventorySlot->GetBuildingTower().isIconDragged = false;
+
+			GetPlayerState()->SetTowersDragIconState(MyInventorySlot->GUID, false);
 			MyInventorySlot->UpdateUI();
 			isDrop = true;
 		}
 	}
 	return isDrop;
-}
+}    

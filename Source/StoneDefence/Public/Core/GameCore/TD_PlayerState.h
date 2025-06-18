@@ -28,6 +28,14 @@ public:
 	void RequestInventorySlotSwap(const FGuid& A, const FGuid& B);
 	UPlayerSaveData* GetSaveData();
 
+	/*--------------------------------UI控制部分------------------------------------*/
+	UFUNCTION(/*Server*/)
+		void TowersPrepareBuildingNumber(const FGuid& InventoryGUID);
+	UFUNCTION(/*Server*/)
+		void SetTowersDragIconState(const FGuid& InventoryGUID, bool bDragIcon);
+	UFUNCTION(/*Server*/)
+		void TowerConstructionNumber(const FGuid& InventoryGUID, int32 InValue);
+
 protected:
 	UPROPERTY()
 	UPlayerSaveData* SaveData;

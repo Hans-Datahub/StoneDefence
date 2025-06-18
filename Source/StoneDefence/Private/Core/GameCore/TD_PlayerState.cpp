@@ -67,3 +67,29 @@ UPlayerSaveData* ATD_PlayerState::GetSaveData() {
 	}
 	return SaveData;
 }
+
+void ATD_PlayerState::TowersPrepareBuildingNumber(const FGuid& InventoryGUID) {
+	FBuildingTowers& BT = GetBuildingTower(InventoryGUID);
+	if (BT.IsValid()) {//服务器验证 防止作弊
+		if (BT.BuildingCost <= GetPlayerData().GameGold) {
+			BT.TowersPrepareBuildingNumber++;
+			GetPlayerData().GameGold -= BT.BuildingCost;
+
+			if (BT.CurrentConstructionTowersCD <= 0) {
+				BT.ResetCD();
+			}
+		}
+	}
+}
+
+void ATD_PlayerState::SetTowersDragIconState(const FGuid& InventoryGUID, bool bDragIcon) {
+	FBuildingTowers& BT = GetBuildingTower(InventoryGUID);
+	BT.isIconDragged = bDragIcon;
+}
+
+void ATD_PlayerState::TowerConstructionNumber(const FGuid& InventoryGUID, int32 InValue = INDEX_NONE) {
+	FBuildingTowers& BT = GetBuildingTower(InventoryGUID);
+	if (BT.IsValid()) {
+		BT.TowersConstructionNumber += InValue;
+	}
+}

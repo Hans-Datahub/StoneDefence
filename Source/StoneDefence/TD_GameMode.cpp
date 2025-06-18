@@ -39,45 +39,14 @@ void ATD_GameMode::BeginPlay() {
 void ATD_GameMode::Tick(float DeltaSeconds) {
 	Super::Tick(DeltaSeconds);
 
-
-	if (ATD_GameState* TempGameState = GetGameState<ATD_GameState>()) {
-
-		StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATD_PlayerController* MyPlayerController) {
-				if (ATD_PlayerState* PlayerState = MyPlayerController->GetPlayerState<ATD_PlayerState>()) {
-					//每1.25秒+1金币
-					PlayerState->GetPlayerData().GameGoldTime += DeltaSeconds;
-					if (PlayerState->GetPlayerData().GameGoldTime > PlayerState->GetPlayerData().MaxGameGoldTime) {
-						PlayerState->GetPlayerData().GameGoldTime = 0.f;
-						PlayerState->GetPlayerData().GameGold++;
-					}
-				}
-			}
-		);
-
-		if (TempGameState->GetGameData().GameTimeCount <= 0) {
-			TempGameState->GetGameData().bGameOver = true;
-		}
-		else {
-			TempGameState->GetGameData().GameTimeCount -= DeltaSeconds;
-		}
-
-		int32 TowersNum = 0;
-		TArray<ARuleOfCharacter*>InTowers;
-		StoneDefenceUtils::GetAllActor<ATowers>(GetWorld(), InTowers);
-		for (ARuleOfCharacter* Temp : InTowers) {
-			if (Temp->IsActive()) {
-				TowersNum++;
-			}
-		}
-		if (!TowersNum) {
-			TempGameState->GetGameData().bGameOver = true;
-		}
-	}	
-	SpawnRuleOfMonster(DeltaSeconds);
+	UpdatePlayerData(DeltaSeconds);
+	UpdateGameData(DeltaSeconds);
+	UpdateMonsterSpawnRule(DeltaSeconds);
 	UpdateSkill(DeltaSeconds);
+	UpdateInventory(DeltaSeconds);
 }
 
-void ATD_GameMode::SpawnRuleOfMonster(float DeltaSeconds) {
+void ATD_GameMode::UpdateMonsterSpawnRule(float DeltaSeconds) {
 	if (ATD_GameState* TempGameState = GetGameState<ATD_GameState>()) {
 		if (!TempGameState->GetGameData().bCurrentLevelMissionSuccess)/*当前关卡是否胜利*/ {
 			if (!TempGameState->GetGameData().bGameOver) {//游戏是否结束
@@ -104,7 +73,7 @@ void ATD_GameMode::SpawnRuleOfMonster(float DeltaSeconds) {
 			}
 		}
 		else {
-
+			/*播放胜利画面*/
 		}
 	}
 }
@@ -325,7 +294,7 @@ void ATD_GameMode::UpdateSkill(float DeltaSeconds) {
 
 
 		//获取所有角色的所有技能
-		for (auto& Temp : NewGameState->GetSaveData()->CharacterDatas) {
+		for (auto& Temp : NewGameState->GetGameSaveData()->CharacterDatas) {
 			if (Temp.Value.Health > 0.f) {
 				//计算与更新清除列表
 				TArray<FGuid> RemoveSkillArray;//存储爆发类，作用时间结束的持续类技能
@@ -421,6 +390,115 @@ void ATD_GameMode::UpdateSkill(float DeltaSeconds) {
 				}
 			}
 		}
+	}
+}
+
+void ATD_GameMode::UpdateInventory(float DeltaSeconds) {
+	if (ATD_GameState* InGameState = GetGameState<ATD_GameState>())
+	{
+		StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATD_PlayerController* MyPlayerController)
+			{
+				if (ATD_PlayerState* InPlayerState = MyPlayerController->GetPlayerState<ATD_PlayerState>())
+				{
+					for (auto& Tmp : InPlayerState->GetSaveData()->BuildingTowers)
+					{
+						if (Tmp.Value.IsValid())
+						{
+							if (!Tmp.Value.isCDFreezed)
+							{
+								if (!Tmp.Value.isIconDragged)
+								{
+									if (Tmp.Value.CurrentConstructionTowersCD > 0)
+									{
+										Tmp.Value.CurrentConstructionTowersCD -= DeltaSeconds;
+										Tmp.Value.CallUpdateTowrsInfoOrNot = true;
+
+										//通知客户端更新我们的装备CD
+										StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATD_PlayerController* MyPlayerController)
+											{
+												MyPlayerController->UpdateInventory_Client(Tmp.Key, true);
+											});
+									}
+									else if (Tmp.Value.CallUpdateTowrsInfoOrNot)
+									{
+										Tmp.Value.CallUpdateTowrsInfoOrNot = false;
+										//准备构建的塔
+										Tmp.Value.TowersPrepareBuildingNumber--;
+										Tmp.Value.TowersConstructionNumber++;
+
+										//通知客户端更新我们的装备CD
+										StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATD_PlayerController* MyPlayerController)
+											{
+												MyPlayerController->UpdateInventory_Client(Tmp.Key, false);
+											});
+
+										if (Tmp.Value.TowersPrepareBuildingNumber > 0)
+										{
+											Tmp.Value.ResetCD();
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		);//CallUpdateAllClient()
+	}
+
+}
+
+
+void ATD_GameMode::UpdatePlayerData(float DeltaSeconds) {
+
+	//更新游戏金币
+	if (ATD_GameState* TempGameState = GetGameState<ATD_GameState>()) {
+		StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATD_PlayerController* MyPlayerController) {
+			if (ATD_PlayerState* PlayerState = MyPlayerController->GetPlayerState<ATD_PlayerState>()) {
+				//每1.25秒+1金币
+				PlayerState->GetPlayerData().GameGoldTime += DeltaSeconds;
+				if (PlayerState->GetPlayerData().GameGoldTime > PlayerState->GetPlayerData().MaxGameGoldTime) {
+					PlayerState->GetPlayerData().GameGoldTime = 0.f;
+					PlayerState->GetPlayerData().GameGold++;
+				}
+			}
+		});
+	}
+}
+
+void ATD_GameMode::UpdateGameData(float DeltaSeconds) {
+	if (ATD_GameState* TempGameState = GetGameState<ATD_GameState>()) {
+		//游戏倒计时，更新游戏结束状态
+		if (TempGameState->GetGameData().GameTimeCount <= 0) {
+			TempGameState->GetGameData().bGameOver = true;
+		}
+		else {
+			TempGameState->GetGameData().GameTimeCount -= DeltaSeconds;
+		}
+
+		//以下部分可以改为在开局初始化塔的数量，并在塔被摧毁，建造塔的时候进行数值更改，避免Tick
+		int32 TowersNum = 0;
+		TArray<ARuleOfCharacter*>InTowers;
+		StoneDefenceUtils::GetAllActor<ATowers>(GetWorld(), InTowers);
+		for (ARuleOfCharacter* Temp : InTowers) {
+			if (Temp->IsActive()) {
+				TowersNum++;
+			}
+		}
+		if (!TowersNum) {
+			TempGameState->GetGameData().bGameOver = true;
+		}
+	}
+
+}
+
+void ATD_GameMode::UpdatePlayerSkill(float DeltaSeconds) {
+	if (ATD_GameState* TempGameState = GetGameState<ATD_GameState>()) {
+		StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATD_PlayerController* MyPlayerController) {
+			if (ATD_PlayerState* PlayerState = MyPlayerController->GetPlayerState<ATD_PlayerState>()) {
+
+			}
+		});
 	}
 }
 

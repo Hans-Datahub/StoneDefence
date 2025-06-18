@@ -25,3 +25,9 @@ void ARuleOfHUD::BeginPlay() {
 	NativeOnDropPtr = CreateWidget<UUI_NativeOnDrop>(GetWorld(), NativeOnDropClass);
 	NativeOnDropPtr->AddToViewport(0);
 }
+
+void ARuleOfHUD::UpdateInventorySlot(const FGuid& InventorySlotGUID, bool bInCD) {
+	if (MainScreen) {
+		MainScreen->UpdateInventorySlot(InventorySlotGUID, bInCD);
+	}
+}
