@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/SaveGame.h"
 #include "Data/Core/PlayerData.h"
+#include "Data/Core/PlayerSkillData.h"
 #include "Data/Save/GameSaveData.h"
 #include "PlayerSaveData.generated.h"
 
@@ -21,6 +22,8 @@ public:
 	UPROPERTY(SaveGame)
 	TMap<FGuid, FBuildingTowers> BuildingTowers;
 
-	void Init();
+	UPROPERTY(SaveGame)
+	TMap<FGuid, FPlayerSkillData> PlayerSkillDatas;
+
 	bool IsValid();
 };

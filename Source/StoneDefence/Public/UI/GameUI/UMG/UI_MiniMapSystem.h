@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Core/UI_RuleOfWidget.h"
+#include "UI/GameUI/UMG/Drop/UI_NativeOnDrop.h"
 #include "UI_MiniMapSystem.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class STONEDEFENCE_API UUI_MiniMapSystem : public UUI_RuleOfWidget
+class STONEDEFENCE_API UUI_MiniMapSystem : public UUI_NativeOnDrop
 {
 	GENERATED_BODY()
 	

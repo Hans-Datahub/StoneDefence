@@ -2,28 +2,40 @@
 
 
 #include "UI/GameUI/UMG/Inventory/UI_InventorySlot.h"
-#include "Components/Button.h"
-#include "Components/Image.h"
-#include "Components/TextBlock.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "DragDrop/SD_DragDropOperation.h"
 #include "UI/GameUI/UMG/Inventory/DragDrop/UI_IconDragDrop.h"
 #include "UI/GameUI/UMG/Tip/UI_TowerTip.h"
 #include "Global/UI_Data.h"
 
-
+//__pragma(optimize("", off))
 
 void UUI_InventorySlot::NativeConstruct() {
 	Super::NativeConstruct();
-	TISButton->OnClicked.AddDynamic(this, &UUI_InventorySlot::OnClickedWidget);
-	if (TowerCD) {
-		DynamicCDMaterial = TowerCD->GetDynamicMaterial();
+	//ClickButton->OnClicked.AddDynamic(this, &UUI_InventorySlot::OnClickedWidget); //父类中已绑定
+	if (SlotImageCD) {
+		DynamicCDMaterial = SlotImageCD->GetDynamicMaterial();
 	}
+}
+
+void UUI_InventorySlot::NativeTick(const FGeometry& MyGeometry, float InDeltaTime) {
+	Super::NativeTick(MyGeometry, InDeltaTime);
+	//若槽内无内容，清空并跳过UpdateTowersCD()
+	if (!GetBuildingTower().IsValid()) {
+		ClearSlotAfterFinishedDrag();
+		return;
+	}
+	if (!GetBuildingTower().isCDFreezed) {
+		if (!GetBuildingTower().isIconDragged) {
+			UpdateTowersCD(InDeltaTime);
+		}
+	}
+
 }
 
 void UUI_InventorySlot::OnClickedWidget() {
 	if (GetBuildingTower().IsValid()) {//客户端验证 降低网络带宽
-
+		
 		//通知服务器对塔的数量进行增加
 		GetPlayerState()->TowersPrepareBuildingNumber(GUID);
 	}
@@ -34,88 +46,19 @@ FBuildingTowers& UUI_InventorySlot::GetBuildingTower() {
 }
 
 
-void UUI_InventorySlot::UpdateUI() {
-	if (GetBuildingTower().Icon) {
-		TowerIcon->SetVisibility(ESlateVisibility::HitTestInvisible);//防止遮挡按钮
-		TowerIcon->SetBrushFromSoftTexture(GetBuildingTower().Icon);
-	}
-	else 
-		ClearSlotAfterFinishedDrag();
-
-	if (GetBuildingTower().CurrentConstructionTowersCD > 0)
-		TowerCD->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
-	if (GetBuildingTower().TowersConstructionNumber > 0)
-		TCCNumber->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
-	if (GetBuildingTower().TowersPrepareBuildingNumber > 0)
-		TPBNumber->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
-	UpdateTowersBuildingInfo();//拖拽至新格子时更新参数，防止拖拽后参数为0
-	DrawTowersCD(GetBuildingTower().GetTowerConstructionCDPercentage());//重新绘制CD防止原位置残留
-}
-
-
-
-
-
-void UUI_InventorySlot::NativeTick(const FGeometry& MyGeometry, float InDeltaTime) {
-	Super::NativeTick(MyGeometry, InDeltaTime);
-	if (GetBuildingTower().IsValid()) {
-		if (!GetBuildingTower().isCDFreezed) {
-			if (!GetBuildingTower().isIconDragged) {
-				UpdateTowersCD(InDeltaTime);
-			}
-		}
-	}
-}
-
-
 void UUI_InventorySlot::UpdateTowersCD(float InDeltaTime) {
-	if (GetBuildingTower().TowersPrepareBuildingNumber > 0) {
-		if (GetBuildingTower().CurrentConstructionTowersCD > 0) {
-			DrawTowersCD(GetBuildingTower().GetTowerConstructionCDPercentage());
-			GetBuildingTower().CurrentConstructionTowersCD -= InDeltaTime;
-			GetBuildingTower().CallUpdateTowrsInfoOrNot = true;
-			UpdateTowersBuildingInfo();
+	if (GetBuildingTower().TowersPrepareBuildingNumber > 0) {//若有等待建造防御塔
+		if (GetBuildingTower().CurrentConstructionTowersCD > 0) {//若目前正在建造
+			//内容与服务端中的逻辑判断重复，故删除，仅由服务器做逻辑判断，客户端仅做UI响应
 		}
-		else {
-			GetBuildingTower().CallUpdateTowrsInfoOrNot = false;
-			GetBuildingTower().TowersPrepareBuildingNumber--;
-			GetBuildingTower().TowersConstructionNumber++;
-			DrawTowersCD(0.0f);
-
-			if (GetBuildingTower().TowersPrepareBuildingNumber > 0)
-				GetBuildingTower().ResetCD();
-			UpdateTowersBuildingInfo();
+		else {//若目前建造完毕
 		}
-	}
-}
-
-void UUI_InventorySlot::DrawTowersCD(float InTowersCD) {
-	if (DynamicCDMaterial) {
-		if (InTowersCD > 0.0f && InTowersCD < 1.0f) {
-			DynamicCDMaterial->SetScalarParameterValue(TowersCDClearName, true);
-			TowerCD->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
-		}
-		else {
-			DynamicCDMaterial->SetScalarParameterValue(TowersCDClearName, false);
-			TowerCD->SetVisibility(ESlateVisibility::Hidden);
-		}
-		DynamicCDMaterial->SetScalarParameterValue(TowersCDMaterialName, InTowersCD);
-	}
-}
-
-void UUI_InventorySlot::DisplayNumber(UTextBlock* TextNumberBlock, int32 TextNumber) {
-	if (TextNumber < 1 || !GetBuildingTower().IsValid()) 
-		TextNumberBlock->SetVisibility(ESlateVisibility::Hidden);
-	else {
-		TextNumberBlock->SetText(FText::FromString(FString::Printf(TEXT("%02d"), TextNumber)));
-		TextNumberBlock->SetVisibility(ESlateVisibility::HitTestInvisible);
 	}
 }
 
 void UUI_InventorySlot::UpdateTowersBuildingInfo() {
-	DisplayNumber(TowersCDValue, GetBuildingTower().CurrentConstructionTowersCD);
-	DisplayNumber(TCCNumber,GetBuildingTower().TowersConstructionNumber);
-	DisplayNumber(TPBNumber, GetBuildingTower().TowersPrepareBuildingNumber);
+	UpdateSlotInfo(GetBuildingTower().TowersConstructionNumber, GetBuildingTower().CurrentConstructionTowersCD);//此处参数2是否和父类中的SlotImageCD重复了？
+	DisplaySlotNumber(TPBNumber, GetBuildingTower().TowersPrepareBuildingNumber);
 }
 
 
@@ -152,10 +95,11 @@ void UUI_InventorySlot::NativeOnDragDetected(const FGeometry& InGeometry, const 
 				OutOperation = SD_DragDropOperation;
 
 				GetPlayerState()->SetTowersDragIconState(GUID,true);
+
+				ClearSlotAfterFinishedDrag();//隐藏自己
 			}
 		}
 	}
-
 }
 
 bool UUI_InventorySlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation) {
@@ -163,17 +107,36 @@ bool UUI_InventorySlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDro
 
 	bool isDrop = false;
 	if (USD_DragDropOperation* SD_DragDropOperation = Cast<USD_DragDropOperation>(InOperation)) {
-		if (UUI_InventorySlot* MyInventorySlot = Cast<UUI_InventorySlot>(SD_DragDropOperation->Payload)) {
+		if (UUI_InventorySlot* MyInventorySlot = Cast<UUI_InventorySlot>(SD_DragDropOperation->Payload)) {//源槽位
 			//服务器请求
 			GetPlayerState()->SetTowersDragIconState(MyInventorySlot->GUID, false);
-			GetPlayerState()->RequestInventorySlotSwap(GUID, MyInventorySlot->GUID);
+			GetPlayerState()->RequestInventorySlotSwap(GUID, MyInventorySlot->GUID);//数据互换
 
-			UpdateUI();//目标位置
+			UpdateUI();//目标位置			
 			MyInventorySlot->UpdateUI();//原位置
 			isDrop = true;
 		}
 	}
 	return isDrop;
+}
+
+void UUI_InventorySlot::UpdateUI() {
+	if (!GetBuildingTower().Icon) {//若目标槽位无值，即拖至空槽
+		ClearSlotAfterFinishedDrag();
+		return;
+	}
+
+	//若目标槽位有值，即交换槽位
+	UpdateSlotUI(GetBuildingTower().Icon, GetBuildingTower().TowersPrepareBuildingNumber);//俩槽位的内容在OnDrop中已经互换，此处仅需赋值即可
+	if (GetBuildingTower().TowersPrepareBuildingNumber > 0)
+		TPBNumber->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+	else {//若无在建防御塔，隐藏CD背景和CD
+		SlotImageCD->SetVisibility(ESlateVisibility::Hidden);
+		SlotCDValue->SetVisibility(ESlateVisibility::Hidden);
+	}
+
+	UpdateTowersBuildingInfo();//拖拽至新格子时更新参数，防止拖拽后参数为0
+	DrawSlotCD(GetBuildingTower().GetTowerConstructionCDPercentage());//重新绘制CD防止原位置残留
 }
 
 void UUI_InventorySlot::NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) {
@@ -185,13 +148,9 @@ void UUI_InventorySlot::NativeOnMouseLeave(const FPointerEvent& InMouseEvent) {
 
 }
 
-
 void UUI_InventorySlot::ClearSlotAfterFinishedDrag() {
-	TowerIcon->SetVisibility(ESlateVisibility::Hidden);
-	TowerCD->SetVisibility(ESlateVisibility::Hidden);
+	Super::ClearSlotAfterFinishedDrag();
 	TPBNumber->SetVisibility(ESlateVisibility::Hidden);
-	TCCNumber->SetVisibility(ESlateVisibility::Hidden);
-	TowersCDValue->SetVisibility(ESlateVisibility::Hidden);
 }
 
 
@@ -208,3 +167,4 @@ UWidget* UUI_InventorySlot::GetTowerTip() {
 	return nullptr;
 }
 
+//__pragma(optimize("", on))

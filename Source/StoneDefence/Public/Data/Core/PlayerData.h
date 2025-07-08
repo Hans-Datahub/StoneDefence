@@ -47,7 +47,4 @@ struct FPlayerData {
 
 	UPROPERTY(SaveGame)
 		TArray<int32> SkillID;
-
-	UPROPERTY(SaveGame)
-		TArray<FPlayerSkillData> SkillDatas;
 };

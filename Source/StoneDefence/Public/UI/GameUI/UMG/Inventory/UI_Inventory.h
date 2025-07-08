@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/GameUI/UMG/Core/UI_Slot.h"
+#include "UI/Core/UI_RuleOfWidget.h"
 #include "Global/UI_Data.h"
 #include "UI_Inventory.generated.h"
 
 class UUI_InventorySlot;
 
 UCLASS()
-class STONEDEFENCE_API UUI_Inventory : public UUI_Slot
+class STONEDEFENCE_API UUI_Inventory : public UUI_RuleOfWidget
 {
 	GENERATED_BODY()
 	

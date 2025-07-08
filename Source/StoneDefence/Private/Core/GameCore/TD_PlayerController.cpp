@@ -41,7 +41,16 @@ void ATD_PlayerController::BeginPlay() {
 	//SetInputMode_GameAndUIEx（）
 	//如果是蓝图可以用SetInputModeGameAndUI()
 	SetInputModeGameAndUI();
+
+	
+
+	void UpdateGlobalVar();
 }  
+
+void ATD_PlayerController::UpdateGlobalVar() {
+	//玩家技能栏的编号初始化
+	//PlayerSkillNumber = 0;
+}
 
 
 ATowers* ATD_PlayerController::SpawnTower(int32 CharacterID, int32 CharacterLevel, const FVector& Location, const FRotator& Rotator) {

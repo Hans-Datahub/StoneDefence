@@ -1,8 +1,8 @@
 
 #include "Global/UI_Data.h"
 
-
-//ÓÃÓÚÏÞÖÆÓÃÓÚÍÏ×§·ÀÓùËþÀ¶Í¼ÖÐ¼ü´¥·¢·¶Î§
+int32 PlayerSkillNumberInData = 0;
+//ç”¨äºŽé™åˆ¶ç”¨äºŽæ‹–æ‹½é˜²å¾¡å¡”è“å›¾ä¸­é”®è§¦å‘èŒƒå›´
 FGuid IconGUID4DollSelection;//TowerIconGUID->IconGUID4DollSelection
 AActor* TowerDoll;
 bool bLockedGUID;

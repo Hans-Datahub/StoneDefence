@@ -416,6 +416,7 @@ void ATD_GameMode::UpdateInventory(float DeltaSeconds) {
 										//通知客户端更新我们的装备CD
 										StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATD_PlayerController* MyPlayerController)
 											{
+												//最终链式调用Inventory中的UpdateInventorySlot
 												MyPlayerController->UpdateInventory_Client(Tmp.Key, true);
 											});
 									}
@@ -428,9 +429,9 @@ void ATD_GameMode::UpdateInventory(float DeltaSeconds) {
 
 										//通知客户端更新我们的装备CD
 										StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATD_PlayerController* MyPlayerController)
-											{
-												MyPlayerController->UpdateInventory_Client(Tmp.Key, false);
-											});
+										{
+											MyPlayerController->UpdateInventory_Client(Tmp.Key, false);
+										});
 
 										if (Tmp.Value.TowersPrepareBuildingNumber > 0)
 										{

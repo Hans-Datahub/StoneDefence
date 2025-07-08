@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Core/UI_RuleOfWidget.h"
+#include "UI/GameUI/UMG/Drop/UI_NativeOnDrop.h"
 #include "UI_MainScreen.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class STONEDEFENCE_API UUI_MainScreen : public UUI_RuleOfWidget
+class STONEDEFENCE_API UUI_MainScreen : public UUI_NativeOnDrop
 {
 	GENERATED_BODY()
 

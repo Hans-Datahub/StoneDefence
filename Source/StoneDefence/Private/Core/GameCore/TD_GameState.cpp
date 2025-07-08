@@ -30,6 +30,8 @@ ATD_GameState::ATD_GameState() {
 	AITowerCharacterData = MyTable_Towers.Object;
 	AIMonsterCharacterData = MyTable_Monsters.Object;
 	CharacterSkillData = MyTable_Skill.Object;
+
+	//GetPlayerSaveData()->InitSaveGame(GetWorld());
 }
 
 

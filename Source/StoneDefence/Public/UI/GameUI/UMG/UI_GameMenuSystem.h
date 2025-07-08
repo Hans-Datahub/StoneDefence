@@ -3,13 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Core/UI_RuleOfWidget.h"
+#include "UI/GameUI/UMG/Drop/UI_NativeOnDrop.h"
 #include "UI_GameMenuSystem.generated.h"
 
 class UButton;
 
 UCLASS()
-class STONEDEFENCE_API UUI_GameMenuSystem : public UUI_RuleOfWidget
+class STONEDEFENCE_API UUI_GameMenuSystem : public UUI_NativeOnDrop
 {
 	GENERATED_BODY()
 

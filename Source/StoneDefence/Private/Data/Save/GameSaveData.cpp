@@ -14,7 +14,7 @@ void FBuildingTowers::Init() {
 	TowersPrepareBuildingNumber = 0.0f;
 	TowersConstructionNumber = 0.0f;
 	MaxConstructionTowersCD = 0.0f;
-	CurrentConstructionTowersCD = 5.0f;
+	CurrentConstructionTowersCD = 0.0f;
 	Icon = NULL;
 	isIconDragged = false;
 	isCDFreezed = false;

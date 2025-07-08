@@ -3,13 +3,34 @@
 
 #include "UI/GameUI/UMG/UI_PlayerSkillSystem.h"
 #include "GameFramework/InputSettings.h"
+#include "Components/HorizontalBox.h"
+#include "Components/HorizontalBoxSlot.h"
+#include "UI/GameUI/UMG/Skill/UI_SkillSlot.h"
 
 
 void UUI_PlayerSkillSystem::NativeConstruct() {
 	Super::NativeConstruct();
 
-	//½Ì³ÌÔ­Ğ´·¨£¨±¨´í£ºÓ¦½«ActionMappings¸ÄÎªGetActionMappings£¬¸ÄÍêºóÈÓ±¨´í£º.FindByPredicate¡±µÄ×ó±ß±ØĞëÓĞÀà/½á¹¹/ÁªºÏ£©
-	    auto KeyMapping = GetDefault<UInputSettings>()->GetActionMappings().FindByPredicate(
+	//æ•™ç¨‹åŸå†™æ³•ï¼ˆæŠ¥é”™ï¼šåº”å°†ActionMappingsæ”¹ä¸ºGetActionMappingsï¼Œæ”¹å®Œåæ‰”æŠ¥é”™ï¼š.FindByPredicateâ€çš„å·¦è¾¹å¿…é¡»æœ‰ç±»/ç»“æ„/è”åˆï¼‰
+/*	    auto KeyMapping = GetDefault<UInputSettings>()->GetActionMappings().FindByPredicate(
 		[&](const FInputActionKeyMapping& EntryUI) {
-		return (EntryUI.ActionName == "FreezeSkill");});  
+		return (EntryUI.ActionName == "FreezeSkill");}); */ 
+
+	LayoutPlayerSkillSlot();
+}
+
+void UUI_PlayerSkillSystem::LayoutPlayerSkillSlot() {
+	if (SkillSlotClass) {
+		for (const auto& Temp : GetPlayerState()->GetPlayerSkillDataID()) {
+			if (UUI_SkillSlot* SkillSlot = CreateWidget<UUI_SkillSlot>(GetWorld(), SkillSlotClass)) {				
+				SkillSlot->GUID = *Temp;		
+				if (UHorizontalBoxSlot* PanelSlot = SkillList->AddChildToHorizontalBox(SkillSlot)) {
+					PanelSlot->SetPadding(20.f);
+					PanelSlot->SetSize(ESlateSizeRule::Fill);
+					PanelSlot->SetHorizontalAlignment(HAlign_Fill);
+					PanelSlot->SetVerticalAlignment(VAlign_Fill);
+				}				
+			}
+		}
+	}
 }

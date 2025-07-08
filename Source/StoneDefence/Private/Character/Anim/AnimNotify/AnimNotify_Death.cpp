@@ -2,8 +2,12 @@
 
 
 #include "Character/Anim/AnimNotify/AnimNotify_Death.h"
-#include "Persona/Public/AnimationEditorPreviewActor.h"
 #include "Character/Core/RuleOfCharacter.h"
+
+// ä»…åœ¨ç¼–è¾‘å™¨æ¨¡å¼ä¸‹åŒ…å«é¢„è§ˆè§’è‰²å¤´æ–‡ä»¶
+#if WITH_EDITOR
+#include "AnimationEditorPreviewActor.h" // ä¿®æ­£è·¯å¾„å¹¶ç§»é™¤"Persona/Public/"
+#endif
 
 class AAnimationEditorPreviewActor;
 
@@ -17,19 +21,19 @@ UAnimNotify_Death::UAnimNotify_Death()
 
 void UAnimNotify_Death::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) {
 #if WITH_EDITOR
-	//´Ë´¦ÓÃµ½ÁËPersonaÄ£¿é
-	//ÈôÓÃ±à¼­Æ÷Æô¶¯£¬Ôò½øĞĞ×ª»»ÅĞ¶Ï£ºÈô×ª»»³É¹¦ÔòÔÚÓÎÏ·ÖĞÔËĞĞ£¬Ìø¹ı¡£´Ó¶ø¸ø¡°È·±£AnimÔ¤ÀÀÔÚÊµÀı±»DestroyºóÈÔÄÜÕı³£ÔËĞĞ¡±¼ÓË«²ã±£ÏÕ
-	AAnimationEditorPreviewActor* Character = Cast<AAnimationEditorPreviewActor>(MeshComp->GetOuter());
-	if (!Character) {
-		if (ARuleOfCharacter* CharacterActor = Cast<ARuleOfCharacter>(MeshComp->GetOuter())) {
-			CharacterActor->Destroy();
-			CharacterActor->OnActorDeath.Broadcast();
+	//æ­¤å¤„ç”¨åˆ°äº†Personaæ¨¡å—
+	//è‹¥ç”¨ç¼–è¾‘å™¨å¯åŠ¨ï¼Œåˆ™è¿›è¡Œè½¬æ¢åˆ¤æ–­ï¼šè‹¥è½¬æ¢æˆåŠŸåˆ™åœ¨æ¸¸æˆä¸­è¿è¡Œï¼Œè·³è¿‡ã€‚ä»è€Œç»™â€œç¡®ä¿Animé¢„è§ˆåœ¨å®ä¾‹è¢«Destroyåä»èƒ½æ­£å¸¸è¿è¡Œâ€åŠ åŒå±‚ä¿é™©
+	AAnimationEditorPreviewActor* PreviewCharacter = Cast<AAnimationEditorPreviewActor>(MeshComp->GetOuter());
+	if (!PreviewCharacter) {
+		if (ARuleOfCharacter* Character = Cast<ARuleOfCharacter>(MeshComp->GetOuter())) {
+			Character->Destroy();
+			Character->OnActorDeath.Broadcast();
 		}
 	}
 #else
 	if (ARuleOfCharacter* Character = Cast<ARuleOfCharacter>(MeshComp->GetOuter())) {
 		Character->Destroy();
-		CharacterActor->OnActorDeath.Broadcast();
+		Character->OnActorDeath.Broadcast();
 	}
 #endif
 }

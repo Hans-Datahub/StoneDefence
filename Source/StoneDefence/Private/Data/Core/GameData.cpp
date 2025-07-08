@@ -41,7 +41,7 @@ void FGameInstanceDatas::ResetCurrentSpawn() {
 }
 
 void FGameInstanceDatas::AssignedMonsterAmount() {
-	UE_LOG(LogTemp, Error, TEXT("fuck"));
+	//UE_LOG(LogTemp, Error, TEXT("fuck"));
 	int32 CurrentMobNumber = MaxNumberOfMonster;
 	int32 CurrentStageNumber = MaxStage;
 	int32 CurrentStageAssignedMobNum = 0;
@@ -49,14 +49,14 @@ void FGameInstanceDatas::AssignedMonsterAmount() {
 		for (int32 i = 0; i < CurrentStageNumber; i++) {
 			float EverageMobNumInEachStage = (float)MaxNumberOfMonster / (float)CurrentStageNumber;
 			CurrentStageNumber--;
-			if (CurrentStageNumber > 1) {//Èô²»ÊÇ×îºóÒ»²¨
+			if (CurrentStageNumber > 1) {//è‹¥ä¸æ˜¯æœ€åä¸€æ³¢
 				CurrentStageAssignedMobNum = FMath::RandRange(EverageMobNumInEachStage / 6, EverageMobNumInEachStage);
 		 	}
-			else {//ÈôÎª×îºóÒ»²¨
+			else {//è‹¥ä¸ºæœ€åä¸€æ³¢
 				CurrentStageAssignedMobNum = EverageMobNumInEachStage;
 			}
 			MobNumberinCurrentStage.Add(CurrentStageAssignedMobNum);		
-			//RemainNumberOfMonster -= CurrentStageAssignedMobNum;        RemainNumberOfMonsterÒÑÒÆ³ı£¬ĞèÖØ¹¹
+			//RemainNumberOfMonster -= CurrentStageAssignedMobNum;        RemainNumberOfMonsterå·²ç§»é™¤ï¼Œéœ€é‡æ„
 		}
 	}
 	else {

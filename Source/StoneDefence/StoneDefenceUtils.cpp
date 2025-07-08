@@ -208,76 +208,76 @@ float Expression::GetDamage(IRuleCharacter* Enemy, IRuleCharacter* Taker) {
 UStaticMesh* MeshUtils::SkeletalMeshComponentToStaticMesh(class USkeletalMeshComponent* SkeletalMeshComponent) {
 	class UStaticMesh* StaticMesh = nullptr;
 
-	if (UWorld* World = SkeletalMeshComponent->GetWorld()) {
-		//原始Mesh数据，包含一些点的位置、颜色以及坐标等等
-		FRawMesh RawMesh;//需要在Build.cs中包含模块
-		FMeshTracker MeshTracker;
-		int32 OverallMaxLODs = 0;
+	//if (UWorld* World = SkeletalMeshComponent->GetWorld()) {
+	//	//原始Mesh数据，包含一些点的位置、颜色以及坐标等等
+	//	FRawMesh RawMesh;//需要在Build.cs中包含模块
+	//	FMeshTracker MeshTracker;
+	//	int32 OverallMaxLODs = 0;
 
-		const FTransform& InRootTransform = FTransform::Identity;//单位化以方便计算 
-		FMatrix WorldToRoot = InRootTransform.ToMatrixWithScale().Inverse();
-		FMatrix ComponentToWorld = SkeletalMeshComponent->GetComponentTransform().ToMatrixWithScale() * WorldToRoot;
+	//	const FTransform& InRootTransform = FTransform::Identity;//单位化以方便计算 
+	//	FMatrix WorldToRoot = InRootTransform.ToMatrixWithScale().Inverse();
+	//	FMatrix ComponentToWorld = SkeletalMeshComponent->GetComponentTransform().ToMatrixWithScale() * WorldToRoot;
 
-		if (IsValidSkeletalMeshComponent(SkeletalMeshComponent)) {
-			SkeletalMeshToRawMeshes(SkeletalMeshComponent, OverallMaxLODs, ComponentToWorld, MeshTracker, RawMesh);
-		}
+	//	if (IsValidSkeletalMeshComponent(SkeletalMeshComponent)) {
+	//		SkeletalMeshToRawMeshes(SkeletalMeshComponent, OverallMaxLODs, ComponentToWorld, MeshTracker, RawMesh);
+	//	}
 
-		uint32 MaxInUseTextureCoordsinate = 0;//声明最大纹理坐标
-		if (!MeshTracker.bValidColors) {
-			RawMesh.WedgeColors.Empty();
-		}
+	//	uint32 MaxInUseTextureCoordsinate = 0;//声明最大纹理坐标
+	//	if (!MeshTracker.bValidColors) {
+	//		RawMesh.WedgeColors.Empty();
+	//	}
 
-		for (uint32 TexCoordsIndex = 0; TexCoordsIndex < MAX_MESH_TEXTURE_COORDS; TexCoordsIndex++) {
-			if (!MeshTracker.bValidTexCoords[TexCoordsIndex]) {
-				RawMesh.WedgeTexCoords[TexCoordsIndex].Empty();
-			}
-			else {
-				MaxInUseTextureCoordsinate = FMath::Max(MaxInUseTextureCoordsinate, TexCoordsIndex);
-			}
-		}
+	//	for (uint32 TexCoordsIndex = 0; TexCoordsIndex < MAX_MESH_TEXTURE_COORDS; TexCoordsIndex++) {
+	//		if (!MeshTracker.bValidTexCoords[TexCoordsIndex]) {
+	//			RawMesh.WedgeTexCoords[TexCoordsIndex].Empty();
+	//		}
+	//		else {
+	//			MaxInUseTextureCoordsinate = FMath::Max(MaxInUseTextureCoordsinate, TexCoordsIndex);
+	//		}
+	//	}
 
-		if (RawMesh.IsValidOrFixable()) {
-			FString MeshName = FGuid::NewGuid().ToString();
-			StaticMesh = NewObject<UStaticMesh>(World, *MeshName, RF_Transient);//RF_Transient 保证该Mesh不会被保存，不会序列化到磁盘
-			StaticMesh->InitResources();
+	//	if (RawMesh.IsValidOrFixable()) {
+	//		FString MeshName = FGuid::NewGuid().ToString();
+	//		StaticMesh = NewObject<UStaticMesh>(World, *MeshName, RF_Transient);//RF_Transient 保证该Mesh不会被保存，不会序列化到磁盘
+	//		StaticMesh->InitResources();
 
-			StaticMesh->SetLightingGuid(FGuid::NewGuid());
+	//		StaticMesh->SetLightingGuid(FGuid::NewGuid());
 
-			//MaxInUseTextureCoordinate + 1指1号贴图位置为灯光贴图，(uint32)8 - 1指序列为7
-			const uint32 LightMapIndex = FMath::Min(MaxInUseTextureCoordsinate + 1, (uint32)8 - 1);//获取灯光UV  
+	//		//MaxInUseTextureCoordinate + 1指1号贴图位置为灯光贴图，(uint32)8 - 1指序列为7
+	//		const uint32 LightMapIndex = FMath::Min(MaxInUseTextureCoordsinate + 1, (uint32)8 - 1);//获取灯光UV  
 
-			FStaticMeshSourceModel& SrcModel = StaticMesh->AddSourceModel();
-			SrcModel.BuildSettings.bRecomputeNormals = false;
-			SrcModel.BuildSettings.bRecomputeTangents = false;
-			SrcModel.BuildSettings.bRemoveDegenerates = true;
-			SrcModel.BuildSettings.bUseHighPrecisionTangentBasis = false;
-			SrcModel.BuildSettings.bUseFullPrecisionUVs = false;
-			SrcModel.BuildSettings.bGenerateLightmapUVs = true;
-			SrcModel.BuildSettings.SrcLightmapIndex = 0;
-			SrcModel.BuildSettings.DstLightmapIndex = LightMapIndex;
-			SrcModel.SaveRawMesh(RawMesh);
+	//		FStaticMeshSourceModel& SrcModel = StaticMesh->AddSourceModel();
+	//		SrcModel.BuildSettings.bRecomputeNormals = false;
+	//		SrcModel.BuildSettings.bRecomputeTangents = false;
+	//		SrcModel.BuildSettings.bRemoveDegenerates = true;
+	//		SrcModel.BuildSettings.bUseHighPrecisionTangentBasis = false;
+	//		SrcModel.BuildSettings.bUseFullPrecisionUVs = false;
+	//		SrcModel.BuildSettings.bGenerateLightmapUVs = true;
+	//		SrcModel.BuildSettings.SrcLightmapIndex = 0;
+	//		SrcModel.BuildSettings.DstLightmapIndex = LightMapIndex;
+	//		SrcModel.SaveRawMesh(RawMesh);
 
-			for (const UMaterialInterface* Material : SkeletalMeshComponent->GetMaterials()) {
-				StaticMesh->GetStaticMaterials().Add(FStaticMaterial(const_cast<UMaterialInterface*>(Material)));
-			}
+	//		for (const UMaterialInterface* Material : SkeletalMeshComponent->GetMaterials()) {
+	//			StaticMesh->GetStaticMaterials().Add(FStaticMaterial(const_cast<UMaterialInterface*>(Material)));
+	//		}
 
-			StaticMesh->ImportVersion = EImportStaticMeshVersion::LastVersion;
-			StaticMesh->LightMapCoordinateIndex = LightMapIndex;
+	//		StaticMesh->ImportVersion = EImportStaticMeshVersion::LastVersion;
+	//		StaticMesh->LightMapCoordinateIndex = LightMapIndex;
 
-			TArray<int32> UniqueMaterialIndices;
-			for (int32 MaterialIndex : RawMesh.FaceMaterialIndices) {
-				UniqueMaterialIndices.AddUnique(MaterialIndex);
-			}
+	//		TArray<int32> UniqueMaterialIndices;
+	//		for (int32 MaterialIndex : RawMesh.FaceMaterialIndices) {
+	//			UniqueMaterialIndices.AddUnique(MaterialIndex);
+	//		}
 
-			for (int32 i = 0; i < UniqueMaterialIndices.Num(); i++) {
-				StaticMesh->GetSectionInfoMap().Set(0, i, FMeshSectionInfo(UniqueMaterialIndices[i]));
-			}
-			StaticMesh->GetOriginalSectionInfoMap().CopyFrom(StaticMesh->GetSectionInfoMap());
-			StaticMesh->Build(false);//false指不希望弹出对话框
+	//		for (int32 i = 0; i < UniqueMaterialIndices.Num(); i++) {
+	//			StaticMesh->GetSectionInfoMap().Set(0, i, FMeshSectionInfo(UniqueMaterialIndices[i]));
+	//		}
+	//		StaticMesh->GetOriginalSectionInfoMap().CopyFrom(StaticMesh->GetSectionInfoMap());
+	//		StaticMesh->Build(false);//false指不希望弹出对话框
 
-		}
+	//	}
 
-	}
+	//}
 	return StaticMesh;
 }
 

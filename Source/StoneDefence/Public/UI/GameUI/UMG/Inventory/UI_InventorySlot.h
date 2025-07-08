@@ -17,37 +17,11 @@ UCLASS()
 class STONEDEFENCE_API UUI_InventorySlot : public UUI_Slot
 {
 	GENERATED_BODY()
-
-	UPROPERTY(meta = (BindWidget))
-	UImage* TowerIcon;
-
-	UPROPERTY(meta = (BindWidget))
-	UImage* TowerCD;
+public:
 
 	//Towers Prepare Building Number
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* TPBNumber;
-
-	//Towers Completion Of Construction Number
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* TCCNumber;
-
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* TowersCDValue;
-
-	//Towers Inventory Slot Button
-	UPROPERTY(meta = (BindWidget))
-	UButton* TISButton;
-
-	UPROPERTY()
-	class UMaterialInstanceDynamic* DynamicCDMaterial;
-
-	UPROPERTY(EditDefaultsOnly, Category = UI)
-	FName TowersCDMaterialName;
-
-	//若CD完成后不清除会有一条线
-	UPROPERTY(EditDefaultsOnly, Category = UI)
-	FName TowersCDClearName;
 
 	UPROPERTY(EditDefaultsOnly, Category = UI)
 	TSubclassOf<class UUI_IconDragDrop> IconDragDropClass;
@@ -55,11 +29,9 @@ class STONEDEFENCE_API UUI_InventorySlot : public UUI_Slot
 	UPROPERTY(EditDefaultsOnly, Category = UI)
 	TSubclassOf<class UUI_TowerTip> TowerTipClass;
 
-public:
 	virtual void NativeConstruct();
 
-	UFUNCTION(BlueprintCallable)
-	void OnClickedWidget();
+	virtual void OnClickedWidget() override;
 
 	FBuildingTowers& GetBuildingTower();
 
@@ -74,8 +46,6 @@ public:
 
 	void UpdateTowersBuildingInfo();
 
-	void DrawTowersCD(float InTowersCD);
-
 protected:
 	virtual FReply NativeOnMouseButtonDown (const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)override;
 	virtual void NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation)override;
@@ -83,6 +53,5 @@ protected:
 	virtual void NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent);
 	virtual void NativeOnMouseLeave(const FPointerEvent& InMouseEvent);
 	void UpdateTowersCD(float InDeltaTime);
-	void DisplayNumber(UTextBlock* TextNumberBlock, int32 TextNumber);
 
 };

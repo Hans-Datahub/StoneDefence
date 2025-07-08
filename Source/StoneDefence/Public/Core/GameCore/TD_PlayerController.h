@@ -66,6 +66,8 @@ public:
 	void Spawn_Projectile_Client(const FGuid& CharacterID, const int32 &SkillID);
 	UFUNCTION()
 	void UpdateInventory_Client(const FGuid& InventorySlotGUID, bool bInCD);
+
+	void UpdateGlobalVar();
 protected:
 	FScreenMoveUnits ScreenMoveUnits;
 

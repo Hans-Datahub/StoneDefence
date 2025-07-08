@@ -5,10 +5,21 @@
 #include "../StoneDefenceUtils.h"
 #include "../StoneDefenceMacro.h"
 
+__pragma(optimize("", off))
+
 ATD_PlayerState::ATD_PlayerState() {
+	//添加防御塔槽位和技能原本放在构造中，在技能添加进来之后，报错读取位置 0xFFFFFFFFFFFFFFFF 时发生访问冲突。故放至BeginPlay中
+}
+
+void ATD_PlayerState::BeginPlay() {
 	//给BuildingTowers加入21个对象，对应UI上的21个防御塔槽位
 	for (int32 i = 0; i < 21; i++)
 		GetSaveData()->BuildingTowers.Add(FGuid::NewGuid(), FBuildingTowers());
+
+	//给PlayerSkillDatas加入10个对象，对应10个技能
+	for (int32 i = 0; i < 10; i++)
+		GetSaveData()->PlayerSkillDatas.Add(FGuid::NewGuid(), FPlayerSkillData());
+
 }
 
 FPlayerData& ATD_PlayerState::GetPlayerData() {
@@ -93,3 +104,24 @@ void ATD_PlayerState::TowerConstructionNumber(const FGuid& InventoryGUID, int32 
 		BT.TowersConstructionNumber += InValue;
 	}
 }
+
+
+
+FPlayerSkillData* ATD_PlayerState::GetPlayerSkillData(const FGuid& SkillGuid) {
+	//若ID所指目标在PlayerSkillDatas中未登记，则报错"The Current [ID] was not found"
+	if (GetSaveData()->PlayerSkillDatas.Contains(SkillGuid)) {
+		return &GetSaveData()->PlayerSkillDatas[SkillGuid];
+	}
+	TD_LOGPRINT(Error, "The [%i] was not found in PlayerSkillDatas", *SkillGuid.ToString());
+	return nullptr;
+}
+
+const TArray<const FGuid*> ATD_PlayerState::GetPlayerSkillDataID() {
+	TArray<const FGuid*> SkillIDs;
+	for (const auto& Temp : GetSaveData()->PlayerSkillDatas) {
+		SkillIDs.Add(&Temp.Key);
+	}
+	return SkillIDs;
+}
+
+__pragma(optimize("", on))

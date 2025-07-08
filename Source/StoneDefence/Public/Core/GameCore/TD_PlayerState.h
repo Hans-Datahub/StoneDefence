@@ -18,15 +18,20 @@ class STONEDEFENCE_API ATD_PlayerState : public APlayerState
 {
 	GENERATED_BODY()
 	ATD_PlayerState();
+	virtual void BeginPlay() override;
+	bool bInitialized = false;
 
 public:
-	FPlayerData& GetPlayerData();
 	FBuildingTowers& GetBuildingTower(const FGuid& ID);
 	const TArray<const FGuid*> GetBuildingTowersID();
 	//塔建造队列数据增删
 	const FBuildingTowers& AddBuildingTower(const FGuid& ID, const FBuildingTowers& Data);
 	void RequestInventorySlotSwap(const FGuid& A, const FGuid& B);
 	UPlayerSaveData* GetSaveData();
+	FPlayerData& GetPlayerData();
+	
+	FPlayerSkillData* GetPlayerSkillData(const FGuid& SkillGuid);// = GetSkillDatas()
+	const TArray<const FGuid*> GetPlayerSkillDataID();// = GetSkillDatasID()
 
 	/*--------------------------------UI控制部分------------------------------------*/
 	UFUNCTION(/*Server*/)

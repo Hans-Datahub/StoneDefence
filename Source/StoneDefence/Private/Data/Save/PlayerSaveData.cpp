@@ -2,10 +2,9 @@
 
 
 #include "Data/Save/PlayerSaveData.h"
+#include "Core/GameCore/TD_GameState.h"
+#include "Data/Save/GameSaveData.h"
 
-void UPlayerSaveData::Init() {
-
-}
 
 bool UPlayerSaveData::IsValid() {
 	return true;

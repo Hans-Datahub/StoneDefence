@@ -14,13 +14,14 @@
 #include "Core/GameCore/TD_GameState.h"
 
 #include "CHaracter/CharacterCore/Towers.h"
-
+//#include "Engine/RawMesh.h"
 
 class AActor;
 class UStaticMesh;
 class USkeletalMeshComponent;
 class UWorld;
 class AStaticMeshActor;
+struct FRawMesh;
 
 
 namespace StoneDefenceUtils {

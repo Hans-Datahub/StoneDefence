@@ -25,10 +25,10 @@ void UUI_Inventory::UpdateInventorySlot(const FGuid& InventorySlotGUID, bool bIn
 	for (auto& Temp : InventorySlotArray) {
 		if (Temp->GUID == InventorySlotGUID) {
 			if (bInCD) {
-				Temp->DrawTowersCD(Temp->GetBuildingTower().GetTowerConstructionCDPercentage());
+				Temp->DrawSlotCD(Temp->GetBuildingTower().GetTowerConstructionCDPercentage());
 			}
 			else {
-				Temp->DrawTowersCD(0.f);
+				Temp->DrawSlotCD(0.f);
 			}
 
 			Temp->UpdateTowersBuildingInfo();
