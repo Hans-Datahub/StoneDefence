@@ -6,9 +6,7 @@
 #include "UI/GameUI/UMG/Drop/UI_NativeOnDrop.h"
 #include "UI_MainScreen.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class STONEDEFENCE_API UUI_MainScreen : public UUI_NativeOnDrop
 {
@@ -45,4 +43,6 @@ public:
 	virtual void NativeConstruct()override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 	void UpdateInventorySlot(const FGuid& InventorySlotGUID, bool bInCD);
+	void UpdatePlayerSkillSlot(const FGuid& PlayerSkillSlotGUID, bool bInCD);
+
 };

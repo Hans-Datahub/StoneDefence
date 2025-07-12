@@ -11,7 +11,9 @@ struct FPlayerSkillData : public FSkillData {
 
 	FPlayerSkillData();
 
-	virtual void Init();
+	virtual void Init() override;
+
+	virtual bool IsValid();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Skill Attribute")
 	float SkillNumber;

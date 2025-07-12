@@ -66,6 +66,11 @@ public:
 	void Spawn_Projectile_Client(const FGuid& CharacterID, const int32 &SkillID);
 	UFUNCTION()
 	void UpdateInventory_Client(const FGuid& InventorySlotGUID, bool bInCD);
+	UFUNCTION()
+	void SpawnPlayerSkill_Client(const int32& PlayerSkillID);
+	UFUNCTION()
+	void UpdatePlayerSkill_Client(const FGuid& PlayerSkillSlotGUID, bool bInCD);
+
 
 	void UpdateGlobalVar();
 protected:

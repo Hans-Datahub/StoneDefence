@@ -16,6 +16,7 @@ void FPlayerData::Init() {
 	Team = ETeam::RED;
 	GameGoldTime = 0.f;
 	MaxGameGoldTime = 1.25;
+	SkillID.Add(0);
 }
 
 bool FPlayerData::IsValid() {

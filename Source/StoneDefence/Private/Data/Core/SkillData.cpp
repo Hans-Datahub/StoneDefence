@@ -50,3 +50,7 @@ void FSkillData::ResetDuration()
 void FSkillData::ResetCD(){
 	SkillCD = MaxSkillCD;
 }
+
+bool FSkillData::IsValid() {
+	return Super::IsValid();
+}

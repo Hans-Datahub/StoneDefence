@@ -61,7 +61,9 @@ public:
 
 	void UpdateSlotUI(UTexture2D* Icon, int32 ConstructionNumber);	
 	void DrawSlotCD(float InTowersCD);
-	void DisplaySlotNumber(UTextBlock* TextNumberBlock, int32 TextNumber);
 	void UpdateSlotInfo(int32 ConstructionNumber, float InSlotCD);
-	
+
+protected:
+	void DisplaySlotNumber(UTextBlock* TextNumberBlock, int32 TextNumber);
+
 };

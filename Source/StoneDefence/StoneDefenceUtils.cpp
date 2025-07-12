@@ -19,6 +19,7 @@
 #include "Character/Projectile/RuleOfProjectile.h"
 #include "Components/ArrowComponent.h"
 #include "Core/GameCore/TD_PlayerController.h"
+#include "Core/GameCore/TD_PlayerState.h"
 
 
 class ARuleOfCharacter;
@@ -161,7 +162,7 @@ ARuleOfProjectile* StoneDefenceUtils::SpawnProjectile(UWorld* World, ARuleOfChar
 	if (World) {
 		if (ATD_GameState* InGameState = World->GetGameState<ATD_GameState>()) {
 			if (const FSkillData* InData = InGameState->GetSkillData(SKillID)) {
-				if (ARuleOfProjectile* Projectile = StoneDefenceUtils::SpawnProjectile(World, Owner, InData->ProjectileClass, Loc, Rot)) {
+				if (ARuleOfProjectile* Projectile = StoneDefenceUtils::SpawnProjectile(World, Owner, InData->SkillProjectileClass, Loc, Rot)) {
 					NewProjectile = Projectile;
 				}
 			}
@@ -192,6 +193,18 @@ void StoneDefenceUtils::CallUpdateAllClient(UWorld* World, TFunction<void(ATD_Pl
 		}
 	}
 }
+
+ASkillProjectile* StoneDefenceUtils::SpawnSkillProjectile(UWorld* World, int32 SkillID) {
+	if (ATD_PlayerState* PlayerState = World->GetFirstPlayerController()->GetPlayerState<ATD_PlayerState>()) {
+		if (const FPlayerSkillData* PlayerSkillData = PlayerState->GetPlayerSkillData(SkillID)) {
+			if (ASkillProjectile* SkillProjectile = World->SpawnActor<ASkillProjectile>(PlayerSkillData->SkillProjectileClass, FVector::ZeroVector, FRotator::ZeroRotator)) {
+				return SkillProjectile;
+			}
+		}
+	}
+	return nullptr;
+}
+
 
 
 /*----------------------------------------------------------------------------------------------------------------------*/

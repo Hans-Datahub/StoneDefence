@@ -2,13 +2,21 @@
 
 
 #include "Core/GameCore/TD_PlayerState.h"
+
 #include "../StoneDefenceUtils.h"
 #include "../StoneDefenceMacro.h"
+#include "UObject/ConstructorHelpers.h"
+#include "Core/GameCore/TD_PlayerController.h"
 
-__pragma(optimize("", off))
+
+//__pragma(optimize("", off))
 
 ATD_PlayerState::ATD_PlayerState() {
 	//添加防御塔槽位和技能原本放在构造中，在技能添加进来之后，报错读取位置 0xFFFFFFFFFFFFFFFF 时发生访问冲突。故放至BeginPlay中
+	//12.12开头有提及，PlayerSkillData继承自DataTable，若在构造中初始化则会报上面的错误
+
+	static ConstructorHelpers::FObjectFinder<UDataTable> MyTable_Skill(TEXT("/Game/GameData/PlayerSkillDataTable"));
+	PlayerSkillData = MyTable_Skill.Object;
 }
 
 void ATD_PlayerState::BeginPlay() {
@@ -124,4 +132,56 @@ const TArray<const FGuid*> ATD_PlayerState::GetPlayerSkillDataID() {
 	return SkillIDs;
 }
 
-__pragma(optimize("", on))
+const TArray<FPlayerSkillData*>& ATD_PlayerState::GetPlayerSkillDataFromTable() {
+	if (!CachePlayerSkillDatas.Num()) //若缓存内无数据，直接读取行
+		PlayerSkillData->GetAllRows(TEXT("PlayerSkill Data"), CachePlayerSkillDatas);
+	return CachePlayerSkillDatas;
+}
+
+const FPlayerSkillData* ATD_PlayerState::GetPlayerSkillData(const int32& PlayerSkillID) {
+	const TArray<FPlayerSkillData*>& InSkillData = GetPlayerSkillDataFromTable();
+	for (auto& Temp : InSkillData) {
+		if (Temp->SkillID == PlayerSkillID) {
+			return Temp;
+		}
+	}
+	return NULL;
+}
+
+bool ATD_PlayerState::SkillVerification(const FGuid& SlotID) {//验证成功，表明可以使用该技能
+	if (FPlayerSkillData* InData = GetPlayerSkillData(SlotID)) {
+		if (InData->IsValid() && InData->SkillNumber > 0 && InData->GetSkillCDPercentage() <= 0.f) {//不太理解此处第二个条件，数据有意义不就是技能个数 > 0吗？
+			return true;
+		}
+	}
+	return false;
+}
+
+void ATD_PlayerState::UsePlayerSkill(const FGuid& SlotID) {
+	if(FPlayerSkillData* InData = GetPlayerSkillData(SlotID)){
+		if (InData->IsValid()) {
+			InData->SkillNumber--;
+			InData->ResetCD();
+			//通知代理 在UI模块显示相应技能图标	
+			StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATD_PlayerController* MyPlayerController) {
+				MyPlayerController->SpawnPlayerSkill_Client(InData->SkillID);
+			});
+
+		}
+	}
+}
+
+void ATD_PlayerState::AddPlayerSkill(const FGuid* Guid, int32 SkillID) {
+	if (const FPlayerSkillData* SkillData = GetPlayerSkillData(SkillID)) {
+		GetSaveData()->PlayerSkillDatas[*Guid] = *SkillData;
+	
+		//通知代理 在UI模块显示相应技能图标	
+		StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATD_PlayerController* MyPlayerController) {
+			MyPlayerController->UpdatePlayerSkill_Client(*Guid, false);
+		});
+	}
+}
+
+
+
+//__pragma(optimize("", on))

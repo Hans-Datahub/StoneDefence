@@ -12,6 +12,7 @@
 class UImage;
 class Ubutton;
 class UTextBlock;
+struct FPlayerSkillData;
 
 UCLASS()
 class STONEDEFENCE_API UUI_SkillSlot : public UUI_Slot
@@ -25,6 +26,12 @@ public:
 	virtual void NativeConstruct();
 
 	FORCEINLINE int32 GetKeyNumberForSKill() const { return KeyNumberForSKill; };
+
+	FPlayerSkillData* GetPlayerSkillData();
+
+	void OnClickedWidget();
+
+	void UpdateUI();
 private:
 	int32 KeyNumberForSKill;// = KeyNumber
 };

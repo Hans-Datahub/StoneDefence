@@ -15,7 +15,6 @@ struct FSkillDataCore : public FTableRowBase {
 
 	virtual bool IsValid() const;
 
-public:
 	UPROPERTY(EditDefaultsOnly, Category = "Skill Base Attribute")
 		FName SkillName;
 	UPROPERTY(EditDefaultsOnly, Category = "Skill Base Attribute")

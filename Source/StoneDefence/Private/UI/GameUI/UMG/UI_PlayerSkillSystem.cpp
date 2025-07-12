@@ -11,25 +11,49 @@
 void UUI_PlayerSkillSystem::NativeConstruct() {
 	Super::NativeConstruct();
 
-	//教程原写法（报错：应将ActionMappings改为GetActionMappings，改完后扔报错：.FindByPredicate”的左边必须有类/结构/联合）
-/*	    auto KeyMapping = GetDefault<UInputSettings>()->GetActionMappings().FindByPredicate(
-		[&](const FInputActionKeyMapping& EntryUI) {
-		return (EntryUI.ActionName == "FreezeSkill");}); */ 
-
 	LayoutPlayerSkillSlot();
 }
 
 void UUI_PlayerSkillSystem::LayoutPlayerSkillSlot() {
 	if (SkillSlotClass) {
-		for (const auto& Temp : GetPlayerState()->GetPlayerSkillDataID()) {
+		const TArray<const FGuid*> PlayerSkillGUIDs = GetPlayerState()->GetPlayerSkillDataID();
+		for (int32 i = 0; i < PlayerSkillGUIDs.Num(); i++) {
 			if (UUI_SkillSlot* SkillSlot = CreateWidget<UUI_SkillSlot>(GetWorld(), SkillSlotClass)) {				
-				SkillSlot->GUID = *Temp;		
+				SkillSlot->GUID = *PlayerSkillGUIDs[i];
 				if (UHorizontalBoxSlot* PanelSlot = SkillList->AddChildToHorizontalBox(SkillSlot)) {
 					PanelSlot->SetPadding(20.f);
 					PanelSlot->SetSize(ESlateSizeRule::Fill);
 					PanelSlot->SetHorizontalAlignment(HAlign_Fill);
 					PanelSlot->SetVerticalAlignment(VAlign_Fill);
-				}				
+				}	
+
+				//技能赋值
+				if (GetPlayerState()->GetPlayerData().SkillID.IsValidIndex(i)) {
+					int32 CurrentID = GetPlayerState()->GetPlayerData().SkillID[i];
+					GetPlayerState()->AddPlayerSkill(PlayerSkillGUIDs[i], CurrentID);
+				}
+
+				SkillSlot->UpdateUI();			
+			}
+
+			
+		}
+	}
+}
+
+//主要由服务端Tick调用该函数
+void UUI_PlayerSkillSystem::UpdatePlayerSkillSlot(const FGuid& PlayerSkillSlotGUID, bool bInCD) {
+	for (UPanelSlot* PanelSlot : SkillList->GetSlots()) {
+		if (UUI_SkillSlot * SkillSlot = Cast<UUI_SkillSlot>(PanelSlot->Content)) {
+			if (SkillSlot->GUID == PlayerSkillSlotGUID) {
+				if (bInCD) {
+					SkillSlot->DrawSlotCD(SkillSlot->GetPlayerSkillData()->GetSkillCDPercentage());
+				}
+				else {
+					SkillSlot->DrawSlotCD(0.f);
+				}
+				SkillSlot->UpdateSlotInfo(SkillSlot->GetPlayerSkillData()->SkillNumber, SkillSlot->GetPlayerSkillData()->SkillCD);
+				break;
 			}
 		}
 	}

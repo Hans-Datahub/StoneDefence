@@ -250,7 +250,8 @@ void ATD_GameState::AddSkill(TPair<FGuid, FCharacterData>& SkillTakerData, FSkil
 
 		//通知代理 在UI模块显示相应技能图标	
 		StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATD_PlayerController* MyPlayerController) {
-			MyPlayerController->AddSkillSlot_Server(SkillTakerData.Key, TempSkillID); });
+			MyPlayerController->AddSkillSlot_Server(SkillTakerData.Key, TempSkillID);
+		});
 	}
 }
 

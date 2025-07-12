@@ -21,6 +21,9 @@ class STONEDEFENCE_API ATD_PlayerState : public APlayerState
 	virtual void BeginPlay() override;
 	bool bInitialized = false;
 
+	//缓存池
+	TArray<FPlayerSkillData*> CachePlayerSkillDatas;
+
 public:
 	FBuildingTowers& GetBuildingTower(const FGuid& ID);
 	const TArray<const FGuid*> GetBuildingTowersID();
@@ -33,6 +36,12 @@ public:
 	FPlayerSkillData* GetPlayerSkillData(const FGuid& SkillGuid);// = GetSkillDatas()
 	const TArray<const FGuid*> GetPlayerSkillDataID();// = GetSkillDatasID()
 
+	const TArray<FPlayerSkillData*>& GetPlayerSkillDataFromTable();
+	const FPlayerSkillData* GetPlayerSkillData(const int32& PlayerSkillID);
+	bool SkillVerification(const FGuid& SlotID);
+	void UsePlayerSkill(const FGuid& SlotID);
+	void AddPlayerSkill(const FGuid* Guid, int32 SkillID);
+
 	/*--------------------------------UI控制部分------------------------------------*/
 	UFUNCTION(/*Server*/)
 		void TowersPrepareBuildingNumber(const FGuid& InventoryGUID);
@@ -44,10 +53,13 @@ public:
 protected:
 	UPROPERTY()
 	UPlayerSaveData* SaveData;
+	UPROPERTY()
+	UDataTable* PlayerSkillData;
 
 private:
 	UFUNCTION()
 	FBuildingTowers& GetBuildingTowersNULL();
 
 	FBuildingTowers BuildingTowersNULL;
+
 };

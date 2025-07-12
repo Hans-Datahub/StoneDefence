@@ -25,3 +25,20 @@ void UUI_SkillSlot::NativeConstruct()
 	//故这里调用FString在UE4内置的重载操作符operator*()，将PlayerSkillName转换为TCHAR* ，此时，便能够隐式转换为FName
 }
 
+void UUI_SkillSlot::OnClickedWidget() {
+	if (GetPlayerState()->SkillVerification(GUID)) {
+		GetPlayerState()->UsePlayerSkill(GUID);
+	}
+}
+
+
+void UUI_SkillSlot::UpdateUI() {
+	UpdateSlotUI(GetPlayerSkillData()->SkillIcon.LoadSynchronous(), GetPlayerSkillData()->SkillNumber);
+}
+
+
+FPlayerSkillData* UUI_SkillSlot::GetPlayerSkillData() {
+	return GetPlayerState()->GetPlayerSkillData(GUID);
+}
+
+

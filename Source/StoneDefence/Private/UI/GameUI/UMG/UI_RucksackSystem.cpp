@@ -15,3 +15,4 @@ void UUI_RucksackSystem::UpdateInventorySlot(const FGuid& InventorySlotGUID, boo
 		Inventory->UpdateInventorySlot(InventorySlotGUID, bInCD);
 	}
 }
+

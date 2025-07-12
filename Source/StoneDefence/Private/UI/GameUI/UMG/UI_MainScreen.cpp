@@ -9,6 +9,7 @@
 #include "Character/Core/RuleOfCharacter.h"
 #include "Components/Image.h"
 #include "UI/GameUI/UMG/UI_RucksackSystem.h"
+#include "UI/GameUI/UMG/UI_PlayerSkillSystem.h"
 
 
 class USD_DragDropOperation;
@@ -64,6 +65,12 @@ void UUI_MainScreen::NativeTick(const FGeometry& MyGeometry, float InDeltaTime) 
 void UUI_MainScreen::UpdateInventorySlot(const FGuid& InventorySlotGUID, bool bInCD) {
 	if (RucksackSystem) {
 		RucksackSystem->UpdateInventorySlot(InventorySlotGUID, bInCD);
+	}
+}
+
+void UUI_MainScreen::UpdatePlayerSkillSlot(const FGuid& PlayerSkillSlotGUID, bool bInCD) {
+	if (PlayerSkillSystem) {
+		PlayerSkillSystem->UpdatePlayerSkillSlot(PlayerSkillSlotGUID, bInCD);
 	}
 }
 

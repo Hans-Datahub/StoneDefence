@@ -146,3 +146,15 @@ void ATD_PlayerController::UpdateInventory_Client(const FGuid& InventorySlotGUID
 		NewHUD->UpdateInventorySlot(InventorySlotGUID, bInCD);
 	}
 }
+
+void ATD_PlayerController::SpawnPlayerSkill_Client(const int32& PlayerSkillID) {
+	StoneDefenceUtils::SpawnSkillProjectile(GetWorld(), PlayerSkillID);
+
+}
+
+void ATD_PlayerController::UpdatePlayerSkill_Client(const FGuid& PlayerSkillSlotGUID, bool bInCD) {
+	if (ARuleOfHUD* NewHUD = GetHUD<ARuleOfHUD>()) {
+		NewHUD->UpdatePlayerSkillSlot(PlayerSkillSlotGUID, bInCD);
+	}
+}
+

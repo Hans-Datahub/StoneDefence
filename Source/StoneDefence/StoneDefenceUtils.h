@@ -11,6 +11,7 @@
 #include "Particles/ParticleLODLevel.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Particles/TypeData/ParticleModuleTypeDataMesh.h"
+#include "Character/Projectile/SkillProjectile.h"
 #include "Core/GameCore/TD_GameState.h"
 
 #include "CHaracter/CharacterCore/Towers.h"
@@ -31,7 +32,9 @@ namespace StoneDefenceUtils {
 	ARuleOfProjectile* SpawnProjectile(UWorld* World, ARuleOfCharacter* Owner, const int32 SKillID, const FVector& Loc, const FRotator& Rot);
 	ARuleOfProjectile* SpawnProjectile(UWorld* World, FGuid CharacterID, UClass* ProjectileClass);//用于服务端通知客户端
 	ARuleOfProjectile* SpawnProjectile(UWorld* World, APawn* NewPawn, UClass* InClass, const FVector& Loc, const FRotator& Rot);//用于动画通知
-	
+	//SpawnSkillProjectile = SpawnPlayerBullet
+	ASkillProjectile* SpawnSkillProjectile(UWorld* World, int32 SkillID);
+
 	AStaticMeshActor* SpawnTowerDoll(UWorld* World, int32 ID);
 
 	void FindMostClosedTargetInRange(ARuleOfCharacter* InOwner, float Range, TArray<ARuleOfCharacter*> TargetArray);

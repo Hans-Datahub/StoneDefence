@@ -12,15 +12,16 @@ struct FSkillData : public FSkillDataCore {
 	typedef FSkillDataCore Super;
 
 	FSkillData();
-	virtual void Init();
+	virtual void Init() override;
+	virtual bool IsValid();
 public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Skill Attribute")
 		FSkillType SkillType;
 	UPROPERTY(EditDefaultsOnly, Category = "Skill Attribute")
-		UTexture2D* SkillIcon;
+		TAssetPtr<UTexture2D> SkillIcon;
 	UPROPERTY(EditDefaultsOnly, Category = "Skill Attribute")
-		TSubclassOf<ARuleOfProjectile> ProjectileClass;
+		TSubclassOf<AActor> SkillProjectileClass;//由于技能子弹可能需要更高自由度，因此不直接继承ARuleOfProjectile
 	UPROPERTY(EditDefaultsOnly, Category = "Skill Attribute")
 		FText SkillIntroduction;
 	UPROPERTY(EditDefaultsOnly, Category = "Skill Attribute")

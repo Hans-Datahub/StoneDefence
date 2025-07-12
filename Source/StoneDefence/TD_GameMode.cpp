@@ -44,6 +44,7 @@ void ATD_GameMode::Tick(float DeltaSeconds) {
 	UpdateMonsterSpawnRule(DeltaSeconds);
 	UpdateSkill(DeltaSeconds);
 	UpdateInventory(DeltaSeconds);
+	UpdatePlayerSkill(DeltaSeconds);
 }
 
 void ATD_GameMode::UpdateMonsterSpawnRule(float DeltaSeconds) {
@@ -497,7 +498,23 @@ void ATD_GameMode::UpdatePlayerSkill(float DeltaSeconds) {
 	if (ATD_GameState* TempGameState = GetGameState<ATD_GameState>()) {
 		StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATD_PlayerController* MyPlayerController) {
 			if (ATD_PlayerState* PlayerState = MyPlayerController->GetPlayerState<ATD_PlayerState>()) {
-
+				for (auto& Temp : PlayerState->GetSaveData()->PlayerSkillDatas) {
+					if (Temp.Value.IsValid()) {
+						if (Temp.Value.SkillCD > 0.f) {
+							Temp.Value.SkillCD -= DeltaSeconds;
+							Temp.Value.bSkillEffected = true;
+							StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATD_PlayerController* MyPlayerController) {
+								MyPlayerController->UpdatePlayerSkill_Client(Temp.Key, true);
+							});
+						}
+						else if (Temp.Value.bSkillEffected) {
+							Temp.Value.bSkillEffected = false;
+							StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATD_PlayerController* MyPlayerController) {
+								MyPlayerController->UpdatePlayerSkill_Client(Temp.Key, true);
+							});
+						}
+					}
+				}
 			}
 		});
 	}

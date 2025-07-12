@@ -21,7 +21,7 @@ void UUI_Health::AddTakenSkillSlot(const FGuid& TakenSkillID) {
 		if (UUI_TakenSkillSlot* SkillSlot = CreateWidget<UUI_TakenSkillSlot>(GetWorld(), TakenSkillSlotClass)) {
 			SkillSlot->GUID = TakenSkillID;
 			if (SkillSlot->GetSkillData().IsValid()) {
-				UTexture2D* SkillICON = SkillSlot->GetSkillData().SkillIcon/*.LoadSynchronous()*/;
+				UTexture2D* SkillICON = SkillSlot->GetSkillData().SkillIcon.LoadSynchronous();
 				SkillSlot->SetTexture(SkillICON);
 				TakenSkillList->AddChild(SkillSlot);
 			}			
