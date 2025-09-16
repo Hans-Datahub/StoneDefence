@@ -26,6 +26,8 @@ public class SimpleGameSettings : ModuleRules
 			new string[]
 			{
 				"Core",
+				"Slate",
+				"SlateCore",
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -39,6 +41,7 @@ public class SimpleGameSettings : ModuleRules
 				"Slate",
 				"SlateCore",
 				"UMG",
+				"InputCore"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
