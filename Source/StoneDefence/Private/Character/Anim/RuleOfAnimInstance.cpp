@@ -3,10 +3,11 @@
 
 #include "Character/Anim/RuleOfAnimInstance.h"
 #include "Character/Core/RuleOfCharacter.h"
+#include "Core/GameCore/TD_GameState.h"
 
 
 URuleOfAnimInstance::URuleOfAnimInstance() 
-	:IsDeath(false), IsAttack(false), Speed(0.0f),CurrentTime(0.0f),isDelayFinished(true)
+	:IsDeath(false), HasAttackOrder(false), Speed(0.0f),CurrentTime(0.0f),isDelayFinished(true)
 {
 
 }
@@ -19,9 +20,17 @@ void URuleOfAnimInstance::NativeUpdateAnimation(float DeltaSeconds) {
 	if (IsDelayFinished(DeltaSeconds)) {
 		ARuleOfCharacter* RuleOfCharacter = Cast<ARuleOfCharacter>(TryGetPawnOwner());
 		if (RuleOfCharacter) {
-			IsAttack = RuleOfCharacter->Isattack;
-			Speed = RuleOfCharacter->GetVelocity().Size();
+			HasAttackOrder = RuleOfCharacter->Isattack;
 			IsDeath = !(RuleOfCharacter->IsActive());
+
+			ATD_GameState* TempGameState = GetWorld()->GetGameState<ATD_GameState>();
+			if (TempGameState) {
+				if (TempGameState->GetGameData().bTimeFreezed == false)
+					Speed = RuleOfCharacter->GetVelocity().Size();
+				else
+					Speed = 0.f;
+			}
+
 		}
 
 	}

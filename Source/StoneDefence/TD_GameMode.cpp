@@ -334,7 +334,7 @@ void ATD_GameMode::UpdateSkill(float DeltaSeconds) {
 
 							//通知客户端渲染Projectile,之所以通过子弹渲染是因为会让子弹停止运动，然后播放效果，相当于播放特效
 							StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATD_PlayerController* MyPlayerController) {
-								MyPlayerController->Spawn_Projectile_Client(Temp.Key, SkillTemp.Value.SkillID);
+								MyPlayerController->Spawn_Projectile_Client(Temp.Key, SkillTemp.Value.ID);
 							});
 						}
 					}
@@ -376,7 +376,7 @@ void ATD_GameMode::UpdateSkill(float DeltaSeconds) {
 					Temp.Value.CharacterSkill.Remove(RepeatedSkill);
 					if (RepeatedSkill.SubmissionSkillRequestType == ESubmissionSkillRequestType::AUTO) {
 						StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATD_PlayerController* MyPlayerController) {
-							MyPlayerController->Spawn_Projectile_Client(Temp.Key, RepeatedSkill.SkillID);
+							MyPlayerController->Spawn_Projectile_Client(Temp.Key, RepeatedSkill.ID);
 						});  
 					}
 					else if(RepeatedSkill.SubmissionSkillRequestType == ESubmissionSkillRequestType::MANUAL){
@@ -455,14 +455,17 @@ void ATD_GameMode::UpdatePlayerData(float DeltaSeconds) {
 
 	//更新游戏金币
 	if (ATD_GameState* TempGameState = GetGameState<ATD_GameState>()) {
+
 		StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATD_PlayerController* MyPlayerController) {
 			if (ATD_PlayerState* PlayerState = MyPlayerController->GetPlayerState<ATD_PlayerState>()) {
-				//每1.25秒+1金币
-				PlayerState->GetPlayerData().GameGoldTime += DeltaSeconds;
-				if (PlayerState->GetPlayerData().GameGoldTime > PlayerState->GetPlayerData().MaxGameGoldTime) {
-					PlayerState->GetPlayerData().GameGoldTime = 0.f;
-					PlayerState->GetPlayerData().GameGold++;
-				}
+				if (TempGameState->GetGameData().bTimeFreezed == false) {
+					//每1.25秒+1金币
+					PlayerState->GetPlayerData().GameGoldTime += DeltaSeconds;
+					if (PlayerState->GetPlayerData().GameGoldTime > PlayerState->GetPlayerData().MaxGameGoldTime) {
+						PlayerState->GetPlayerData().GameGoldTime = 0.f;
+						PlayerState->GetPlayerData().GameGold++;
+					}
+				}				
 			}
 		});
 	}
@@ -474,7 +477,7 @@ void ATD_GameMode::UpdateGameData(float DeltaSeconds) {
 		if (TempGameState->GetGameData().GameTimeCount <= 0) {
 			TempGameState->GetGameData().bGameOver = true;
 		}
-		else {
+		else if(TempGameState->GetGameData().bTimeFreezed == false){
 			TempGameState->GetGameData().GameTimeCount -= DeltaSeconds;
 		}
 
@@ -500,7 +503,7 @@ void ATD_GameMode::UpdatePlayerSkill(float DeltaSeconds) {
 			if (ATD_PlayerState* PlayerState = MyPlayerController->GetPlayerState<ATD_PlayerState>()) {
 				for (auto& Temp : PlayerState->GetSaveData()->PlayerSkillDatas) {
 					if (Temp.Value.IsValid()) {
-						if (Temp.Value.SkillCD > 0.f) {
+						if (Temp.Value.SkillCD > 0.f && TempGameState->GetGameData().bTimeFreezed == false) {
 							Temp.Value.SkillCD -= DeltaSeconds;
 							Temp.Value.bSkillEffected = true;
 							StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATD_PlayerController* MyPlayerController) {

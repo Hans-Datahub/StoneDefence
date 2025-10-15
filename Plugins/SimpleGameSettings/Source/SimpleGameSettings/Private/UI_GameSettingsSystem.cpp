@@ -9,20 +9,29 @@
 #include "GameSettings/UI_VideoSettings.h"
 #include "Core/SimpleGameUserSettings.h"
 
+
 void UUI_GameSettingsSystem::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	SaveButton->OnClicked.AddDynamic(this, &UUI_GameSettingsSystem::SaveSettings);
+	SaveButtonSimple->OnClicked.AddDynamic(this, &UUI_GameSettingsSystem::SaveSettings);
 	RestoreDefaultButton->OnClicked.AddDynamic(this, &UUI_GameSettingsSystem::RestoreDefaultSettings);
-
 	AudioSettingBox->OnCheckStateChanged.AddDynamic(this, &UUI_GameSettingsSystem::AudioSettingCheckBox);
 	VideoSettingsBox->OnCheckStateChanged.AddDynamic(this, &UUI_GameSettingsSystem::VideoSettingsCheckBox);
 	GameSettingsBox->OnCheckStateChanged.AddDynamic(this, &UUI_GameSettingsSystem::GameSettingsCheckBox);
+	CloseButton->OnClicked.AddDynamic(this, &UUI_GameSettingsSystem::CloseSettingSystem);
 
 	//读取我们的游戏设置
 	LoadSettings();
 }
+
+void UUI_GameSettingsSystem::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+	Super::NativeTick(MyGeometry, InDeltaTime);
+}
+
+
+
 
 void UUI_GameSettingsSystem::AudioSettingCheckBox(bool ClickedWidget)
 {
@@ -59,6 +68,7 @@ void UUI_GameSettingsSystem::LoadSettings()
 	GameSettingsVideo->LoadSettings();
 	GameSetingsAudio->LoadSettings();
 	GameSettingsGameSetting->LoadSettings();
+
 }
 
 void UUI_GameSettingsSystem::RestoreDefaultSettings()
@@ -70,10 +80,13 @@ void UUI_GameSettingsSystem::RestoreDefaultSettings()
 	GameSettingsGameSetting->LoadSettings();
 }
 
-void UUI_GameSettingsSystem::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
-{
-	Super::NativeTick(MyGeometry, InDeltaTime);
+void UUI_GameSettingsSystem::CloseSettingSystem() {
+	RemoveFromParent();
+	BroadcastCloseEvent();
 }
+
+
+
 
 void UUI_GameSettingsSystem::SetSettingState(EGameSettingsType Type)
 {
@@ -97,4 +110,15 @@ void UUI_GameSettingsSystem::SetSettingState(EGameSettingsType Type)
 	}
 
 	SettingsListWitcher->SetActiveWidgetIndex((int32)Type);
+}
+
+
+									//-------------代理部分-----------//
+
+void UUI_GameSettingsSystem::BroadcastCloseEvent()
+{
+	//当关闭时广播事件
+	USettingDelegate* Delegates = USettingDelegate::GetInstance();
+	if (Delegates)
+		Delegates->OnSettingsClosed.Broadcast();
 }

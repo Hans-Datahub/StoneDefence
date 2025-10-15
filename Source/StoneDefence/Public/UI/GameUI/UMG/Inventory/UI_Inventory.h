@@ -34,7 +34,5 @@ public:
 
 	void UpdateInventorySlot(const FGuid& InventorySlotGUID, bool bInCD);
 
-private:
-
 	TArray<UUI_InventorySlot*> InventorySlotArray;
 };

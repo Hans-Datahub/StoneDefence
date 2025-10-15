@@ -3,15 +3,73 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
+#include "Core/UI_ArchivesWidget.h"
+#include "SimpleArchivesType.h"
+#include "ArchiveDelegate.h"
 #include "UI_ArchivesSystem.generated.h"
 
+
+class UButton;
+class UUI_ArchivesBar;
+class UScrollBox;
+class ISimpleArchivesInterface;
 /**
  * 
  */
 UCLASS()
-class SIMPLEARCHIVES_API UUI_ArchivesSystem : public UUserWidget
+class SIMPLEARCHIVES_API UUI_ArchivesSystem : public UUI_ArchivesWidget
 {
 	GENERATED_BODY()
-	
+
+	UPROPERTY(meta = (BindWidget))
+	UScrollBox *SaveSlotList;
+
+	UPROPERTY(meta = (BindWidget))
+	UButton *LoadGameButton;
+
+	UPROPERTY(meta = (BindWidget))
+	UButton *SaveGameButton;
+
+	UPROPERTY(meta = (BindWidget))
+	UButton* CloseButton;
+
+	UPROPERTY(EditDefaultsOnly, Category = UI)
+	TSubclassOf<UUI_ArchivesBar> ArchivesBarClass;
+public:
+	void InitArchivesSystem(EArchivesState ArchivesState);
+
+	UFUNCTION()
+	void LoadGame();
+
+	UFUNCTION()
+	void SaveGame();
+
+	UFUNCTION()
+	void CloseArchivesSystem();
+
+	virtual void NativeConstruct()override;
+	virtual void NativeDestruct() override;
+
+	//呼叫窗口
+	void BindWindows(TFunction<void(FSimpleDelegate)>);
+
+	bool GetArchivesBarArray(TArray<UUI_ArchivesBar*> &InArchivesBars);
+protected:
+
+	void UpdateArchivesSlot();
+
+	void CallAllCkeckBox(UUI_ArchivesBar* OwnerArchivesBar);
+
+	void ResetArchivesBar(UUI_ArchivesBar* InArchivesBar, const FSaveSlot *InData);
+
+private:
+	void CallAllArchivesBar(TFunction<void(UUI_ArchivesBar* InArchivesBar)>);
+	void CallAllArchivesBarBreak(TFunction<bool(UUI_ArchivesBar* InArchivesBar)>);
+
+
+
+										//-------------代理部分-----------//
+private:
+	//广播 窗口关闭事件
+	void BroadcastCloseEvent();
 };

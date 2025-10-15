@@ -9,7 +9,7 @@
 //#include "Engine/StaticMeshActor.h"
 #include "EngineUtils.h"
 //#include "Item/SpawnPoint.h"
-#include "Data/Core/GameData.h"
+#include "Data/GameData.h"
 #include "../StoneDefenceUtils.h"
 #include "Character/CharacterCore/Monsters.h"
 #include "Core/GameCore/TD_PlayerController.h"
@@ -37,7 +37,7 @@ ATD_GameState::ATD_GameState() {
 
 bool ATD_GameState::SaveGameData(int32 SaveIndex) {
 	if (SaveData && SlotList) {
-		SlotList->SlotList.AddGameData(SaveIndex);
+		SlotList->SlotList.AddGameDataByNumber(SaveIndex);
 		return UGameplayStatics::SaveGameToSlot(SaveData, FString::Printf(TEXT("SaveSlot_%i"), SaveIndex), 0)
 			&& UGameplayStatics::SaveGameToSlot(SlotList, FString::Printf(TEXT("SlotList")), 0);
 	}
@@ -50,15 +50,15 @@ bool ATD_GameState::ReadGameData(int32 SaveIndex) {
 }
 
 
-UGameSaveSlotList* ATD_GameState::GetGameSaveSlotList() {
-	if (!SlotList) {
-		SlotList = Cast<UGameSaveSlotList>(UGameplayStatics::LoadGameFromSlot(FString::Printf(TEXT("SlotList")), 0));
-			if (!SlotList){
-				SlotList = Cast<UGameSaveSlotList>(UGameplayStatics::CreateSaveGameObject(UGameSaveData::StaticClass()));
-			}
-	}
-	return SlotList;
-}
+//UGameSaveSlotList* ATD_GameState::GetGameSaveSlotList() {
+//	if (!SlotList) {
+//		SlotList = Cast<UGameSaveSlotList>(UGameplayStatics::LoadGameFromSlot(FString::Printf(TEXT("SlotList")), 0));
+//			if (!SlotList){
+//				SlotList = Cast<UGameSaveSlotList>(UGameplayStatics::CreateSaveGameObject(UGameSaveData::StaticClass()));
+//			}
+//	}
+//	return SlotList;
+//}
 
 
 UGameSaveData* ATD_GameState::GetGameSaveData() {
@@ -164,7 +164,7 @@ const FSkillData* ATD_GameState::GetSkillData(const int32& SkillID)
 {
 	const TArray<FSkillData*>& SkillArray = GetSkillDataFromTable();
 	for (auto& Temp : SkillArray) {
-		if (Temp->SkillID == SkillID) {
+		if (Temp->ID == SkillID) {
 			return Temp;
 		}
 	}
@@ -202,7 +202,7 @@ void ATD_GameState::AddSkillDataTemplateToCharacterData(const FGuid& CharacterID
 
 bool ATD_GameState::IsVerificationSkillTemplate(const FCharacterData& CharacterData, int32 SkillID) {
 	for (auto& InSkill : CharacterData.CharacterSkill) {
-		if (InSkill.SkillID == SkillID) {
+		if (InSkill.ID == SkillID) {
 			return true;
 		}
 	}
@@ -220,7 +220,7 @@ bool ATD_GameState::IsVerificationSkillTemplate(const FGuid& CharacterID, int32 
 bool ATD_GameState::IsVerificationSkill(const FCharacterData& SkillList, int32 SkillID)
 {
 	for (auto& AdditionalSkill : SkillList.AdditionalSkillData) {
-		if (AdditionalSkill.Value.SkillID == SkillID) {
+		if (AdditionalSkill.Value.ID == SkillID) {
 			return true;
 		}
 	}
@@ -243,7 +243,7 @@ void ATD_GameState::AddSkill(const FGuid& CharacterGUID, int32 InSkillID) {
 
 
 void ATD_GameState::AddSkill(TPair<FGuid, FCharacterData>& SkillTakerData, FSkillData& InSkill) {
-	if (!IsVerificationSkill(SkillTakerData.Value, InSkill.SkillID)) {
+	if (!IsVerificationSkill(SkillTakerData.Value, InSkill.ID)) {
 		FGuid TempSkillID = FGuid::NewGuid();
 
 		SkillTakerData.Value.AdditionalSkillData.Add(TempSkillID, InSkill).ResetDuration();
@@ -264,7 +264,7 @@ bool ATD_GameState::SetSubmissionDataType(FGuid CharacterID, int32 SkillID, ESub
 	FCharacterData& InCharacterData = GetCharacterData(CharacterID);
 	if (InCharacterData.IsValid()) {
 		for (auto& Temp : InCharacterData.CharacterSkill) {
-			if (SkillID == Temp.SkillID) {
+			if (SkillID == Temp.ID) {
 				Temp.SubmissionSkillRequestType = Type;
 				return true;
 			}

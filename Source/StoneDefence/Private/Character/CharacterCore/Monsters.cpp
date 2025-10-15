@@ -3,22 +3,37 @@
 
 #include "Character/CharacterCore/Monsters.h"
 #include "GameFrameWork/CharacterMovementComponent.h"
+#include "Core/GameCore/TD_GameState.h"
+
 
 void AMonsters::BeginPlay() {
 	Super::BeginPlay();
+
+	//速度初始化
+	UCharacterMovementComponent* MovementComp = GetCharacterMovement();
+	if (MovementComp)
+	{
+		MovementComp->MaxWalkSpeed = 600.f; // 设置最大行走速度
+	}
+	isFreezed = false;
 }
 
 void AMonsters::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 
 	//速度设定
-/*	if (GetCharacterData().IsValid()) {
-		if (GetCharacterData().GetWalkSpeed() != GetCharacterMovement()->MaxWalkSpeed) {
-			GetCharacterMovement()->MaxWalkSpeed = GetCharacterData().GetMoveSpeed();
-		}
-	}*/
-	//这一部分加上，角色会停止移动，后面再改
+	ATD_GameState* TempGameState = GetWorld()->GetGameState<ATD_GameState>();
 
+	if (TempGameState) {
+		if (isFreezed != TempGameState->GetGameData().bTimeFreezed){//当自身冻结状态和世界冻结状态不匹配，判断解or冻结
+			//能执行进来就是不匹配
+			if (isFreezed == true)
+				GetCharacterMovement()->MaxWalkSpeed = 600.f;//解冻
+			else
+				GetCharacterMovement()->MaxWalkSpeed = 0.f;//冻结
+			isFreezed = !isFreezed;//更新自身冻结状态
+		}	
+	}
 }
 
 EGameCharacterType::Type AMonsters::GetCharacterType() {

@@ -226,7 +226,7 @@ float ARuleOfCharacter::TakeDamage(float Damage, struct FDamageEvent const& Dama
 				GetGameState()->RemoveCharacterData(GUID);
 			}
 			else {
-				SubmissionSkillRequest(SkillData->SkillID);
+				SubmissionSkillRequest(SkillData->ID);
 			}
 
 		}

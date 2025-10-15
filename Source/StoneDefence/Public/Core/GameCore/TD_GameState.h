@@ -3,15 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/GameState.h"
-#include "Data/Core/CharacterData.h"
+#include "Core/RuleOfTheGameState.h"
+#include "Data/CharacterData.h"
 #include "Data/Save/GameSaveSlotList.h"
 #include "Data/Save/GameSaveData.h"
 #include "Engine/StaticMeshActor.h"
-#include "Data/Core/GameData.h"
-#include "Data/Core/PlayerData.h"
+#include "Data/GameData.h"
+#include "Data/PlayerData.h"
 #include "Data/Save/PlayerSaveData.h"
-#include "Data/Core/SkillData.h"
+#include "Data/SkillData.h"
+#include "Interface/SimpleArchivesInterface.h"
 #include "TD_GameState.generated.h"
 
 
@@ -22,7 +23,7 @@ class UGameSaveSlotList;
 struct FBuildingTowers;
 
 UCLASS()
-class STONEDEFENCE_API ATD_GameState : public AGameState
+class STONEDEFENCE_API ATD_GameState : public ARuleOfTheGameState
 {
 	GENERATED_BODY()
 
@@ -37,8 +38,7 @@ class STONEDEFENCE_API ATD_GameState : public AGameState
 
 	UPROPERTY()
 	UGameSaveData* SaveData;
-	UPROPERTY()
-	UGameSaveSlotList* SlotList;
+
 
 	//缓存池
 	TArray<FCharacterData*> CacheTowerDatas;
@@ -49,11 +49,8 @@ class STONEDEFENCE_API ATD_GameState : public AGameState
 public:
 	ATD_GameState();
 
-	UFUNCTION(BlueprintCallable, Category = "Save")
-	bool SaveGameData(int32 SaveIndex);
-
-	UFUNCTION(BlueprintCallable, Category = "Save")
-	bool ReadGameData(int32 SaveIndex);
+	virtual bool SaveGameData(int32 SaveIndex);
+	virtual bool ReadGameData(int32 SaveIndex);
 
 	//角色数据增删
 	FCharacterData& AddCharacterData(const FGuid& ID, const FCharacterData &Data);
@@ -102,7 +99,7 @@ public:
 
 
 protected:
-	UGameSaveSlotList* GetGameSaveSlotList();
+	//UGameSaveSlotList* GetGameSaveSlotList();
 
 private:
 	FCharacterData CharacterDataNULL;

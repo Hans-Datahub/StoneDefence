@@ -59,3 +59,5 @@ float Value = SkillCD; \
 		Value -= Temp.Value.CDModify; \
 	} \
 return Value;
+
+#define GAMETHUMBNAIL_SCREENSHOT(InWidth,InHeight,InTexture,InOuter) (new RenderingUtils::FScreenShot(InWidth,InHeight,InTexture,InOuter))

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Core/UI_SimpleGameSettingsCore.h"
 #include "SimpleGameSettingsType.h"
+#include "SettingDelegate.h"
 #include "UI_GameSettingsSystem.generated.h"
 
 
@@ -33,10 +34,13 @@ class SIMPLEGAMESETTINGS_API UUI_GameSettingsSystem :public UUI_SimpleGameSettin
 		UCheckBox* GameSettingsBox;
 
 	UPROPERTY(meta = (BindWidget))
-		UButton* SaveButton;
+		UButton* SaveButtonSimple;
 
 	UPROPERTY(meta = (BindWidget))
 		UButton* RestoreDefaultButton;
+
+	UPROPERTY(meta = (BindWidget))
+		UButton* CloseButton;
 
 	UPROPERTY(meta = (BindWidget))
 		UWidgetSwitcher* SettingsListWitcher;
@@ -62,7 +66,11 @@ public:
 		void GameSettingsCheckBox(bool ClickedWidget);
 
 	virtual	void SaveSettings();
+
 	virtual	void LoadSettings();
+
+	UFUNCTION()
+	virtual void CloseSettingSystem();
 
 	UFUNCTION()
 		void RestoreDefaultSettings();
@@ -71,4 +79,10 @@ public:
 private:
 
 	void SetSettingState(EGameSettingsType Type);
+
+
+									//-------------代理部分-----------//
+private:
+	//广播 窗口关闭事件
+	void BroadcastCloseEvent();
 };

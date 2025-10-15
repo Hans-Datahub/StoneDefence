@@ -32,13 +32,16 @@ class STONEDEFENCE_API UUI_MainHall : public UUI_RuleOfWidget
 	UPROPERTY(EditDefaultsOnly, Category = UI)
 	TSubclassOf<class UUI_TutorialSystem> TutorialSystemClass;
 
+	UPROPERTY(EditDefaultsOnly, Category = UI)
+	TSubclassOf<class UUI_SimplePopup> PopupClass;
+
 public:
-	//UUserWidget µÄÒ»¸öĞéº¯Êı£¬ÓÃÓÚÔÚ UI ×é¼ş±»¹¹ÔìÊ±Ö´ĞĞ³õÊ¼»¯Âß¼­¡£
+	//UUserWidget çš„ä¸€ä¸ªè™šå‡½æ•°ï¼Œç”¨äºåœ¨ UI ç»„ä»¶è¢«æ„é€ æ—¶æ‰§è¡Œåˆå§‹åŒ–é€»è¾‘ã€‚
 	virtual void NativeConstruct();
 
 
-	//´Ë´¦µÄº¯Êı±¾À´ÊÇ×öµ½HallMenuSystemÖĞµÄ£¬µ«ÊÇ»áÔì³É×ÓÀàµ÷ÓÃ¸¸ÀàÔÙµ÷×ÓÀàµÄÑ­»·
-	//ËùÒÔÖ±½Ó°ÑÉùÃ÷ºÍÊµÏÖÖ±½ÓÅ²µ½¸¸ÀàÖĞ
+	//æ­¤å¤„çš„å‡½æ•°æœ¬æ¥æ˜¯åšåˆ°HallMenuSystemä¸­çš„ï¼Œä½†æ˜¯ä¼šé€ æˆå­ç±»è°ƒç”¨çˆ¶ç±»å†è°ƒå­ç±»çš„å¾ªç¯
+	//æ‰€ä»¥ç›´æ¥æŠŠå£°æ˜å’Œå®ç°ç›´æ¥æŒªåˆ°çˆ¶ç±»ä¸­
 	UFUNCTION()
 		void GameStart();
 	UFUNCTION()

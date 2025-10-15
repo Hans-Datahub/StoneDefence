@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
 #include "../StoneDefenceType.h"
-#include "Data/Core/CharacterData.h"
+#include "Data/CharacterData.h"
 #include "RuleCharacter.generated.h"
 
 // This class does not need to be modified.

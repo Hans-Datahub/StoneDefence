@@ -2,29 +2,42 @@
 
 
 #include "UI/GameUI/UMG/UI_GameMenuSystem.h"
+#include "UI/Core/UI_RuleOfWidget.h"
 #include "Components/Button.h"
 
 void UUI_GameMenuSystem::NativeConstruct() {
 	Super::NativeConstruct();
 
-	ReturnGameButton  ->OnClicked.AddDynamic(this, &UUI_GameMenuSystem::ReturnGame);
-	SaveGameButton    ->OnClicked.AddDynamic(this, &UUI_GameMenuSystem::SaveGame);
-	GameSettingsButton ->OnClicked.AddDynamic(this, &UUI_GameMenuSystem::GameSettings);
-	GameQuitButton    ->OnClicked.AddDynamic(this, &UUI_GameMenuSystem::GameQuit);
+	GameQuitButton->OnClicked.AddDynamic(this, &UUI_GameMenuSystem::GameQuit);
 }
 
-void UUI_GameMenuSystem::ReturnGame() {
 
-}
-
-void UUI_GameMenuSystem::SaveGame() {
-
-}
-
-void UUI_GameMenuSystem::GameSettings() {
-
-}
 
 void UUI_GameMenuSystem::GameQuit() {
+	//关闭控件
+	if (this) {
+		this->RemoveFromParent();
+	}
 
+	//开启弹窗，是否确认
+	//
+	//
+
+	//切换关卡
+	UGameplayStatics::OpenLevel(GetWorld(), "SM_HallMap");
+}
+
+void UUI_GameMenuSystem::BindSaveGame(FOnButtonClickedEvent ClickedEvent)
+{
+	SaveGameButton->OnClicked = ClickedEvent;
+}
+
+void UUI_GameMenuSystem::BindSaveSettings(FOnButtonClickedEvent ClickedEvent)
+{
+	GameSettingsButton->OnClicked = ClickedEvent;
+}
+
+void UUI_GameMenuSystem::BindReturnGame(FOnButtonClickedEvent ClickedEvent)
+{
+	ReturnGameButton->OnClicked = ClickedEvent;
 }

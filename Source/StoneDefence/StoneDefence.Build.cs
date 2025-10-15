@@ -24,7 +24,10 @@ public class StoneDefence : ModuleRules
 			"ApexDestruction",
 			"AIModule",
 			"SimpleDrawText",
-			"RawMesh"
+			"RawMesh",
+			"SimplePopup",
+			"ImageWrapper",
+			"Landscape"
 		});
 
         if (Target.bBuildEditor == true)

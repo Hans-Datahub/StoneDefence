@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
 #include "UI/Core/UI_RuleOfWidget.h"
 #include "Components/Button.h"
 #include "UI_HallMenuSystem.generated.h"
@@ -25,7 +26,7 @@ class STONEDEFENCE_API UUI_HallMenuSystem : public UUI_RuleOfWidget
 	UButton* HistoryButton;
 
 	UPROPERTY(meta = (BindWidget))
-	UButton* GameSettingsButton;
+	UButton* GameSettingsButtonTD;
 
 	UPROPERTY(meta = (BindWidget))
 	UButton* TutorialWebsiteButton;

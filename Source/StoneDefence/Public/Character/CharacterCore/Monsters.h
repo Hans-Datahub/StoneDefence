@@ -14,6 +14,8 @@ class STONEDEFENCE_API AMonsters : public ARuleOfCharacter
 	GENERATED_BODY()
 
 public:
+	bool isFreezed;//用于速度状态判断
+
 	virtual void BeginPlay()override;
 	virtual void Tick(float DeltaTime)override;
 	virtual EGameCharacterType::Type GetCharacterType();

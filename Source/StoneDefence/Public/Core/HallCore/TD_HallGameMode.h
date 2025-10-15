@@ -15,4 +15,6 @@ class STONEDEFENCE_API ATD_HallGameMode : public AGameMode
 	GENERATED_BODY()
 public:
 	ATD_HallGameMode();
+
+	void BeginPlay();
 };

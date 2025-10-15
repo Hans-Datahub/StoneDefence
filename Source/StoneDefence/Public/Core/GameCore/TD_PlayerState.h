@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/PlayerState.h"
+#include "Core/RuleOfThePlayerState.h"
 #include "Data/Save/PlayerSaveData.h"
 #include "Data/Save/GameSaveData.h"
 #include "Kismet/GameplayStatics.h"
@@ -14,7 +14,7 @@ struct FPlayerData;
 struct FBuildingTowers;
 
 UCLASS()
-class STONEDEFENCE_API ATD_PlayerState : public APlayerState
+class STONEDEFENCE_API ATD_PlayerState : public ARuleOfThePlayerState
 {
 	GENERATED_BODY()
 	ATD_PlayerState();
@@ -62,4 +62,9 @@ private:
 
 	FBuildingTowers BuildingTowersNULL;
 
+
+public:
+	virtual bool SaveGameData(int32 SaveNumber);
+
+	virtual bool ReadGameData(int32 SaveNumber);
 };

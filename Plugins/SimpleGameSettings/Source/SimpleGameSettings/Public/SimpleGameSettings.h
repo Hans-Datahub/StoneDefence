@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SettingDelegate.h"
 #include "Modules/ModuleManager.h"
 
 class FSimpleGameSettingsModule : public IModuleInterface

@@ -6,6 +6,7 @@
 #include "UI/SelectLevelUI/UMG/Button/UI_LevelButton.h"
 #include "Components/Button.h"
 #include "Kismet/GamePlayStatics.h"
+#include "Engine/Engine.h"
 
 void UUI_SelectLevelMain::NativeConstruct() {
 	Super::NativeConstruct();
@@ -28,7 +29,7 @@ void UUI_SelectLevelMain::InitSelectLevelButton() {
 }
 
 void UUI_SelectLevelMain::ReturnMenu() {
-	UGameplayStatics::OpenLevel(GetWorld(), "HallMap");
+	UGameplayStatics::OpenLevel(GetWorld(), "SM_HallMap");
 }
 
 

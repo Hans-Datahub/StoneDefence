@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/RichTextBlock.h"
+#include "UI/Core/UI_RuleOfWidget.h"
 #include "UI_TakenSkillTip.generated.h"
 
 UCLASS()

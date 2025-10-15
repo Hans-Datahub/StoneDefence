@@ -4,16 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/SaveGame.h"
-#include "Data/Core/CharacterData.h"
-#include "Data/Core/GameData.h"
-#include "Data/Core/PlayerData.h"
+#include "Data/CharacterData.h"
+#include "Data/GameData.h"
+#include "Data/PlayerData.h"
 #include "GameSaveData.generated.h"
 
 /**
  * 
  */
 USTRUCT()
-//´æ´¢²å²ÛÖĞËşµÄÏà¹ØÊı¾İ
+//å­˜å‚¨æ’æ§½ä¸­å¡”çš„ç›¸å…³æ•°æ®
 struct FBuildingTowers {
 	GENERATED_BODY()
 
@@ -24,7 +24,7 @@ struct FBuildingTowers {
 	UPROPERTY(SaveGame)
 	int32 BuildingCost;
 	UPROPERTY(SaveGame)
-	int32 TowersPrepareBuildingNumber;// ½¨Ôì¶ÓÁĞÊıÁ¿
+	int32 TowersPrepareBuildingNumber;// å»ºé€ é˜Ÿåˆ—æ•°é‡
 	UPROPERTY(SaveGame)
 	int32 TowersConstructionNumber;
 	UPROPERTY(SaveGame)
@@ -36,7 +36,7 @@ struct FBuildingTowers {
 	UPROPERTY(SaveGame)
 	bool isIconDragged;
 	UPROPERTY(SaveGame)
-	bool isCDFreezed;//µ±ÓÎÏ·ÔİÍ£Ê±£¬CDÒ²ĞèÒªÔİÍ£
+	bool isCDFreezed;//å½“æ¸¸æˆæš‚åœæ—¶ï¼ŒCDä¹Ÿéœ€è¦æš‚åœ
 	UPROPERTY(SaveGame)
 	bool CallUpdateTowrsInfoOrNot;
 

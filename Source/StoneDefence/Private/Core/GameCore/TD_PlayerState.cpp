@@ -11,7 +11,10 @@
 
 //__pragma(optimize("", off))
 
-ATD_PlayerState::ATD_PlayerState() {
+ATD_PlayerState::ATD_PlayerState() 
+	:ARuleOfThePlayerState()
+
+{
 	//添加防御塔槽位和技能原本放在构造中，在技能添加进来之后，报错读取位置 0xFFFFFFFFFFFFFFFF 时发生访问冲突。故放至BeginPlay中
 	//12.12开头有提及，PlayerSkillData继承自DataTable，若在构造中初始化则会报上面的错误
 
@@ -141,7 +144,7 @@ const TArray<FPlayerSkillData*>& ATD_PlayerState::GetPlayerSkillDataFromTable() 
 const FPlayerSkillData* ATD_PlayerState::GetPlayerSkillData(const int32& PlayerSkillID) {
 	const TArray<FPlayerSkillData*>& InSkillData = GetPlayerSkillDataFromTable();
 	for (auto& Temp : InSkillData) {
-		if (Temp->SkillID == PlayerSkillID) {
+		if (Temp->ID == PlayerSkillID) {
 			return Temp;
 		}
 	}
@@ -164,7 +167,7 @@ void ATD_PlayerState::UsePlayerSkill(const FGuid& SlotID) {
 			InData->ResetCD();
 			//通知代理 在UI模块显示相应技能图标	
 			StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATD_PlayerController* MyPlayerController) {
-				MyPlayerController->SpawnPlayerSkill_Client(InData->SkillID);
+				MyPlayerController->SpawnPlayerSkill_Client(InData->ID);
 			});
 
 		}
@@ -180,6 +183,25 @@ void ATD_PlayerState::AddPlayerSkill(const FGuid* Guid, int32 SkillID) {
 			MyPlayerController->UpdatePlayerSkill_Client(*Guid, false);
 		});
 	}
+}
+
+
+
+bool ATD_PlayerState::SaveGameData(int32 SaveNumber)
+{
+	if (SaveData)
+	{
+		return UGameplayStatics::SaveGameToSlot(SaveData, FString::Printf(TEXT("PlayerData_%i"), SaveNumber), 0);
+	}
+
+	return false;
+}
+
+bool ATD_PlayerState::ReadGameData(int32 SaveNumber)
+{
+	SaveData = Cast<UPlayerSaveData>(UGameplayStatics::LoadGameFromSlot(FString::Printf(TEXT("PlayerData_%i"), SaveNumber), 0));
+
+	return SaveData != nullptr;
 }
 
 

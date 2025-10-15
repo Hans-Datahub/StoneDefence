@@ -26,13 +26,13 @@ public:
 	bool IsDeath;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
-	bool IsAttack;
+	bool HasAttackOrder;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
 	float Speed;
 
 private:
-	float CurrentTime;//用于延迟生成怪物以避免生成出来的怪物直接死亡
+	float CurrentTime;//鐢ㄤ簬寤惰繜鐢熸垚鎬墿浠ラ伩鍏嶇敓鎴愬嚭鏉ョ殑鎬墿鐩存帴姝讳骸
 	bool isDelayFinished;
 
 	bool IsDelayFinished(float Deltaseconds);

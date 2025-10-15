@@ -14,10 +14,10 @@ class STONEDEFENCE_API UUI_RucksackSystem : public UUI_NativeOnDrop
 {
 	GENERATED_BODY()
 
-		UPROPERTY(meta = (BindWidget))
-		class UUI_Inventory* Inventory;
-
 public:
+	UPROPERTY(meta = (BindWidget))
+	class UUI_Inventory* Inventory;
+
 	virtual void NativeConstruct();
 	void UpdateInventorySlot(const FGuid& InventorySlotGUID, bool bInCD);
 

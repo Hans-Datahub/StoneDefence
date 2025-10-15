@@ -8,21 +8,26 @@
 #include "UI_ArchivesSystem.h"
 #include "UI_GameSettingsSystem.h"
 #include "Components/SizeBox.h"
+#include "../../../../StoneDefenceUtils.h"
+#include "SimplePopupUtils.h"
+#include "Kismet/GameplayStatics.h"
+
+#define  LOCTEXT_NAMESPACE "UUI_MainHall"
 
 template<class T,class UserObject>
 UserObject* CreateAssistWidget(T* ThisClass, UClass* AssistClass, USizeBox* WidgetArray) {
     UserObject* UserObjectElement = nullptr;
 
-    //≤•∑≈∂Øª≠µƒ≈–∂œ
+    //Êí≠ÊîæÂä®ÁîªÁöÑÂà§Êñ≠
     if (0) {
-        //≤•∑≈  µ≠»Î
+        //Êí≠Êîæ  Ê∑°ÂÖ•
     }
 
-    //»Áπ˚»›∆˜ƒ⁄“—”–ƒø±Í¿‡£¨«Â≥˝°£»ÙŒﬁƒø±Í¿‡£¨«Â≥˝∆‰”‡◊”¿‡
+    //Â¶ÇÊûúÂÆπÂô®ÂÜÖÂ∑≤ÊúâÁõÆÊ†áÁ±ªÔºåÊ∏ÖÈô§„ÄÇËã•Êó†ÁõÆÊ†áÁ±ªÔºåÊ∏ÖÈô§ÂÖ∂‰ΩôÂ≠êÁ±ª
     if (WidgetArray->GetChildAt(0)) {
         if (WidgetArray->GetChildAt(0)->IsA(AssistClass)) {
             
-            //πÿ±’Board µ≠≥ˆ
+            //ÂÖ≥Èó≠Board Ê∑°Âá∫
 
             return UserObjectElement;
         }
@@ -109,13 +114,31 @@ void UUI_MainHall::NativeConstruct(){
 
 
 void UUI_MainHall::GameStart() {
-    UGameplayStatics::OpenLevel(GetWorld(), "SelectMap");
+    UGameplayStatics::OpenLevel(GetWorld(), "SM_SelectMap");
 }
 void UUI_MainHall::SecretTerritory() {
 
 }
 void UUI_MainHall::History() {
-    CreateAssistWidget<UUI_MainHall, UUI_ArchivesSystem>(this, ArchivesSystemClass, BoxList);
+    //CreateAssistWidget<UUI_MainHall, UUI_ArchivesSystem>(this, ArchivesSystemClass, BoxList);
+
+    //ÁªëÂÆöÁ™óÂè£
+    if (UUI_ArchivesSystem* ArchivesSystem = StoneDefenceUtils::CreateAssistWidget<UUI_MainHall, UUI_ArchivesSystem>(this, ArchivesSystemClass, BoxList))
+    {
+        ArchivesSystem->BindWindows(
+            [&](FSimpleDelegate Delegate)
+            {
+                SimplePopupUtils::CreatePopup(
+                    GetWorld(),
+                    PopupClass,
+                    LOCTEXT("DeleteSaveSlot", "Are you sure you want to delete this archive ?"),
+                    ESimplePopupType::TWO,
+                    10.f,
+                    Delegate);
+            });  
+
+        ArchivesSystem->InitArchivesSystem(EArchivesState::LOAD);
+    }
 }
 void UUI_MainHall::GameSettings() {
     CreateAssistWidget<UUI_MainHall, UUI_GameSettingsSystem>(this, GameSettingsClass, BoxList);

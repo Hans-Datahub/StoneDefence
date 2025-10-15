@@ -2,6 +2,7 @@
 
 
 #include "UI/HallUI/UMG/UI_HallMenuSystem.h"
+#include "Components/Button.h"
 #include "Kismet/GameplayStatics.h"
 
 void UUI_HallMenuSystem::NativeConstruct() {
@@ -17,7 +18,7 @@ void UUI_HallMenuSystem::BindHistory(FOnButtonClickedEvent ClickedEvent) {
 }
 
 void UUI_HallMenuSystem::BindGameSettings(FOnButtonClickedEvent ClickedEvent) {
-	GameSettingsButton->OnClicked = ClickedEvent;
+	GameSettingsButtonTD->OnClicked = ClickedEvent;
 }
 
 void UUI_HallMenuSystem::BindTutorialWebsite(FOnButtonClickedEvent ClickedEvent) {

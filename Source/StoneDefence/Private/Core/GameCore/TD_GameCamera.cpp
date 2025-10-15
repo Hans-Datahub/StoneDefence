@@ -26,7 +26,7 @@ ATD_GameCamera::ATD_GameCamera()
 	CameraBoom->TargetArmLength = 2000.f;
 	CameraBoom->SetRelativeRotation(FRotator(-60.f, 0.f, 0.f));
 
-	////设置相机的碰撞通道
+	////璁剧疆鐩告満鐨勭鎾為�氶亾
 	//CameraCollisionBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	//CameraCollisionBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	//CameraCollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Overlap);
@@ -34,7 +34,7 @@ ATD_GameCamera::ATD_GameCamera()
 
 
 	//Set the default Transformer
-	SetActorLocation(FVector(1500.0f, 450.f, 1700.f));
+	SetActorLocation(FVector(-1500.0f, 450.f, 1700.f));
 }
 
 // Called when the game starts or when spawned
@@ -70,7 +70,7 @@ void ATD_GameCamera::Zoom(bool bDirection, const float ZoomSpeed) {
 
 		}
 	}
-	//屏幕显示相机悬臂长度
+	//灞忓箷鏄剧ず鐩告満鎮噦闀垮害
 	/*FString Message = FString::Printf(TEXT("TargetArmLength: %.2f"), CameraBoom->TargetArmLength);
 	GEngine->AddOnScreenDebugMessage(-1, 0.2f, FColor::Blue, Message);*/
 }

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "UI/Core/UI_RuleOfWidget.h"
 #include "UI_SelectLevelMain.generated.h"
 
 class UButton;

@@ -23,6 +23,7 @@ public:
 
 	UFUNCTION()
 	virtual	void LoadSettings() {}
+	
 protected:
 
 	void UpdateAttibeLevel(USlider *NewSlider, UTextBlock *NewBlock);
@@ -34,7 +35,10 @@ protected:
 	UFUNCTION()
 	virtual void SelectionChanged(FString SelectedItem, ESelectInfo::Type SelectionType){}
 
+	UFUNCTION()
 	virtual void BindChangedValue(USlider *NewSlider);
+
+	UFUNCTION()
 	virtual void BindSelectionChanged(UComboBoxString *BoxString);
 
 	void SetSettingsVlaue(USlider* InSlider, UTextBlock *NewBlock, TFunction<void(float InValue)> InFunc);

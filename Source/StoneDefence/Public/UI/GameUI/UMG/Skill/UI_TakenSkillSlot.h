@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/Border.h"
 #include "Components/Image.h"
-#include "Data/Core/SkillData.h"
+#include "Data/SkillData.h"
 #include "UI/Core/UI_RuleOfWidget.h"
 #include "UI_TakenSkillSlot.generated.h"
 

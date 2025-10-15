@@ -6,7 +6,6 @@
 #include "StoneDefenceType.generated.h"
 
 
-
 UENUM(BlueprintType)
 enum class ESubmissionSkillRequestType :uint8
 {
@@ -91,4 +90,22 @@ struct FSkillType {
 
 	UPROPERTY(EditDefaultsOnly, Category = "SkillType")
 		ESkillTargetType SkillTargetType;
+};
+
+struct FMapSize
+{
+	FVector2D BigMapRealSize;
+};
+
+UENUM(BlueprintType)
+enum class EMiniMapType :uint8
+{
+	REAL_MAP,
+	GRAPHICAL_MAP,
+};
+
+enum EGameSaveType
+{
+	NOSAVE = 0b0000,
+	ARCHIVES = 0b0001,
 };
