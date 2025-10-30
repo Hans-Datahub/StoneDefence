@@ -4,18 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "Character/CharacterCore/Monsters.h"
-#include "Militia.generated.h"
+#include "Marine.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class STONEDEFENCE_API AMilitia : public AMonsters
+class STONEDEFENCE_API AMarine : public AMonsters
 {
 	GENERATED_BODY()
-
-public:
+	
 	virtual ETeam GetTeamType() override;
 	virtual void RegisterTeam() override;
-	
 };

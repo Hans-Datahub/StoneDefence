@@ -87,23 +87,29 @@ float FCharacterData::GetExpPercentage()const {
 
 
 float FCharacterData::GetMaxHealth() const {
-	SKILL_TABLE_ACQUISITION(Health, HealthModify);
+	return MaxHealth;
+	//SKILL_TABLE_ACQUISITION(Health, HealthModify);
 }
 
 float FCharacterData::GetAttack() const {
-	SKILL_TABLE_ACQUISITION(PhysicalAttack, PhysicalAttackModify);
+	return PhysicalAttack;
+	//SKILL_TABLE_ACQUISITION(PhysicalAttack, PhysicalAttackModify);
 }
 
 float FCharacterData::GetArmor() const {
-	SKILL_TABLE_ACQUISITION(Armor, ArmorModify);
+	return Armor;
+	//SKILL_TABLE_ACQUISITION(Armor, ArmorModify);
 }
 float FCharacterData::GetCD() const {
-	SKILL_TABLE_ACQUISITION_CD(CD);
+	return CD;
+	//SKILL_TABLE_ACQUISITION_CD(CD);
 }
 float FCharacterData::GetAttackSpeed() const {
-	SKILL_TABLE_ACQUISITION(AttackSpeed, AttackSpeedModify);
+	return AttackSpeed;
+	//SKILL_TABLE_ACQUISITION(AttackSpeed, AttackSpeedModify);
 }
 float FCharacterData::GetMoveSpeed() const {
-	SKILL_TABLE_ACQUISITION(MoveSpeed, MoveSpeedModify);
+	return MoveSpeed;
+	//SKILL_TABLE_ACQUISITION(MoveSpeed, MoveSpeedModify);
 
 }

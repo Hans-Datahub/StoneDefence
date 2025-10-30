@@ -19,9 +19,10 @@ UCLASS()
 class STONEDEFENCE_API ATD_PlayerController : public APlayerController
 {
 	GENERATED_BODY()
-	ATD_PlayerController();
 
 public:
+	ATD_PlayerController();
+
 	//按下与松开鼠标中键代理
 	FSimpleDelegate EventMouseMiddlePressed;
 	FSimpleDelegate EventMouseMiddleReleased;

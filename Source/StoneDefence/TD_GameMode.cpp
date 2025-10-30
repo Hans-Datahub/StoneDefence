@@ -11,6 +11,7 @@
 #include "Item/SpawnPoint.h"
 #include "Character/CharacterCore/Monsters.h"
 #include "Engine/World.h"
+#include "Core/GameCore/Synty_Camera.h"
 
 
 
@@ -20,7 +21,7 @@ ATD_GameMode::ATD_GameMode()
 	//将UE中的pawn，	contorller，PlayerState等数据与C++代码绑定起来
 	GameStateClass = ATD_GameState::StaticClass();
 	PlayerControllerClass = ATD_PlayerController::StaticClass();
-	DefaultPawnClass = ATD_GameCamera::StaticClass();
+	DefaultPawnClass = ASynty_Camera::StaticClass();
 	PlayerStateClass = ATD_PlayerState::StaticClass();
 	HUDClass = ARuleOfHUD::StaticClass();
 }
@@ -31,9 +32,19 @@ void ATD_GameMode::BeginPlay() {
 		TempGameState->GetGameData().AssignedMonsterAmount();//分配每波怪物数量
 	}
 
-	//if (1) {
-	//	SaveData = Cast<UGameSaveData>(UGameplayStatics::CreateSaveGameObject(UGameSaveData::StaticClass()));
-	//}
+	// 查找场景中的自定义摄像机
+	TArray<AActor*> FoundCameras;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASynty_Camera::StaticClass(), FoundCameras);
+
+	if (FoundCameras.Num() > 0)
+	{
+		ASynty_Camera* Camera = Cast<ASynty_Camera>(FoundCameras[0]);
+		if (Camera && GetWorld()->GetFirstPlayerController())
+		{
+			// 设置这个摄像机为视图目标
+			GetWorld()->GetFirstPlayerController()->SetViewTarget(Camera);
+		}
+	}
 }
 
 void ATD_GameMode::Tick(float DeltaSeconds) {
@@ -491,7 +502,7 @@ void ATD_GameMode::UpdateGameData(float DeltaSeconds) {
 			}
 		}
 		if (!TowersNum) {
-			TempGameState->GetGameData().bGameOver = true;
+			//TempGameState->GetGameData().bGameOver = true;
 		}
 	}
 

@@ -15,6 +15,7 @@ void FGameInstanceDatas::Init() {
 	CurrentLevel = INDEX_NONE;
 	SpawnTimeInterval = 1.f;
 	//CurrentSpawnMonsterTime = 0.0f;
+	CurrentSpawnMilitaTime = 0.0f;
 	MaxStage = 4;
 	GameTimeCount = 90;
 	MaxGameTimeCount = 0;
@@ -24,6 +25,14 @@ void FGameInstanceDatas::Init() {
 	KilledBossNumber = 0;
 	TotalDiedTower = 0;
 	TotalDiedMainTower = 0;
+
+	//-----------------Lowpoly Part Parameters-----------------------//
+	RemainNumberOfMilitia = 20;
+	MaxNumberOfMilitia = 4;
+	CurrentSpawnMilitaTime = 0.0f;
+	//MilitiaNumberinCurrentStage
+	KilledMilitiabNumber = 0;
+
 }
 
 bool FGameInstanceDatas::IsValid() {
@@ -39,10 +48,10 @@ float FGameInstanceDatas::GetPercentageOfRemainMob() {
 
 void FGameInstanceDatas::ResetCurrentSpawn() {
 	CurrentSpawnMonsterTime = 0.0f;
+	CurrentSpawnMilitaTime = 0.0f;
 }
 
 void FGameInstanceDatas::AssignedMonsterAmount() {
-	//UE_LOG(LogTemp, Error, TEXT("fuck"));
 	int32 CurrentMobNumber = MaxNumberOfMonster;
 	int32 CurrentStageNumber = MaxStage;
 	int32 CurrentStageAssignedMobNum = 0;
@@ -67,6 +76,30 @@ void FGameInstanceDatas::AssignedMonsterAmount() {
 
 }
 
+void FGameInstanceDatas::AssignedMilitiaAmount() {
+	int32 CurrentMilitiaNumber = MaxNumberOfMilitia;
+	int32 CurrentStageNumber = MaxStage;
+	int32 CurrentStageAssignedMilitiaNum = 0;
+	if (CurrentMilitiaNumber > 1) {
+		for (int32 i = 0; i < CurrentStageNumber; i++) {
+			float EverageMilitiaNumInEachStage = (float)MaxNumberOfMilitia / (float)CurrentStageNumber;
+			CurrentStageNumber--;
+			if (CurrentStageNumber > 1) {//若不是最后一波
+				CurrentStageAssignedMilitiaNum = FMath::RandRange(EverageMilitiaNumInEachStage / 6, EverageMilitiaNumInEachStage);
+			}
+			else {//若为最后一波
+				CurrentStageAssignedMilitiaNum = EverageMilitiaNumInEachStage;
+			}
+			MilitiaNumberinCurrentStage.Add(CurrentStageAssignedMilitiaNum);
+		}
+	}
+	else {
+		MilitiaNumberinCurrentStage.Add(CurrentStageAssignedMilitiaNum);
+
+	}
+
+}
+
 void FGameInstanceDatas::StageDecision() {
 	int32 CurrentStage = MobNumberinCurrentStage.Num() - 1;
 	if (MobNumberinCurrentStage.Num()) {
@@ -75,6 +108,21 @@ void FGameInstanceDatas::StageDecision() {
 		}
 		else {
 			MobNumberinCurrentStage.RemoveAt(CurrentStage);
+		}
+	}
+	else {
+		bCurrentLevelMissionSuccess = true;
+	}
+}
+
+void FGameInstanceDatas::MilitiaStageDecision() {
+	int32 CurrentStage = MilitiaNumberinCurrentStage.Num() - 1;
+	if (MilitiaNumberinCurrentStage.Num()) {
+		if (MilitiaNumberinCurrentStage[CurrentStage] > 0) {
+			MilitiaNumberinCurrentStage[CurrentStage]--;
+		}
+		else {
+			MilitiaNumberinCurrentStage.RemoveAt(CurrentStage);
 		}
 	}
 	else {

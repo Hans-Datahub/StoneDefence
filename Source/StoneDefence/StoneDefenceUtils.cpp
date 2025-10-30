@@ -77,18 +77,18 @@ void StoneDefenceUtils::FindMostClosedTargetInRange(ARuleOfCharacter* InOwner, f
 }
 
 
-ARuleOfCharacter* StoneDefenceUtils::FindMostClosedTarget(const TArray<ARuleOfCharacter*>& InCharacters, const FVector& SubjectLocation) {
-		if (InCharacters.Num()) {
+ARuleOfCharacter* StoneDefenceUtils::FindMostClosedTarget(const TArray<ARuleOfCharacter*>& TargetList, const FVector& ObjectiveLocation) {
+		if (TargetList.Num()) {
 		float TargetDistance = 9999999999;//用于迭代存储最小距离
 		int32 Index = INDEX_NONE;//此处INDEX_NONE为-1，用于迭代存储最近的目标ID
 
-		for (int32 i = 0; i < InCharacters.Num(); i++) {
-			if (ARuleOfCharacter* ObjectCharacter = InCharacters[i]) {
-				FVector ObjectLocation = ObjectCharacter->GetActorLocation();
-				FVector DistanceVector = ObjectLocation - SubjectLocation;
+		for (int32 i = 0; i < TargetList.Num(); i++) {
+			if (ARuleOfCharacter* Target = TargetList[i]) {
+				FVector TargetLocation = Target->GetActorLocation();
+				FVector DistanceVector = TargetLocation - ObjectiveLocation;
 				float Distance = DistanceVector.Size();
 
-				if (Distance < TargetDistance && ObjectCharacter->IsActive()) {
+				if (Distance < TargetDistance && Target->IsActive()) {
 					//迭代最近距离与其对象ID
 					Index = i;
 					TargetDistance = Distance;
@@ -97,7 +97,7 @@ ARuleOfCharacter* StoneDefenceUtils::FindMostClosedTarget(const TArray<ARuleOfCh
 		}
 		if (Index != INDEX_NONE) {
 			//返回最近塔的ID 
-			return InCharacters[Index];
+			return TargetList[Index];
 		}
 	}
 	//若没找到返回NULL

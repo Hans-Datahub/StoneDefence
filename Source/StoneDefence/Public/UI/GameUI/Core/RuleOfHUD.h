@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/HUD.h"
 #include "UI/GameUI/UMG/UI_MainScreen.h"
+#include "Selection/SelectionManager.h"
 #include "RuleOfHUD.generated.h"
 
 class UUI_NativeOnDrop;
@@ -18,7 +19,6 @@ public:
 	virtual void BeginPlay()override;
 	void UpdateInventorySlot(const FGuid& InventorySlotGUID, bool bInCD);
 	void UpdatePlayerSkillSlot(const FGuid& PlayerSkillSlotGUID, bool bInCD);
-
 
 private:
 	TSubclassOf<UUI_MainScreen> MainScreenClass;

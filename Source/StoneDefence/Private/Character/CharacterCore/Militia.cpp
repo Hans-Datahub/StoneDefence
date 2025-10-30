@@ -3,3 +3,11 @@
 
 #include "Character/CharacterCore/Militia.h"
 
+
+ETeam AMilitia::GetTeamType() {
+	return ETeam::RED;
+}
+
+void AMilitia::RegisterTeam() {
+	GetCharacterData().Team == ETeam::RED;
+}

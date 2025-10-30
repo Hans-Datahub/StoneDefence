@@ -2,18 +2,17 @@
 
 
 #include "UI/GameUI/Core/RuleOfHUD.h"
+#include "CanvasItem.h" 
+#include "Engine/Canvas.h" 
 #include "UI/GameUI/UMG/Drop/UI_NativeOnDrop.h"
 
 ARuleOfHUD::ARuleOfHUD() {
 	
-	static ConstructorHelpers::FClassFinder<UUI_MainScreen>GameMain_BPClass(TEXT("/Game/UI/Game/MainScreen_BP"));
-	
+	static ConstructorHelpers::FClassFinder<UUI_MainScreen>GameMain_BPClass(TEXT("/Game/UI/Game/MainScreen_BP"));	
 	MainScreenClass = GameMain_BPClass.Class;
 
 	static ConstructorHelpers::FClassFinder<UUI_NativeOnDrop>NativeOnDrop_BPClass(TEXT("/Game/UI/Game/Drop/Drop_BP"));
-
 	NativeOnDropClass = GameMain_BPClass.Class;
-
 }
 
 void ARuleOfHUD::BeginPlay() {

@@ -15,7 +15,7 @@ UAnimNotify_Death::UAnimNotify_Death()
 	:Super()
 {
 #if WITH_EDITORONLY_DATA
-	NotifyColor = FColor(0, 0, 0, 255);
+	NotifyColor = FColor(1, 1, 1, 255);
 #endif //WITH_EDITORONLY_DATA
 }
 

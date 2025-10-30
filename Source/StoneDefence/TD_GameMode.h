@@ -54,6 +54,5 @@ protected:
 
 	void UpdateInventory(float DeltaSeconds);
 
-private:
 	int32 GetTowerDifficultyParam_Level(UWorld* InWorld);
 };

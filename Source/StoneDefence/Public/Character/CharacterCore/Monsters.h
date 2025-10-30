@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Character/Core/RuleOfCharacter.h"
+#include "Selection/SelectionComponent.h"
 #include "Monsters.generated.h"
 
 
@@ -24,6 +25,4 @@ public:
 
 	UFUNCTION()
 	virtual void OnClicked(UPrimitiveComponent* TouchedComponent, FKey ButtonPressed);
-
-
 };

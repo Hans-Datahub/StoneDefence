@@ -16,5 +16,8 @@ void FDataCore::Init()
 
 bool FDataCore::IsValid() const
 {
-	return ID != INDEX_NONE;
+	//return ID != INDEX_NONE;
+
+	//调试，暂时使用
+	return ID == INDEX_NONE;
 }

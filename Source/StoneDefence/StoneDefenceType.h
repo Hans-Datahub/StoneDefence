@@ -20,6 +20,13 @@ enum ETeam {
 	NONE
 };
 
+// 控制模式枚举
+UENUM()
+	enum class EControlMode : uint8
+{
+	Selection,      // 框选模式
+	Camera          // 摄像机控制模式
+};
 
 UENUM(BlueprintType)
 namespace EGameCharacterType{
@@ -47,6 +54,14 @@ enum class ECharacterType :uint8
 {
 	TOWER,
 	MONSTER,
+};
+
+UENUM(BlueprintType)
+enum class ELowpolySelectionMode : uint8
+{
+	Normal ,
+	Additive ,
+	Subtractive 
 };
 
 

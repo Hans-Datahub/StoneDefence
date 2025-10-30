@@ -30,10 +30,10 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
 	float MoveRight;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AnimAttrubute")
 	bool HasMoveOrder;
 
-	//void NativeUpdateAnimation(float DeltaSeconds);
+	void NativeUpdateAnimation(float DeltaSeconds);
 
 	
 };

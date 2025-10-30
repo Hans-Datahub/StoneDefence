@@ -22,13 +22,13 @@ public:
 
 	virtual void NativeUpdateAnimation(float DeltaSeconds);
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AnimAttrubute")
 	bool IsDeath;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AnimAttrubute")
 	bool HasAttackOrder;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimAttrubute")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AnimAttrubute")
 	float Speed;
 
 private:

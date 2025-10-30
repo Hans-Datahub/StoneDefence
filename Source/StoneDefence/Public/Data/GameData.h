@@ -78,15 +78,48 @@ struct FGameInstanceDatas {
 		float TotalDiedMainTower;
 
 
+
+//---------------------------------------------------------------//
+//-----------------Lowpoly Part Parameters-----------------------//
+//---------------------------------------------------------------//
+
+	UPROPERTY(SaveGame)
+		int32 RemainNumberOfMilitia;
+
+		//当前关卡最大怪物数量
+	UPROPERTY(SaveGame)
+		int32 MaxNumberOfMilitia;
+
+	//生成当前一波民兵后过了多久
+	UPROPERTY(SaveGame)
+		float CurrentSpawnMilitaTime;
+
+	UPROPERTY(Transient)
+		uint8 bAllMarinesDied : 1;
+
+	UPROPERTY(SaveGame)
+		TArray<int32> MilitiaNumberinCurrentStage;
+
+	UPROPERTY(SaveGame)
+		float KilledMilitiabNumber;
+
+
+//---------------------------------------------------------------//
+
+
+
 	int32 GetRemainMobNumbers();
 
 	float GetPercentageOfRemainMob();
 	float GetMaxMobNumber();
 	void ResetCurrentSpawn();
 	FORCEINLINE bool bAllowSpawnMonster() { return CurrentSpawnMonsterTime >= SpawnTimeInterval; };
+	FORCEINLINE bool bAllowSpawnMilitia() { return CurrentSpawnMilitaTime >= SpawnTimeInterval; };
 
 	void AssignedMonsterAmount();
+	void AssignedMilitiaAmount();
 
 	void StageDecision();
+	void MilitiaStageDecision();
 
 };

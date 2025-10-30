@@ -7,6 +7,7 @@
 #include "../StoneDefenceUtils.h"
 #include "UI/GameUI/Core/RuleOfHUD.h"
 
+
 class ATD_GameState;
 
 
@@ -17,9 +18,6 @@ ATD_PlayerController::ATD_PlayerController() {
 
 void ATD_PlayerController::Tick(float DeltaSeconds) {
 	Super::Tick(DeltaSeconds);
-	float ScreenMoveSpeed = 20.f;
-	ScreenMoveUnits.ListenScreenMove(this, ScreenMoveSpeed);
-
 
 	if (TowerDoll) {
 		if (MouseTraceHit.Location != FVector::ZeroVector)

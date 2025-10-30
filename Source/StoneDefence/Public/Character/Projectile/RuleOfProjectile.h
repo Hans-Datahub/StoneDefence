@@ -61,7 +61,8 @@ public:
 		int32 SkillID;//所属技能ID
 	UPROPERTY()
 		ESubmissionSkillRequestType SubmissionSkillRequestType;
-
+	UPROPERTY()
+		ESkillTargetType SkillTargetType;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile_Tracking2")
 	float SplineOffset;

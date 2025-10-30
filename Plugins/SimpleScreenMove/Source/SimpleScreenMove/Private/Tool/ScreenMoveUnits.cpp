@@ -1,4 +1,3 @@
-// Copyright (C) RenZhai.2020.All Rights Reserved.
 #include "Tool/ScreenMoveUnits.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/Pawn.h"
@@ -12,18 +11,18 @@ EScreenMoveState FScreenMoveUnits::CursorMove(const APlayerController *PlayerCon
 {
 	if (PlayerController)
 	{
-		//��Ļ�ߴ�
+		//屏幕尺寸
 		int32 SizeX = INDEX_NONE;
 		int32 SizeY = INDEX_NONE;
 
-		//���λ��
+		//鼠标位置
 		float MousePostionX = INDEX_NONE;
 		float MousePostionY = INDEX_NONE;
 
-		//��ȡ�ߴ�
+		//获取尺寸
 		PlayerController->GetViewportSize(SizeX, SizeY);
 
-		//��ȡ����λ��
+		//获取鼠标的位置
 		PlayerController->GetMousePosition(MousePostionX, MousePostionY);
 
 		if (MousePostionX >= 0 && MousePostionX <= SizeX &&
@@ -73,31 +72,44 @@ bool FScreenMoveUnits::MoveDirection(APlayerController *PlayerController, EScree
 
 	if (PlayerController && PlayerController->GetPawn())
 	{
+		// 直接获取相机Actor的方向
+		AActor* CameraActor = PlayerController->GetPawn();
+
+		// 使用相机Actor的世界方向
+		FVector ForwardVector = CameraActor->GetActorForwardVector();
+		FVector RightVector = CameraActor->GetActorRightVector();
+
+		// 将Z轴设为0，确保水平移动
+		ForwardVector.Z = 0;
+		RightVector.Z = 0;
+		ForwardVector.Normalize();
+		RightVector.Normalize();
+
 		switch (ScreenMoveState)
 		{
 		case Screen_UP:
-			OffsetValue = FVector(ScreenMoveSpeed, 0.0f, 0.0f);
+			OffsetValue = ForwardVector * ScreenMoveSpeed;
 			break;
 		case Screen_Down:
-			OffsetValue = FVector(-ScreenMoveSpeed, 0.0f, 0.0f);
+			OffsetValue = -ForwardVector * ScreenMoveSpeed;
 			break;
 		case Screen_Right:
-			OffsetValue = FVector(0.0f, ScreenMoveSpeed, 0.0f);
+			OffsetValue = RightVector * ScreenMoveSpeed;
 			break;
 		case Screen_Left:
-			OffsetValue = FVector(0.0f, -ScreenMoveSpeed, 0.0f);
+			OffsetValue = -RightVector * ScreenMoveSpeed;
 			break;
 		case Screen_RightAndUP:
-			OffsetValue = FVector(ScreenMoveSpeed, ScreenMoveSpeed, 0.0f);
+			OffsetValue = (ForwardVector + RightVector).GetSafeNormal() * ScreenMoveSpeed;
 			break;
 		case Screen_RightAndDown:
-			OffsetValue = FVector(-ScreenMoveSpeed, ScreenMoveSpeed, 0.0f);
+			OffsetValue = (-ForwardVector + RightVector).GetSafeNormal() * ScreenMoveSpeed;
 			break;
 		case Screen_LeftAndUP:
-			OffsetValue = FVector(ScreenMoveSpeed, -ScreenMoveSpeed, 0.0f);
+			OffsetValue = (ForwardVector - RightVector).GetSafeNormal() * ScreenMoveSpeed;
 			break;
 		case Screen_LeftAndDown:
-			OffsetValue = FVector(-ScreenMoveSpeed, -ScreenMoveSpeed, 0.0f);
+			OffsetValue = -(ForwardVector + RightVector).GetSafeNormal() * ScreenMoveSpeed;
 			break;
 		}
 

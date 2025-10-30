@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "Interface/Character/RuleCharacter.h"
 #include "../StoneDefenceType.h"
+#include "Selection/SelectionComponent.h"
 #include "RuleOfCharacter.generated.h"
 
 //class ATD_PlayerController;
@@ -31,6 +32,10 @@ class STONEDEFENCE_API ARuleOfCharacter : public ACharacter , public IRuleCharac
 	//跟踪点
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BaseAttribute", meta = (AllowPrivateAccess = true))
 	class USceneComponent* HomingPoint;
+
+	//选择组件
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BaseAttribute", meta = (AllowPrivateAccess = true))
+	class USelectableComponent* SelectableComponent;
 
 
 

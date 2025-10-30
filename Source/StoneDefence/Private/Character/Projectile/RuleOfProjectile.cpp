@@ -18,7 +18,7 @@
 // Sets default values
 ARuleOfProjectile::ARuleOfProjectile()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	ProjectileCollision = CreateDefaultSubobject<USphereComponent>(TEXT("ProjectileCollision")); //BoxDamage -> ProjectileCollision
 	RootProjectile = CreateDefaultSubobject<USceneComponent>(TEXT("RootProjectile"));
@@ -33,7 +33,7 @@ ARuleOfProjectile::ARuleOfProjectile()
 	ProjectileMovement->UpdatedComponent = RootComponent;
 
 	ProjectileType = EProjectileType::PROJECTILE_RANGE;
-	
+
 	InitialLifeSpan = 4.0f;//声明周期为4秒 
 
 	Spline = nullptr;
@@ -43,7 +43,8 @@ ARuleOfProjectile::ARuleOfProjectile()
 
 	SkillID = INDEX_NONE;
 	SubmissionSkillRequestType = ESubmissionSkillRequestType::AUTO;
-}
+	SkillTargetType = ESkillTargetType::ENEMY;
+}	
 
 
 // Called when the game starts or when spawned

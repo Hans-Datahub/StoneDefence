@@ -6,7 +6,7 @@
 #include "EngineUtils.h"
 
 
-AActor* AMonsterAIController::FindTarget() {
+AActor* AMonsterAIController::FindTarget(){
 	//如果目标不存在或者已死亡，才执行新一轮FIndTarget
 	if (!Target.IsValid() || !Target->IsActive()) {
 		//声明塔存放数组

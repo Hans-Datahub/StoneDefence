@@ -31,11 +31,14 @@ ARuleOfCharacter::ARuleOfCharacter()
 	Widget = CreateDefaultSubobject<UWidgetComponent>(TEXT("Widget"));
 	OpenFirePoint = CreateDefaultSubobject<UArrowComponent>(TEXT("SpawnPoint"));
 	TraceShowCharacterInformation = CreateDefaultSubobject<UBoxComponent>(TEXT("TraceBox"));
+	SelectableComponent = CreateDefaultSubobject<USelectableComponent>(TEXT("SelectableComponent"));
 
 	HomingPoint->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 	Widget->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 	OpenFirePoint->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 	TraceShowCharacterInformation->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+	SelectableComponent->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+	//SelectableComponent->SetupAttachment(RootComponent);
 
 	DeathDelayTime = 10.f;
 
@@ -113,7 +116,10 @@ float ARuleOfCharacter::TakeDamage(float Damage, struct FDamageEvent const& Dama
 			if (SkillData->SkillType.SkillBoostType == ESkillBoostType::SUBTRACT) {
 				DamageValue = Expression::GetDamage(Cast<ARuleOfCharacter>(DamageCauser), this);
 				if (Damage) {
-					GetCharacterData().Health -= Damage;
+					if (GetCharacterData().Health > 0)
+						GetCharacterData().Health -= Damage;
+					if (GetCharacterData().Health < 0)
+						GetCharacterData().Health = 0;
 					//绘制伤害数字
 					DrawGameText(this, TEXT("-{0}"), Damage, FLinearColor::Red);
 				}
