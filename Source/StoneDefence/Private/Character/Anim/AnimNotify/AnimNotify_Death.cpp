@@ -3,6 +3,7 @@
 
 #include "Character/Anim/AnimNotify/AnimNotify_Death.h"
 #include "Character/Core/RuleOfCharacter.h"
+#include "Core/GameCore/LowPolyGameState.h"
 
 // 仅在编辑器模式下包含预览角色头文件
 #if WITH_EDITOR
@@ -27,12 +28,14 @@ void UAnimNotify_Death::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBa
 	if (!PreviewCharacter) {
 		if (ARuleOfCharacter* Character = Cast<ARuleOfCharacter>(MeshComp->GetOuter())) {
 			Character->Destroy();
+			GetWorld()->GetGameState<ALowPolyGameState>()->RemoveCharacterData(Character->GUID);
 			Character->OnActorDeath.Broadcast();
 		}
 	}
 #else
 	if (ARuleOfCharacter* Character = Cast<ARuleOfCharacter>(MeshComp->GetOuter())) {
 		Character->Destroy();
+		GetWorld()->GetGameState<ALowPolyGameState>()->RemoveCharacterData(Character->GUID);
 		Character->OnActorDeath.Broadcast();
 	}
 #endif

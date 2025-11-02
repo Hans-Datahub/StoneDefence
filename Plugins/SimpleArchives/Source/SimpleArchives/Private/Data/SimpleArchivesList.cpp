@@ -121,6 +121,9 @@ void FGameArchivesThumbnail::LoadTexture2D(const FString& ImagePath)
 					GameThumbnail = UTexture2D::CreateTransient(ImageWrapper->GetWidth(), ImageWrapper->GetHeight(), PF_R8G8B8A8);
 					if (GameThumbnail != nullptr)
 					{
+						void* TextureData = GameThumbnail->GetPlatformData()->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
+						FMemory::Memcpy(TextureData, UncompressedRGBA.GetData(), UncompressedRGBA.Num());
+						GameThumbnail->GetPlatformData()->Mips[0].BulkData.Unlock();
 						GameThumbnail->UpdateResource();
 					}
 				}
