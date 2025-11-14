@@ -58,4 +58,19 @@ public:
     UPROPERTY()
         class UUserWidget* SelectionBoxWidget = nullptr;
 
+
+public:
+    // 生成并分配散布的目标点给选中的单位
+    void GenerateAndAssignScatteredTargets(FVector CenterPos, UWorld* World, float UnitRadius = 50.0f);
+
+private:
+    // 生成候选目标点（多层圆形分布）
+    TArray<FVector> GenerateCandidatePoints(FVector TargetCenter, int32 UnitCount, float MinSafeDistance);
+
+    // 验证候选点是否在NavMesh上
+    TArray<FVector> ValidatePointsOnNavMesh(const TArray<FVector>& Candidates, UWorld* World);
+
+    // 调整点间距，确保不重叠
+    void AdjustPointDistances(TArray<FVector>& Points, float MinSafeDistance);
+
 };

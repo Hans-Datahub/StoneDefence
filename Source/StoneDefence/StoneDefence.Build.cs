@@ -27,7 +27,8 @@ public class StoneDefence : ModuleRules
 			"RawMesh",
 			"SimplePopup",
 			"ImageWrapper",
-			"Landscape"
+			"Landscape",
+			"NavigationSystem"
 		});
 
         if (Target.bBuildEditor == true)

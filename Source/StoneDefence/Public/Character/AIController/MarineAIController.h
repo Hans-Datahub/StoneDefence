@@ -13,5 +13,6 @@ UCLASS()
 class STONEDEFENCE_API AMarineAIController : public AMonsterAIController
 {
 	GENERATED_BODY()
-	
+
+	AActor* FindTarget() override;
 };

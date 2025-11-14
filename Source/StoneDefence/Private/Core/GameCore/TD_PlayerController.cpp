@@ -51,18 +51,16 @@ void ATD_PlayerController::UpdateGlobalVar() {
 }
 
 
-ATowers* ATD_PlayerController::SpawnTower(int32 CharacterID, int32 CharacterLevel, const FVector& Location, const FRotator& Rotator) {
-	if (GetGameMode()) {
-		return GetGameMode()->SpawnTower(CharacterID, CharacterLevel, Location, Rotator);
-	}
+ATowers* ATD_PlayerController::SpawnTower(int32 CharacterID, const FVector& Location, const FRotator& Rotator, int32 CharacterLevel) {
+	if (GetGameMode())
+		return GetGameMode()->SpawnTower(CharacterID, Location, Rotator, CharacterLevel);
 	return nullptr;
 }
 
 
-AMonsters* ATD_PlayerController::SpawnMonster(int32 CharacterID, int32 CharacterLevel, const FVector& Location, const FRotator& Rotator) {
-	if (GetGameMode()) {
-		return GetGameMode()->SpawnMonster(CharacterID, CharacterLevel, Location, Rotator);
-	}
+AMonsters* ATD_PlayerController::SpawnMonster(int32 CharacterID, const FVector& Location, const FRotator& Rotator, int32 CharacterLevel) {
+	if (GetGameMode())
+		return GetGameMode()->SpawnMonster(CharacterID, Location, Rotator, CharacterLevel);
 	return nullptr;
 }
 

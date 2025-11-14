@@ -16,12 +16,6 @@ ALowPolyGameState::ALowPolyGameState() {
 }
 
 void ALowPolyGameState::BeginPlay() {
-	//初始化所有参数
-	TArray<ARuleOfCharacter*>AllUnits = StoneDefenceUtils::GetAllActor<ARuleOfCharacter>(GetWorld());
-	for (ARuleOfCharacter* Units : AllUnits)
-		if (URuleOfAnimInstance* AnimInst = Cast<URuleOfAnimInstance>(Units->GetMesh()->GetAnimInstance()))
-			AnimInst->IsDeath = false;
-
 	AssignExistedUnit();
 }
 
@@ -32,7 +26,7 @@ void ALowPolyGameState::AssignExistedUnit() {
 
 	//获取所有单位基础数据 , 以MilitiaTable中的数据为模板
 	TArray<FCharacterData*> Datas;
-	UDataTable* InCharacterData = AIMilitiaCharacterData;
+	UDataTable* InCharacterData = AIMarineCharacterData;
 	InCharacterData->GetAllRows(TEXT("CharacterData"), Datas);
 	auto GetCharacterData = [&](int32 ID) ->FCharacterData* {
 		for (auto& Temp : Datas) {

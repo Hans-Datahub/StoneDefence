@@ -7,6 +7,10 @@
 #include "Components/Image.h"
 #include "Components/CanvasPanel.h"
 #include "Character/Core/RuleOfCharacter.h"
+#include "Core/GameCore/LowPolyGameState.h"
+#include "NavigationSystem.h"
+#include "../../StoneDefenceUtils.h"
+#include "Character/CharacterCore/Towers.h"
 
 ASelectionManager::ASelectionManager()
 {
@@ -248,4 +252,165 @@ void ASelectionManager::UpdateSelectionBoxVisual()
     }
 }
 
+
+/*--------------------------------------------------------------*/
+/*-------------------------移动目标点计算-------------------------*/
+/*-------------------------------------------------------------*/
+
+void ASelectionManager::GenerateAndAssignScatteredTargets(FVector CenterPos, UWorld* World, float UnitRadius)
+{ 
+    if (CurrentlySelectedUnits.Num() == 0 || !World) return;
+
+    // 1. 计算关键参数
+    const float MinSafeDistance = 2 * UnitRadius; // 单位间最小安全距离（避免碰撞箱重叠）
+    const int32 UnitCount = CurrentlySelectedUnits.Num();
+
+    // 2. 生成候选点（围绕中心的多层圆形分布）
+    TArray<FVector> Candidates = GenerateCandidatePoints(CenterPos, UnitCount, MinSafeDistance);
+
+    // 3. 验证候选点是否在NavMesh上（过滤静态障碍）
+    TArray<FVector> ValidPoints = ValidatePointsOnNavMesh(Candidates, World);
+
+    // 4. 若有效点不足，扩大范围重试（最多3次）
+    int32 RetryCount = 0;
+    while (ValidPoints.Num() < UnitCount && RetryCount < 3)
+    {
+        RetryCount++;
+        Candidates = GenerateCandidatePoints(CenterPos, UnitCount, MinSafeDistance * (1.0f + RetryCount * 0.5f)); // 每次扩大50%范围
+        ValidPoints = ValidatePointsOnNavMesh(Candidates, World);
+    }
+
+    // 5. 调整点间距（确保最终间距≥最小安全距离）
+    AdjustPointDistances(ValidPoints, MinSafeDistance);
+
+    // 6. 确保有效点数量与单位数量一致（不足时用最近点填充）
+    if (ValidPoints.Num() > UnitCount)
+    {
+        ValidPoints.SetNum(UnitCount); // 截断多余的点
+    }
+    else if (ValidPoints.Num() < UnitCount)
+    {
+        // 极端情况：用中心位置填充（至少保证有目标点）
+        while (ValidPoints.Num() < UnitCount)
+        {
+            ValidPoints.Add(CenterPos);
+        }
+    }
+    
+    // 7. 分配目标点给选中的单位
+    for (int32 i = 0; i < CurrentlySelectedUnits.Num(); i++) {
+        if (ARuleOfCharacter* Unit = Cast<ARuleOfCharacter>(CurrentlySelectedUnits[i]->GetOwner())) {
+            if (ALowPolyGameState* TempState = GetWorld()->GetGameState<ALowPolyGameState>()) {
+                FCharacterData CharacterData = TempState->GetCharacterData(Unit->GUID);
+                CharacterData.LocationToMove = ValidPoints[i];
+                UE_LOG(LogTemp, Log, TEXT("Task:LocationToMove已分配"));
+                
+            }
+        }
+    }  
+
+    // 8. 调试：在所有点位生成标识物
+    if (!GetWorld()) return;
+    FRotator SpawnRotation = FRotator::ZeroRotator;  // 零旋转
+    FActorSpawnParameters SpawnParams;
+    SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;  // 若碰撞则调整位置，无法调整则不生成
+
+    //生成周围点位
+    for (FVector Temp : ValidPoints) {
+        FVector SpawnLocation = Temp;
+        FVector SpawnScale = FVector(0.2f, 0.2f, 0.2f);
+        FTransform SpawnTransform(SpawnRotation, SpawnLocation, SpawnScale);
+        GetWorld()->SpawnActor<ARuleOfCharacter>(ATowers::StaticClass(), SpawnTransform, SpawnParams);
+    }
+    //生成点击位置
+    FVector SpawnLocation = CenterPos;
+    FVector SpawnScale = FVector(0.2f, 0.2f, 0.8f);
+    FTransform SpawnTransform(SpawnRotation, SpawnLocation, SpawnScale);
+    GetWorld()->SpawnActor<ARuleOfCharacter>(ATowers::StaticClass(), SpawnTransform, SpawnParams);
+
+}
+
+TArray<FVector> ASelectionManager::GenerateCandidatePoints(FVector TargetCenter, int32 UnitCount, float MinSafeDistance)
+{
+    TArray<FVector> Candidates;
+    if (UnitCount <= 0) return Candidates;
+
+    float BaseRadius = MinSafeDistance; // 初始半径
+    int32 Remaining = UnitCount;
+    int32 Layer = 0;
+
+    while (Remaining > 0)
+    {
+        const float CurrentRadius = BaseRadius + Layer * MinSafeDistance; // 每层半径递增
+        const float Circumference = 2 * PI * CurrentRadius;
+        const int32 MaxPerLayer = FMath::Max(1, FMath::FloorToInt(Circumference / MinSafeDistance)); // 每层最大点数
+        const int32 ThisLayerCount = FMath::Min(Remaining, MaxPerLayer);
+
+        // 生成当前层的点（均匀角度分布，每层错开30度避免径向对齐）
+        for (int32 i = 0; i < ThisLayerCount; i++)
+        {
+            const float Angle = (2 * PI * i / ThisLayerCount) + (Layer * PI / 6.0f);
+            FVector Offset(
+                CurrentRadius * FMath::Cos(Angle),
+                CurrentRadius * FMath::Sin(Angle),
+                0.0f
+            );
+            Candidates.Add(TargetCenter + Offset);
+        }
+
+        Remaining -= ThisLayerCount;
+        Layer++;
+    }
+
+    return Candidates;
+}
+
+TArray<FVector> ASelectionManager::ValidatePointsOnNavMesh(const TArray<FVector>& Candidates, UWorld* World)
+{
+    TArray<FVector> ValidPoints;
+    if (!World) return ValidPoints;
+
+    if (UNavigationSystemV1* NavSys = UNavigationSystemV1::GetNavigationSystem(World))
+    {
+        for (const FVector& Candidate : Candidates)
+        {
+            FNavLocation NavLoc;
+            // 投影到NavMesh（允许50单位误差）
+            if (NavSys->ProjectPointToNavigation(Candidate, NavLoc, FVector(50.0f, 50.0f, 50.0f)))
+            {
+                ValidPoints.Add(NavLoc.Location);
+            }
+        }
+    }
+
+    return ValidPoints;
+}
+
+void ASelectionManager::AdjustPointDistances(TArray<FVector>& Points, float MinSafeDistance)
+{
+    const int32 Iterations = 3; // 迭代次数（平衡性能与精度）
+    const float Repulsion = 8.0f; // 排斥力强度
+
+    for (int32 It = 0; It < Iterations; It++)
+    {
+        for (int32 i = 0; i < Points.Num(); i++)
+        {
+            for (int32 j = i + 1; j < Points.Num(); j++)
+            {
+                FVector& P1 = Points[i];
+                FVector& P2 = Points[j];
+                const FVector Delta = P2 - P1;
+                const float Dist = Delta.Size();
+
+                if (Dist > 0 && Dist < MinSafeDistance)
+                {
+                    const float Push = (MinSafeDistance - Dist) * 0.5f * Repulsion;
+                    const FVector Dir = Delta.GetSafeNormal();
+                    P1 -= Dir * Push;
+                    P2 += Dir * Push;
+                }
+            }
+        }
+    }
+}
 

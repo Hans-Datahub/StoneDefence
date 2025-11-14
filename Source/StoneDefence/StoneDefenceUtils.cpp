@@ -96,7 +96,7 @@ ARuleOfCharacter* StoneDefenceUtils::FindMostClosedTarget(const TArray<ARuleOfCh
 			}
 		}
 		if (Index != INDEX_NONE) {
-			//返回最近塔的ID 
+			//返回最近目标的ID 
 			return TargetList[Index];
 		}
 	}

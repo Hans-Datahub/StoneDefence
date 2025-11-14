@@ -7,6 +7,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Character/Core/RuleOfCharacter.h"
 #include "Character/AIController/MilitiaAIController.h"
+#include "Character/Anim/MarineAnimInstance.h"
 #include "Character/AIController/MarineAIController.h"
 
 EBTNodeResult::Type UBTTask_AttackTarget::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) {
@@ -18,17 +19,16 @@ EBTNodeResult::Type UBTTask_AttackTarget::ExecuteTask(UBehaviorTreeComponent& Ow
 			if (Blackboard_Actor.SelectedKeyType == UBlackboardKeyType_Object::StaticClass()) {
 				if (ARuleOfCharacter* Character = Cast<ARuleOfCharacter>(AIController->GetPawn())) {
 					if (ARuleOfCharacter* TargetUnit = Cast<ARuleOfCharacter>(BlackBoard->GetValueAsObject(Blackboard_Actor.SelectedKeyName))) {
-						Character->Isattack = true;
-
-						////判断用的是Militia还是Marine的AIController
-						//if(AMilitiaAIController* MilitiaAIController = Cast<AMilitiaAIController>(AIController))
-						//	MilitiaAIController->AttackTarget(TargetUnit);
-						//else if(AMarineAIController* MarineAIController = Cast<AMarineAIController>(AIController))
-						//	MarineAIController->AttackTarget(TargetUnit);
+						//Character->Isattack = true;					
 						return EBTNodeResult::Succeeded;
 					}
 					else {
-						Character->Isattack = false;
+						//Character->Isattack = false;
+						////通知停止攻击蒙太奇播放
+						//UMarineAnimInstance* MarineAnimInstance = Cast<UMarineAnimInstance>(Character->GetMesh()->GetAnimInstance());
+						//UAnimMontage* CurrentMontage = MarineAnimInstance->GetCurrentActiveMontage();
+						//MarineAnimInstance->Montage_Stop(0.5f, CurrentMontage);
+
 						return EBTNodeResult::Succeeded;
 					}
 				}

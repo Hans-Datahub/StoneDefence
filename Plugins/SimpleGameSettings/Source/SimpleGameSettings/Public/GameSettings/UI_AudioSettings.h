@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Core/UI_SimpleGameSettingsCore.h"
+#include "Sound/AmbientSound.h"
 #include "UI_AudioSettings.generated.h"
 
 class USlider;
@@ -55,6 +56,9 @@ class SIMPLEGAMESETTINGS_API UUI_AudioSettings :public UUI_SimpleGameSettingsCor
 
 	UPROPERTY(EditDefaultsOnly, Category = UI)
 		USoundBase* GameSoundTestObject;
+
+	UPROPERTY()
+		class AAmbientSound* CurrentBackgroundTestSound = nullptr;
 public:
 
 	virtual	void SaveSettings();

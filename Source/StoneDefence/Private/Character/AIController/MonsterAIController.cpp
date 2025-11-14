@@ -10,29 +10,29 @@ AActor* AMonsterAIController::FindTarget(){
 	//如果目标不存在或者已死亡，才执行新一轮FIndTarget
 	if (!Target.IsValid() || !Target->IsActive()) {
 		//声明塔存放数组
-		TArray<ARuleOfCharacter*>TargetMainTowerArray;
-		TArray<ARuleOfCharacter*>TargetTowersArray;
+		TArray<ARuleOfCharacter*>MainTargetArray;
+		TArray<ARuleOfCharacter*>NormalTargetArray;
 
-		for (TActorIterator<ATowers>it(GetWorld(), ATowers::StaticClass()); it; ++it) {
-			ATowers* TheCharacter = *it;
+		for (TActorIterator<ARuleOfCharacter>it(GetWorld(), ARuleOfCharacter::StaticClass()); it; ++it) {
+			ARuleOfCharacter* TheCharacter = *it;
 			if (TheCharacter && TheCharacter->IsActive()) {
 				//若发现目标为塔，则放入目标塔数组；若为主塔，放入目标主塔数组
 				if (TheCharacter->GetType() == EGameCharacterType::Type::MINI) {
-					TargetTowersArray.Add(TheCharacter);
+					NormalTargetArray.Add(TheCharacter);
 				}
 				else if (TheCharacter->GetType() == EGameCharacterType::Type::BOSS) {
-					TargetMainTowerArray.Add(TheCharacter);
+					MainTargetArray.Add(TheCharacter);
 
 				}
 			}
 		}
 
-		ATowers* MainTowers = Cast<ATowers>(StoneDefenceUtils::FindMostClosedTarget(TargetMainTowerArray, GetPawn()->GetActorLocation()));
-		ATowers* NormalTowers = Cast<ATowers>(StoneDefenceUtils::FindMostClosedTarget(TargetTowersArray, GetPawn()->GetActorLocation()));
+		ARuleOfCharacter* MainTarget = Cast<ARuleOfCharacter>(StoneDefenceUtils::FindMostClosedTarget(MainTargetArray, GetPawn()->GetActorLocation()));
+		ARuleOfCharacter* NormalTarget = Cast<ARuleOfCharacter>(StoneDefenceUtils::FindMostClosedTarget(NormalTargetArray, GetPawn()->GetActorLocation()));
 
 		//优先攻击主塔，其次普通塔
-		if (MainTowers) { return MainTowers; }
-		return NormalTowers;
+		if (MainTarget) { return MainTarget; }
+		return NormalTarget;
 	}
 	return Target.Get();
 }

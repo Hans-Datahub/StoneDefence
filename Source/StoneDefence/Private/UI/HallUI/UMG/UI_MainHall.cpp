@@ -114,7 +114,7 @@ void UUI_MainHall::NativeConstruct(){
 
 
 void UUI_MainHall::GameStart() {
-    UGameplayStatics::OpenLevel(GetWorld(), "SM_SelectMap");
+    UGameplayStatics::OpenLevel(GetWorld(), "Synty_SelectMap");
 }
 void UUI_MainHall::SecretTerritory() {
 
@@ -147,11 +147,11 @@ void UUI_MainHall::TutorialWebsite() {
     CreateAssistWidget<UUI_MainHall, UUI_TutorialSystem>(this, TutorialSystemClass, BoxList);
 }
 void UUI_MainHall::Browser() {
-
+     
 }
 void UUI_MainHall::SpecialContent() {
 
 }
 void UUI_MainHall::QuitGame() {
-
+    UKismetSystemLibrary::QuitGame(this, GetOwningPlayer(), EQuitPreference::Quit, false);
 }

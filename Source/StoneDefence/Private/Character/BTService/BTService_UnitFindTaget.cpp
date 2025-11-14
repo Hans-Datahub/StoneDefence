@@ -4,14 +4,28 @@
 #include "BehaviorTree/Blackboard/BlackboardKeyType.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Character/Core/RuleOfCharacter.h"
-#include "Character/AIController/MilitiaAIController.h"
+#include "Character/AIController/MonsterAIController.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Character/Anim/RuleOfAnimInstance.h"
+#include "Character/CharacterCore/Marine.h"
+#include "Character/Anim/MilitiaAnimInstance.h"
 
 
 void UBTService_UnitFindTaget::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* Nodememory, float DeltaSeconds) {
 	Super::TickNode(OwnerComp, Nodememory, DeltaSeconds);
 
-	if (AMilitiaAIController* AIController = Cast<AMilitiaAIController>(OwnerComp.GetOwner())) {
+
+
+	if (AMonsterAIController* AIController = Cast<AMonsterAIController>(OwnerComp.GetOwner())) {
+		//对于Marine来说, 若有移动命令则停止攻击有关指令, 直接结束本TickNode (由于动画蓝图未做区分，所以用的都是MilitiaAnim)
+		if (AMarine* UnitAI = Cast<AMarine>(AIController->GetPawn()))
+			if (UMilitiaAnimInstance* AnimInstance = Cast<UMilitiaAnimInstance>(UnitAI->GetMesh()->GetAnimInstance()))
+				if (AnimInstance->HasMoveOrder == true) {
+					UnitAI->Isattack = false;
+					return;
+				}
+
+
 		if (UBlackboardComponent* MyBlackBoard = OwnerComp.GetBlackboardComponent()) {
 			if (ARuleOfCharacter* NewTarget = Cast<ARuleOfCharacter>(AIController->FindTarget())) {
 				//---若新搜索到的目标为新目标---//
@@ -28,14 +42,6 @@ void UBTService_UnitFindTaget::TickNode(UBehaviorTreeComponent& OwnerComp, uint8
 				if (AIController->Target.IsValid()) {
 					if (AIController->Target->IsActive()) {
 						////计算怪与塔之间距离（向量）
-						//FVector Direction = AIController->GetPawn()->GetActorLocation() - AIController->Target.Get()->GetActorLocation();
-
-						//FVector NormalizedDirection = Direction.GetSafeNormal();
-						//FVector NormalizedDirection2 = NormalizedDirection * -300.f;
-						//
-						////FVector LocationWithGap = Direction * -300.f + AIController->Target.Get()->GetActorLocation();//计算出最终带间隔的追踪位置
-						//FVector LocationWithGap = Direction  + NormalizedDirection2;//计算出最终带间隔的追踪位置
-
 						FVector TargetLocation = AIController->Target.Get()->GetActorLocation();
 						FVector SelfLocation = AIController->GetPawn()->GetActorLocation();
 
@@ -44,9 +50,6 @@ void UBTService_UnitFindTaget::TickNode(UBehaviorTreeComponent& OwnerComp, uint8
 
 						// 从目标位置反向偏移300单位
 						FVector LocationWithGap = TargetLocation + (DirectionToSelf * 2000.0f);
-
-
-
 
 						MyBlackBoard->SetValueAsObject(BlackBoardKey_Target.SelectedKeyName, AIController->Target.Get());//Get()用于将弱指针所指的Target转化成对象实例
 						MyBlackBoard->SetValueAsVector(BlackBoardKey_TargetLocation.SelectedKeyName, LocationWithGap);
@@ -64,28 +67,34 @@ void UBTService_UnitFindTaget::TickNode(UBehaviorTreeComponent& OwnerComp, uint8
 				MyBlackBoard->SetValueAsVector(BlackBoardKey_TargetLocation.SelectedKeyName, FVector::ZeroVector);
 			}
 
-
-			if (AIController->Target.IsValid()) {
+			if (ARuleOfCharacter* UnitAI = Cast<ARuleOfCharacter>(AIController->GetPawn())) {
+				if (AIController->Target.IsValid()) {
 				
-				FVector Mylocation = AIController -> GetPawn()->GetActorLocation();
-				FVector TMDistance = Mylocation - AIController->Target->GetActorLocation();
+					FVector Mylocation = AIController -> GetPawn()->GetActorLocation();
+					FVector TMDistance = Mylocation - AIController->Target->GetActorLocation();
 
-				if (TMDistance.Size() > 2200) {
-					if (ARuleOfCharacter* UnitAI = Cast<ARuleOfCharacter>(AIController->GetPawn())) {
-						UnitAI->Isattack = false;
-					}
+					if (TMDistance.Size() > 2200) {	UnitAI->Isattack = false; }
+					else { UnitAI->Isattack = true; }
+
+					MyBlackBoard->SetValueAsFloat(BlackBoardKey_Distance.SelectedKeyName, TMDistance.Size());
 				}
 				else {
-					if (ARuleOfCharacter* UnitAI = Cast<ARuleOfCharacter>(AIController->GetPawn())) {
-						UnitAI->Isattack = true;
-					}
+					MyBlackBoard->SetValueAsFloat(BlackBoardKey_Distance.SelectedKeyName, 0.0f);
+					UnitAI->Isattack = false;
 				}
-				MyBlackBoard->SetValueAsFloat(BlackBoardKey_Distance.SelectedKeyName, TMDistance.Size());
-			}
-			else {
-				MyBlackBoard->SetValueAsFloat(BlackBoardKey_Distance.SelectedKeyName, 0.0f);
 
+
+				//判断攻击状态是否变化
+				if (bOldIsattack != UnitAI->Isattack) {
+					bOldIsattack = UnitAI->Isattack;
+					//若变化为停止攻击，停止蒙太奇播放
+					if (bOldIsattack == false)
+						if (URuleOfAnimInstance* AnimInstance = Cast<URuleOfAnimInstance>(UnitAI->GetMesh()->GetAnimInstance()))
+							if(UAnimMontage* CurrentMontage = AnimInstance->GetCurrentActiveMontage())
+								AnimInstance->Montage_Stop(0.1f, CurrentMontage);
+				}
 			}
+
 
 			//临时设置最终目标位置  测试
 			MyBlackBoard->SetValueAsVector(BlackBoardKey_FinalTargetLocation.SelectedKeyName, FVector(-7000,-7620,0));

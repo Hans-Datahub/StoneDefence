@@ -121,6 +121,6 @@ enum class EMiniMapType :uint8
 
 enum EGameSaveType
 {
-	NOSAVE = 0b0000,
-	ARCHIVES = 0b0001,
+	NOSAVE = 0b0000,//不读取存档，新开游戏
+	ARCHIVES = 0b0001,//读取存档
 };

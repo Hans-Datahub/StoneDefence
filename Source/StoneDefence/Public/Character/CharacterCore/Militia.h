@@ -14,6 +14,9 @@ class STONEDEFENCE_API AMilitia : public AMonsters
 {
 	GENERATED_BODY()
 
+	virtual void BeginDestroy()override;
+	void ClearAnimNotifyQueue(UAnimInstance* AnimInstance);
+
 public:
 	virtual ETeam GetTeamType() override;
 	virtual void RegisterTeam() override;

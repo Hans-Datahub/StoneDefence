@@ -44,22 +44,24 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Event")
 		FActorDeathDelegate OnActorDeath;
 
-	UPROPERTY(EditDefaultsOnly, Category = UI)
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<class ADrawText> DrawTextClass;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly , Category = UI)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly , Category = "UI")
 	FGuid GUID;
 
 	//某些塔无死亡动画，死亡时播放特效，故需要一个延迟Destroy时间
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Death)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Death")
 	float DeathDelayTime;
 
-	UPROPERTY(EditDefaultsOnly, Category = Type)
+	UPROPERTY(EditDefaultsOnly, Category = "Type")
 	TEnumAsByte<EGameCharacterType::Type> CharacterType;
 
 	//本游戏的防御塔，主技能为普通攻击，被动技能放在下面的数组里
 	UPROPERTY(EditDefaultsOnly, Category = "Skill")
 		TArray<int32> PassiveSkillIDArray;// = SkillIDs
+
+
 
 	// Sets default values for this character's properties
 	ARuleOfCharacter();

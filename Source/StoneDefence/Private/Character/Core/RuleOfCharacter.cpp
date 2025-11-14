@@ -21,6 +21,10 @@
 #include "Core/GameCore/TD_PlayerController.h"
 #include "Character/Damage/RuleOfDamage.h"
 
+#include "Core/GameCore/LowPolyGameState.h"
+#include "Core/GameCore/LowPolyGameMode.h"
+
+
 // Sets default values
 ARuleOfCharacter::ARuleOfCharacter()
 	:Isattack(false)
@@ -56,6 +60,10 @@ ATD_PlayerController* ARuleOfCharacter::GetGameController()
 
 ATD_GameState* ARuleOfCharacter::GetGameState()
 {
+	/*if (ALowPolyGameMode* GameMode = Cast<ALowPolyGameMode>(GetWorld()->GetAuthGameMode())) {
+		return GameMode->GetGameState<ALowPolyGameState>();
+	}
+	return nullptr;*/
 	return GetWorld() ? GetWorld()->GetGameState<ATD_GameState>() : nullptr;
 }
 
@@ -74,6 +82,11 @@ void ARuleOfCharacter::BeginPlay()
 		SpawnDefaultController();
 	}
 
+	UE_LOG(LogTemp, Error, TEXT("=== CHARACTER INIT === %s | GUID: %s | Health: %f"),
+		*GetName(),
+		*GUID.ToString(),
+		GetCharacterData().Health);
+
 }
 
 // Called every frame
@@ -90,6 +103,10 @@ EGameCharacterType::Type ARuleOfCharacter::GetType() {
 
 float ARuleOfCharacter::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser){
 	Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
+
+
+	UE_LOG(LogTemp, Error, TEXT("=== TAKE DAMAGE === %s | Damage: %f | Health Before: %f"),
+		*GetName(), Damage, GetCharacterData().Health);
 	
 	float DamageValue = 0.f;
 	if (URuleOfDamage* DamageClass = DamageEvent.DamageTypeClass->GetDefaultObject<URuleOfDamage>()) {
@@ -237,6 +254,9 @@ float ARuleOfCharacter::TakeDamage(float Damage, struct FDamageEvent const& Dama
 
 		}
 	}
+
+	UE_LOG(LogTemp, Error, TEXT("=== AFTER DAMAGE === %s | Health After: %f"),
+		*GetName(), GetCharacterData().Health);
 
 	return DamageValue;
 }

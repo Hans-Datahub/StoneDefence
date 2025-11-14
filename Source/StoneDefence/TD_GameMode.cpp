@@ -12,6 +12,7 @@
 #include "Character/CharacterCore/Monsters.h"
 #include "Engine/World.h"
 #include "Core/GameCore/Synty_Camera.h"
+#include "Core/GameCore/TD_GameInstance.h"
 
 
 
@@ -28,9 +29,6 @@ ATD_GameMode::ATD_GameMode()
 
 void ATD_GameMode::BeginPlay() {
 	Super::BeginPlay();
-	if (ATD_GameState* TempGameState = GetGameState<ATD_GameState>()) {
-		TempGameState->GetGameData().AssignedMonsterAmount();//分配每波怪物数量
-	}
 
 	// 查找场景中的自定义摄像机
 	TArray<AActor*> FoundCameras;
@@ -58,6 +56,38 @@ void ATD_GameMode::Tick(float DeltaSeconds) {
 	UpdatePlayerSkill(DeltaSeconds);
 }
 
+
+void ATD_GameMode::InitDataFormArchives()
+{
+	if (ATD_GameState* InGameState = GetGameState<ATD_GameState>())
+	{
+		//初始化游戏数据
+		InGameState->GetSaveData();
+
+		//初始化存储的列表
+		InGameState->GetGameSaveSlotList();
+
+		//初始化玩家数据表
+		StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATD_PlayerController* MyPlayerController)
+			{
+				if (ATD_PlayerState* InPlayerState = MyPlayerController->GetPlayerState<ATD_PlayerState>())
+				{
+					InPlayerState->GetSaveData();//初始化玩家数据表
+				}
+			});
+	}
+}
+
+void ATD_GameMode::InitStandardData()
+{
+	if (ATD_GameState* InGameState = GetGameState<ATD_GameState>())
+	{
+		InGameState->GetGameData().AssignedMonsterAmount();
+		//生成主塔
+		SpawnMainTowerRule();
+	}
+}
+
 void ATD_GameMode::UpdateMonsterSpawnRule(float DeltaSeconds) {
 	if (ATD_GameState* TempGameState = GetGameState<ATD_GameState>()) {
 		if (!TempGameState->GetGameData().bCurrentLevelMissionSuccess)/*当前关卡是否胜利*/ {
@@ -68,7 +98,7 @@ void ATD_GameMode::UpdateMonsterSpawnRule(float DeltaSeconds) {
 						TempGameState->GetGameData().ResetCurrentSpawn();
 
 						int32 MobDifficulty = GetTowerDifficultyParam_Level(GetWorld());
-						if (AMonsters* Monster = SpawnMonster(0, MobDifficulty, FVector::ZeroVector, FRotator::ZeroRotator)) {
+						if (AMonsters* Monster = SpawnMonster(0, FVector::ZeroVector, FRotator::ZeroRotator, MobDifficulty)) {
 							TArray<ASpawnPoint*> MonsterSpawnPoints;
 							for (ASpawnPoint* SpawnPoint : StoneDefenceUtils::GetAllActor<ASpawnPoint>(GetWorld())) {
 								if (Monster->GetTeamType() == SpawnPoint->Team) {
@@ -94,7 +124,7 @@ void ATD_GameMode::UpdateMonsterSpawnRule(float DeltaSeconds) {
 void ATD_GameMode::SpawnMainTowerRule() {
 	for (ASpawnPoint* SpawnPoint : StoneDefenceUtils::GetAllActor<ASpawnPoint>(GetWorld())) {
 		if (SpawnPoint->Team == ETeam::RED) {
-			SpawnTower(0,1, SpawnPoint->GetActorLocation(), SpawnPoint->GetActorRotation());
+			SpawnTower(0, SpawnPoint->GetActorLocation(), SpawnPoint->GetActorRotation(), 1);
 		}
 	}
 }
@@ -103,7 +133,7 @@ void ATD_GameMode::SpawnMainTowerRule() {
 void ATD_GameMode::SpawnTowerRule() {
 	for (ASpawnPoint* SpawnPoint : StoneDefenceUtils::GetAllActor<ASpawnPoint>(GetWorld())) {
 		if (SpawnPoint->Team == ETeam::RED) {
-			SpawnTower(1, 1, SpawnPoint->GetActorLocation(), SpawnPoint->GetActorRotation());
+			SpawnTower(1, SpawnPoint->GetActorLocation(), SpawnPoint->GetActorRotation(), 1);
 		}
 	}
 }
@@ -169,10 +199,11 @@ int32 ATD_GameMode::GetTowerDifficultyParam_Level(UWorld* InWorld) {
 }
 
 ARuleOfCharacter* ATD_GameMode::SpawnCharacter(int32 CharacterID,
-	int32 CharacterLevel,
 	UDataTable* InCharacterData,
 	const FVector& Location,
-	const FRotator& Rotator) {
+	const FRotator& Rotator,
+	int32 CharacterLevel
+	/*const FGuid& InCharacterGuid*/) {
 	ARuleOfCharacter* InCharacter = nullptr;
 	if (ATD_GameState* TempGameState = GetGameState<ATD_GameState>()) {
 		if (InCharacterData) {
@@ -192,7 +223,7 @@ ARuleOfCharacter* ATD_GameMode::SpawnCharacter(int32 CharacterID,
 				UClass* NewClass = CharacterData->CharacterBlueprintKey.LoadSynchronous();//负载同步
 				if (GetWorld())
 					if (ARuleOfCharacter* RuleOfCharacter = GetWorld()->SpawnActor<ARuleOfCharacter>(NewClass, Location, Rotator)) {
-						RuleOfCharacter->ResetGUID();
+						//RuleOfCharacter->ResetGUID();
 						FCharacterData& CharacterDataInstance = TempGameState->AddCharacterData(RuleOfCharacter->GUID, *CharacterData);
 						CharacterDataInstance.UpdateHealth();
 
@@ -214,18 +245,20 @@ ARuleOfCharacter* ATD_GameMode::SpawnCharacter(int32 CharacterID,
 	return InCharacter;
 }
 
-ATowers* ATD_GameMode::SpawnTower(int32 CharacterID,
-	int32 CharacterLevel,
+ATowers* ATD_GameMode::SpawnTower(int32 CharacterID,	
 	const FVector& Location,
-	const FRotator& Rotator) {
-	return SpawnCharacter<ATowers>(CharacterID, CharacterLevel, GetGameState<ATD_GameState>()->AITowerCharacterData, Location, Rotator);
+	const FRotator& Rotator,
+	int32 CharacterLevel
+	/*const FGuid& InCharacterGuid*/) {
+	return SpawnCharacter<ATowers>(CharacterID, GetGameState<ATD_GameState>()->AITowerCharacterData, Location, Rotator, CharacterLevel/*, InCharacterGuid*/);
 }
 
 AMonsters* ATD_GameMode::SpawnMonster(int32 CharacterID,
-	int32 CharacterLevel,
-	const FVector& Location,
-	const FRotator& Rotator) {
-	return SpawnCharacter<AMonsters>(CharacterID, CharacterLevel, GetGameState<ATD_GameState>()->AIMonsterCharacterData, Location, Rotator);
+	const FVector& Loction,
+	const FRotator& Rotator,
+	int32 CharacterLevel
+	/*const FGuid& InCharacterGuid*/){
+	return SpawnCharacter<AMonsters>(CharacterID, GetGameState<ATD_GameState>()->AIMonsterCharacterData, Loction, Rotator, CharacterLevel/*, InCharacterGuid*/);
 }
 
 void ATD_GameMode::UpdateSkill(float DeltaSeconds) {
@@ -306,7 +339,7 @@ void ATD_GameMode::UpdateSkill(float DeltaSeconds) {
 
 
 		//获取所有角色的所有技能
-		for (auto& Temp : NewGameState->GetGameSaveData()->CharacterDatas) {
+		for (auto& Temp : NewGameState->GetSaveData()->CharacterDatas) {
 			if (Temp.Value.Health > 0.f) {
 				//计算与更新清除列表
 				TArray<FGuid> RemoveSkillArray;//存储爆发类，作用时间结束的持续类技能

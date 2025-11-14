@@ -29,6 +29,7 @@ class STONEDEFENCE_API ATD_GameState : public ARuleOfTheGameState
 
 	friend class ATD_GameMode;
 
+public:
 	UPROPERTY()
 	UDataTable* AITowerCharacterData;
 	UPROPERTY()
@@ -95,7 +96,9 @@ public:
 
 	FCharacterData& GetCharacterDataNULL();
 
-	UGameSaveData* GetGameSaveData();
+	//UGameSaveData* GetGameSaveData();
+
+	UGameSaveData* GetSaveData();
 
 
 protected:

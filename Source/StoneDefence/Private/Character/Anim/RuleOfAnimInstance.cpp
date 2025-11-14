@@ -13,15 +13,16 @@ URuleOfAnimInstance::URuleOfAnimInstance()
 }
 
 void URuleOfAnimInstance::NativeInitializeAnimation() {
-
+	IsDeath = true;
 }
 
 void URuleOfAnimInstance::NativeUpdateAnimation(float DeltaSeconds) {
 	if (IsDelayFinished(DeltaSeconds)) {
 		ARuleOfCharacter* RuleOfCharacter = Cast<ARuleOfCharacter>(TryGetPawnOwner());
+
 		if (RuleOfCharacter) {
 			HasAttackOrder = RuleOfCharacter->Isattack;
-			IsDeath = !(RuleOfCharacter->IsActive());
+			IsDeath = RuleOfCharacter->IsDeath();
 
 			ATD_GameState* TempGameState = GetWorld()->GetGameState<ATD_GameState>();
 			if (TempGameState) {

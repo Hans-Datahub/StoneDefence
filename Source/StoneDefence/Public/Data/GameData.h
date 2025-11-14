@@ -90,6 +90,9 @@ struct FGameInstanceDatas {
 	UPROPERTY(SaveGame)
 		int32 MaxNumberOfMilitia;
 
+	UPROPERTY(SaveGame)
+		int32 MaxNumberOfMarine;
+
 	//生成当前一波民兵后过了多久
 	UPROPERTY(SaveGame)
 		float CurrentSpawnMilitaTime;
@@ -99,6 +102,21 @@ struct FGameInstanceDatas {
 
 	UPROPERTY(SaveGame)
 		TArray<int32> MilitiaNumberinCurrentStage;
+
+	UPROPERTY(SaveGame)
+		int32 MilitiaMaxStage;
+
+	UPROPERTY(SaveGame)
+		int32 MilitiaCurrentStage;
+
+	UPROPERTY(SaveGame)
+		TArray<int32> MarineNumberinCurrentStage;
+
+	UPROPERTY(SaveGame)
+		int32 MarineMaxStage;
+
+	UPROPERTY(SaveGame)
+		int32 MarineCurrentStage;
 
 	UPROPERTY(SaveGame)
 		float KilledMilitiabNumber;
@@ -118,8 +136,10 @@ struct FGameInstanceDatas {
 
 	void AssignedMonsterAmount();
 	void AssignedMilitiaAmount();
+	void AssignedMarineAmount();
 
 	void StageDecision();
 	void MilitiaStageDecision();
+	void MarineStageDecision();
 
 };

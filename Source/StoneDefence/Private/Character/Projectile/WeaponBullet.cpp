@@ -7,7 +7,7 @@
 
 
 AWeaponBullet::AWeaponBullet()
-	:BulletSpeed(50000.f)
+	:BulletSpeed(5000.f)
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;

@@ -32,9 +32,9 @@ public:
 
 	FProjectileSpawnDelegate ProjectileSpawnDelegate;
 	UFUNCTION()
-		ATowers* SpawnTower(int32 CharacterID, int32 CharacterLevel, const FVector& Location, const FRotator& Rotator);
+		ATowers* SpawnTower(int32 CharacterID, const FVector& Location, const FRotator& Rotator, int32 CharacterLevel = 1);
 	UFUNCTION()
-		AMonsters* SpawnMonster(int32 CharacterID, int32 CharacterLevel, const FVector& Location, const FRotator& Rotator);
+		AMonsters* SpawnMonster(int32 CharacterID, const FVector& Location, const FRotator& Rotator, int32 CharacterLevel = 1);
 
 	class ATD_GameMode* GetGameMode();
 

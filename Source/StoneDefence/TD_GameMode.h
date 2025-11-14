@@ -23,20 +23,23 @@ public:
 	virtual void BeginPlay()override;
 	virtual void Tick(float DeltaSeconds);
 
-	UFUNCTION(BlueprintCallable, Category = "Spawn")
-		ATowers* SpawnTower(int32 CharacterID, int32 CharacterLevel, const FVector& Location, const FRotator& Rotator);
-	UFUNCTION(BlueprintCallable, Category = "Spawn")
-		AMonsters* SpawnMonster(int32 CharacterID, int32 CharacterLevel, const FVector& Location, const FRotator& Rotator);
+	void InitDataFormArchives();
+	virtual void InitStandardData(); //分配每波怪物数量
 
+	UFUNCTION(BlueprintCallable, Category = "Spawn")
+		ATowers* SpawnTower(int32 CharacterID, const FVector& Location, const FRotator& Rotator, int32 CharacterLevel = 1/*, const FGuid& InCharacterGuid*/);
 
-	
+	UFUNCTION(BlueprintCallable, Category = "Spawn")
+		AMonsters* SpawnMonster(int32 CharacterID, const FVector& Location, const FRotator& Rotator, int32 CharacterLevel = 1/*, const FGuid& InCharacterGuid*/);
 	
 	
 protected:
-	ARuleOfCharacter* SpawnCharacter(int32 CharacterID, int32 CharacterLevel, UDataTable* InCharacterData, const FVector& Location, const FRotator& Rotator);
+	ARuleOfCharacter* SpawnCharacter(int32 CharacterID, UDataTable* InCharacterData, const FVector& Location, const FRotator& Rotator, int32 CharacterLevel = 1/*, const FGuid& InCharacterGuid*/);
+	
 	template<class T>
-	T* SpawnCharacter(int32 CharacterID, int32 CharacterLevel, UDataTable* InCharacterData, const FVector& Location, const FRotator& Rotator) {
-		return Cast<T>(SpawnCharacter(CharacterID, CharacterLevel, InCharacterData, Location, Rotator));
+	T* SpawnCharacter(int32 CharacterID, UDataTable* InCharacterData, const FVector& Loction, const FRotator& Rotator, int32 CharacterLevel = 1/*, const FGuid& InCharacterGuid = FGuid()*/)
+	{
+		return Cast<T>(SpawnCharacter(CharacterID, InCharacterData, Loction, Rotator, CharacterLevel/*, InCharacterGuid*/));
 	}
 
 	void SpawnTowerRule();

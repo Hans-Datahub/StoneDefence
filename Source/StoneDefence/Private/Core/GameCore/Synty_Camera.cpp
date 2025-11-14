@@ -69,7 +69,7 @@ void ASynty_Camera::Tick(float DeltaTime)
     UpdateCameraRotation(DeltaTime);
 
     // 绘制调试边界
-    DrawDebugBounds();
+    //DrawDebugBounds();
 }
 
 void ASynty_Camera::UpdateCameraMovement(float DeltaTime)

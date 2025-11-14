@@ -94,14 +94,23 @@ void UUI_AudioSettings::SpawnBackgroundSoundForTest()
 {
 	if (BackgroundSoundTestObject)
 	{
-		DestroyBackgroundSound();
+		DestroyBackgroundSound(); // 先销毁旧的
+
+		UWorld* World = GetWorld();
+		if (!World) return;
 
 		FActorSpawnParameters Parameters;
 		Parameters.Name = TEXT("BackgroundSoundTest");
-		if (AAmbientSound* NewSound = GetWorld()->SpawnActor<AAmbientSound>(AAmbientSound::StaticClass(), FVector::ZeroVector, FRotator::ZeroRotator, Parameters))
+		Parameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+		if (AAmbientSound* NewSound = World->SpawnActor<AAmbientSound>(AAmbientSound::StaticClass(), FVector::ZeroVector, FRotator::ZeroRotator, Parameters))
 		{
+			CurrentBackgroundTestSound = NewSound; // 记录新生成的Actor
 			NewSound->GetAudioComponent()->SetSound(BackgroundSoundTestObject);
-			NewSound->SetLifeSpan(BackgroundSoundTestObject->Duration);
+			if (BackgroundSoundTestObject->Duration > 0)
+			{
+				NewSound->SetLifeSpan(BackgroundSoundTestObject->Duration);
+			}
 			NewSound->Play();
 		}
 	}
@@ -109,16 +118,23 @@ void UUI_AudioSettings::SpawnBackgroundSoundForTest()
 
 void UUI_AudioSettings::DestroyBackgroundSound()
 {
-	TArray<AAmbientSound*> NewSounds;
-	USimpleGameUserSettings::GetSimpleGameUserSettings()->GetAllAmbientSound(NewSounds);
-	for (AAmbientSound* Tmp : NewSounds)
+	//TArray<AAmbientSound*> NewSounds;
+	//USimpleGameUserSettings::GetSimpleGameUserSettings()->GetAllAmbientSound(NewSounds);
+	//for (AAmbientSound* Tmp : NewSounds)
+	//{
+	//	if (Tmp && Tmp->GetName() == TEXT("BackgroundSoundTest"))
+	//	{
+	//		Tmp->Stop();
+	//		Tmp->Destroy();
+	//		break;
+	//	}
+	//}
+
+	if (CurrentBackgroundTestSound && !CurrentBackgroundTestSound->IsPendingKill())
 	{
-		if (Tmp->GetName() == TEXT("BackgroundSoundTest"))
-		{
-			Tmp->Stop();
-			Tmp->Destroy();
-			break;
-		}
+		CurrentBackgroundTestSound->Stop();
+		CurrentBackgroundTestSound->Destroy();
+		CurrentBackgroundTestSound = nullptr; // 清空指针
 	}
 }
 

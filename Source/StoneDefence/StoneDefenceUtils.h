@@ -101,19 +101,29 @@ namespace StoneDefenceUtils {
 		if (InFlag & EGameSaveType::ARCHIVES)
 		{
 			FString SlotString;
-			if (SaveIndex != INDEX_NONE)
-			{
-				TArray<FStringFormatArg> FormatArgs;
-				FormatArgs.Add(FStringFormatArg(SaveIndex)); // 添加格式化参数
-				SlotString = FString::Format(SaveName, FormatArgs);//将文件名中的占位符（如"%i"）替换为FormatArgs
-			}
-			else
-			{
+			
+			if (FString(SaveName) == TEXT("SlotList")) {//若为SlotList，跳过字段修正
 				SlotString = SaveName;
-				if (SlotString.Contains("%i"))
+			}
+			else if (FString(SaveName).Contains(TEXT("%i"))) {//若为PlayerData或者SaveSlot,修正后缀
+				if (SaveIndex == INDEX_NONE)//若为自动存档
+				{			
+					//此处应该是用于自动储存栏位
+
+					//SlotString = SaveName;
+					/*SlotString.RemoveFromEnd("_%i");
+					SlotString += TEXT("_0");*/
+
+					SlotString = SlotString.Replace(TEXT("%i"), TEXT("0"));
+				}
+				else if(SaveIndex != INDEX_NONE)//若为手动存档
 				{
-					SlotString.RemoveFromEnd("_%i");
-					SlotString += TEXT("_0");
+					//TArray<FStringFormatArg> FormatArgs;
+					//FormatArgs.Add(FStringFormatArg(SaveIndex)); // 添加格式化参数
+					//SlotString = FString::Format(SaveName, FormatArgs);//将文件名中的占位符（如"%i"）替换为FormatArgs
+					FString BaseName = SaveName;
+					SlotString = BaseName.Replace(TEXT("%i"), *FString::FromInt(SaveIndex));
+
 				}
 			}
 

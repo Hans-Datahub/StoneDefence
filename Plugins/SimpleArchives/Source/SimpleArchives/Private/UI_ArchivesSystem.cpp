@@ -4,7 +4,7 @@
 #include "Histroy/UI_ArchivesBar.h"
 #include "Components/ScrollBox.h"
 #include "Components/Button.h"
-#include "Data/SimpleArchivesList.h"
+
 
 
 #if PLATFORM_WINDOWS
@@ -190,6 +190,10 @@ void UUI_ArchivesSystem::ResetArchivesBar(UUI_ArchivesBar* InArchivesBar, const 
 		InArchivesBar->SetChapterName(InData->ChapterName);
 	}
 }
+
+//void UUI_ArchivesSystem::GetLevelStateFromArchive(FSaveSlot* InSaveSlot) {
+//	InSaveSlot.CharacterData.Location
+//}
 
 
 									//-------------代理部分-----------//

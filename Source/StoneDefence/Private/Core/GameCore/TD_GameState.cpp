@@ -14,6 +14,7 @@
 #include "Character/CharacterCore/Monsters.h"
 #include "Core/GameCore/TD_PlayerController.h"
 #include "Data/Save/GameSaveData.h"
+#include "Core/GameCore/TD_GameInstance.h"
 
 
 class ATowers;
@@ -61,25 +62,36 @@ bool ATD_GameState::ReadGameData(int32 SaveIndex) {
 //}
 
 
-UGameSaveData* ATD_GameState::GetGameSaveData() {
-	if (!SaveData) {
-		SaveData = Cast<UGameSaveData>(UGameplayStatics::CreateSaveGameObject(UGameSaveData::StaticClass()));
+UGameSaveData* ATD_GameState::GetSaveData()
+{
+	if (!SaveData)
+	{
+		if (GetWorld()) {
+			if (UTD_GameInstance* InGameInstance = GetWorld()->GetGameInstance<UTD_GameInstance>())
+			{
+				SaveData = StoneDefenceUtils::GetSave<UGameSaveData>(
+					GetWorld(),
+					TEXT("SaveSlot_%i"),
+					InGameInstance->GetCurrentSaveSlotNumber(),
+					InGameInstance->GetGameType());
+			}
+		}	
 	}
 	return SaveData;
 }
 
 
 FCharacterData& ATD_GameState::AddCharacterData(const FGuid& ID, const FCharacterData& Data) {
-	return GetGameSaveData()->CharacterDatas.Add(ID, Data);
+	return GetSaveData()->CharacterDatas.Add(ID, Data);
 }
 bool ATD_GameState::RemoveCharacterData(const FGuid& ID) {
-	return GetGameSaveData()->CharacterDatas.Remove(ID) > 0;
+	return GetSaveData()->CharacterDatas.Remove(ID) > 0;
 }
 
 FCharacterData& ATD_GameState::GetCharacterData(const FGuid& ID) {
 	//若ID所指目标在CharacterDatas中未登记，则报错"The Current [ID] is invalid"
-	if (GetGameSaveData()->CharacterDatas.Contains(ID)) {
-		return GetGameSaveData()->CharacterDatas[ID];
+	if (GetSaveData()->CharacterDatas.Contains(ID)) {
+		return GetSaveData()->CharacterDatas[ID];
 	}
 	TD_LOGPRINT(Error,"The [%i] was not found in CharacterDatas", *ID.ToString());
 	return GetCharacterDataNULL();
@@ -108,7 +120,7 @@ const TArray<FSkillData*>& ATD_GameState::GetSkillDataFromTable() {
 
 
 FGameInstanceDatas& ATD_GameState::GetGameData() {
-	return GetGameSaveData()->GameDatas;
+	return GetSaveData()->GameDatas;
 }
 
 
@@ -152,7 +164,7 @@ FSkillData& ATD_GameState::AddSkillData(const FGuid& CharacterID, const FGuid& S
 	return SkillDataNULL;
 }
 FSkillData& ATD_GameState::GetSkillData(const FGuid& SkillID) {
-	for (auto& Temp : GetGameSaveData()->CharacterDatas) {
+	for (auto& Temp : GetSaveData()->CharacterDatas) {
 		if(Temp.Value.AdditionalSkillData.Contains(SkillID)){
 			return Temp.Value.AdditionalSkillData[SkillID];
 		}
@@ -182,7 +194,7 @@ FSkillData& ATD_GameState::GetSkillData(const FGuid& CharacterID, const FGuid& S
 }
 
 int32 ATD_GameState::RemoveSkillData(const FGuid& SkillID) {
-	for (auto& Temp : GetGameSaveData()->CharacterDatas) {
+	for (auto& Temp : GetSaveData()->CharacterDatas) {
 		return Temp.Value.AdditionalSkillData.Remove(SkillID);
 	}
 	return INDEX_NONE;
@@ -190,7 +202,7 @@ int32 ATD_GameState::RemoveSkillData(const FGuid& SkillID) {
 
 void ATD_GameState::AddSkillDataTemplateToCharacterData(const FGuid& CharacterID, int32 SkillID) {
 	if (const FSkillData* InData = GetSkillData(SkillID)) {
-		for (auto& Temp : GetGameSaveData()->CharacterDatas) {
+		for (auto& Temp : GetSaveData()->CharacterDatas) {
 			if(CharacterID == Temp.Key) {
 				Temp.Value.CharacterSkill.Add(*InData);
 				Temp.Value.CharacterSkill[Temp.Value.CharacterSkill.Num() - 1].ResetCD();
@@ -272,3 +284,4 @@ bool ATD_GameState::SetSubmissionDataType(FGuid CharacterID, int32 SkillID, ESub
 	}
 	return false;
 }
+

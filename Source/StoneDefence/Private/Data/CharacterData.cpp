@@ -41,8 +41,10 @@ void FCharacterData::Init() {
 	ArmorEnhanced = 0.f;
 	AttackSpeedEnhanced = 0.f;
 	CDReduce = 0.45f;
+
 	Location = FVector::ZeroVector;
 	Rotator = FRotator::ZeroRotator; 
+	LocationToMove = FVector::ZeroVector;
 	Team = ETeam::RED;
 }
 

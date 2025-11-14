@@ -107,7 +107,8 @@ bool UTD_GameInstance::SaveGameData(int32 SaveNumber)
 		if (FSaveSlot* InSlot = InGameState->GetSaveSlot(SaveNumber))
 		{
 			InSlot->DateText = FText::FromString(FDateTime::Now().ToString());
-			InSlot->LevelName = LOCTEXT("LevelName", "TestMap");
+			//InSlot->LevelName = LOCTEXT("LevelName", "TestMap");
+			InSlot->LevelName = FText::FromString(GetWorld()->GetMapName().Replace(*GetWorld()->StreamingLevelsPrefix, TEXT("")));
 			InSlot->ChapterName = LOCTEXT("ChapterName", "Hello World~~");
 			InSlot->GameThumbnail.ReleaseResources();
 			InSlot->GameThumbnail.ScrPath = GAMETHUMBNAIL_SCREENSHOT(

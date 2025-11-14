@@ -28,7 +28,8 @@ void FGameInstanceDatas::Init() {
 
 	//-----------------Lowpoly Part Parameters-----------------------//
 	RemainNumberOfMilitia = 20;
-	MaxNumberOfMilitia = 4;
+	MaxNumberOfMilitia = 20;
+	MaxNumberOfMarine = 1;
 	CurrentSpawnMilitaTime = 0.0f;
 	//MilitiaNumberinCurrentStage
 	KilledMilitiabNumber = 0;
@@ -79,24 +80,52 @@ void FGameInstanceDatas::AssignedMonsterAmount() {
 void FGameInstanceDatas::AssignedMilitiaAmount() {
 	int32 CurrentMilitiaNumber = MaxNumberOfMilitia;
 	int32 CurrentStageNumber = MaxStage;
-	int32 CurrentStageAssignedMilitiaNum = 0;
+	int32 CurrentStageAssignedMilitiaNum = 0; 
 	if (CurrentMilitiaNumber > 1) {
 		for (int32 i = 0; i < CurrentStageNumber; i++) {
 			float EverageMilitiaNumInEachStage = (float)MaxNumberOfMilitia / (float)CurrentStageNumber;
 			CurrentStageNumber--;
 			if (CurrentStageNumber > 1) {//若不是最后一波
+				//随机分配数量，并为剩余数量去掉本次分配的部分
 				CurrentStageAssignedMilitiaNum = FMath::RandRange(EverageMilitiaNumInEachStage / 6, EverageMilitiaNumInEachStage);
+				CurrentMilitiaNumber -= CurrentStageAssignedMilitiaNum;
 			}
-			else {//若为最后一波
-				CurrentStageAssignedMilitiaNum = EverageMilitiaNumInEachStage;
-			}
+			else//若为最后一波，分配剩余所有单位
+				CurrentStageAssignedMilitiaNum = CurrentMilitiaNumber;
+			//将确定的数量加入数组
 			MilitiaNumberinCurrentStage.Add(CurrentStageAssignedMilitiaNum);
 		}
 	}
-	else {
+	else
 		MilitiaNumberinCurrentStage.Add(CurrentStageAssignedMilitiaNum);
 
-	}
+	MilitiaCurrentStage = MilitiaNumberinCurrentStage.Num() - 1;
+}
+
+void FGameInstanceDatas::AssignedMarineAmount() {
+	//int32 CurrentMarineNumber = MaxNumberOfMarine;
+	//int32 CurrentStageNumber = MaxStage;
+	//int32 CurrentStageAssignedMarineNum = 0;
+	//if (CurrentMarineNumber > 1) {
+	//	for (int32 i = 0; i < CurrentStageNumber; i++) {
+	//		float EverageMarineNumInEachStage = (float)MaxNumberOfMarine / (float)CurrentStageNumber;
+	//		CurrentStageNumber--;
+	//		if (CurrentStageNumber > 1) {//若不是最后一波
+	//			//随机分配数量，并为剩余数量去掉本次分配的部分
+	//			CurrentStageAssignedMarineNum = FMath::RandRange(EverageMarineNumInEachStage / 6, EverageMarineNumInEachStage);
+	//			CurrentMarineNumber -= CurrentStageAssignedMarineNum;
+	//		}
+	//		else//若为最后一波，分配剩余所有单位
+	//			CurrentStageAssignedMarineNum = CurrentMarineNumber;
+	//		//将确定的数量加入数组
+	//		MilitiaNumberinCurrentStage.Add(CurrentStageAssignedMarineNum);
+	//	}
+	//}
+	//else
+	//	MarineNumberinCurrentStage.Add(CurrentStageAssignedMarineNum);
+	
+	MarineNumberinCurrentStage.Add(MaxNumberOfMarine);
+	MarineCurrentStage = MarineNumberinCurrentStage.Num() - 1;
 
 }
 
@@ -116,17 +145,29 @@ void FGameInstanceDatas::StageDecision() {
 }
 
 void FGameInstanceDatas::MilitiaStageDecision() {
-	int32 CurrentStage = MilitiaNumberinCurrentStage.Num() - 1;
 	if (MilitiaNumberinCurrentStage.Num()) {
-		if (MilitiaNumberinCurrentStage[CurrentStage] > 0) {
-			MilitiaNumberinCurrentStage[CurrentStage]--;
+		if (MilitiaNumberinCurrentStage[MilitiaCurrentStage] > 0) {
+			MilitiaNumberinCurrentStage[MilitiaCurrentStage]--;
 		}
 		else {
-			MilitiaNumberinCurrentStage.RemoveAt(CurrentStage);
+			MilitiaNumberinCurrentStage.RemoveAt(MilitiaCurrentStage);
+			MilitiaCurrentStage--;
 		}
 	}
 	else {
 		bCurrentLevelMissionSuccess = true;
+	}
+}
+
+void FGameInstanceDatas::MarineStageDecision() {
+	if (MarineNumberinCurrentStage.Num()) {
+		if (MarineNumberinCurrentStage[MarineCurrentStage] > 0) {
+			MarineNumberinCurrentStage[MarineCurrentStage]--;
+		}
+		else {
+			MarineNumberinCurrentStage.RemoveAt(MarineCurrentStage);
+			MarineCurrentStage--;
+		}
 	}
 }
 

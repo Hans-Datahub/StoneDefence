@@ -6,6 +6,7 @@
 #include "Core/UI_ArchivesWidget.h"
 #include "SimpleArchivesType.h"
 #include "ArchiveDelegate.h"
+#include "Data/SimpleArchivesList.h"
 #include "UI_ArchivesSystem.generated.h"
 
 

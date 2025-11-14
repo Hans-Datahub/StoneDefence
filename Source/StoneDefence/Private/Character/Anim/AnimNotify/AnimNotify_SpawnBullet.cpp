@@ -36,18 +36,23 @@ FString UAnimNotify_SpawnBullet::GetNotifyName_Implementation() const {
 void UAnimNotify_SpawnBullet::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) {
 
 	//获取武器Mesh，进而获取OpenFireSocket
-	AMilitia* Militia = Cast<AMilitia>(MeshComp->GetOuter());
+	ARuleOfCharacter* Character = Cast<ARuleOfCharacter>(MeshComp->GetOuter());
 	USkeletalMeshComponent* WeaponMesh = nullptr;
 	FName WeaponSocketName = "WeaponSlot_Index"; // 你在蓝图中设置的Socket名称
 
-	if (Militia->GetMesh()->DoesSocketExist(WeaponSocketName))
+	if (Character->GetMesh()->DoesSocketExist(WeaponSocketName))
 	{
 		// 获取附加到Socket的Actor
 		TArray<AActor*> AttachedActors;
-		Militia->GetAttachedActors(AttachedActors);
+		Character->GetAttachedActors(AttachedActors);
 
-		for (AActor* AttachedActor : AttachedActors)
-			WeaponMesh = AttachedActor->FindComponentByClass<USkeletalMeshComponent>();
+		for (AActor* AttachedActor : AttachedActors) {
+			if (USkeletalMeshComponent* FoundMesh = AttachedActor->FindComponentByClass<USkeletalMeshComponent>())
+			{
+				WeaponMesh = FoundMesh;
+				break; // 找到后退出循环
+			}
+		}
 	}
 	
 #if WITH_EDITORONLY_DATA
@@ -55,11 +60,11 @@ void UAnimNotify_SpawnBullet::Notify(USkeletalMeshComponent* MeshComp, UAnimSequ
 	FVector ComponentLocation = WeaponMesh->GetComponentLocation();
 
 	//获取精准子弹Rotation
-	TWeakObjectPtr<ARuleOfCharacter> Target = Militia->GetController<ARuleOfAIController>()->Target;
+	TWeakObjectPtr<ARuleOfCharacter> Target = Character->GetController<ARuleOfAIController>()->Target;
 
 	//缓存目标位置,以防目标消失，子弹找不到位置
 	if (Target.IsValid())
-		CachedTargetLocation = Militia->GetController<ARuleOfAIController>()->Target->GetActorLocation();
+		CachedTargetLocation = Character->GetController<ARuleOfAIController>()->Target->GetActorLocation();
 
 	FVector TargetLocation = CachedTargetLocation;//目标死后，用最后的位置
 	FVector MuzzleLocation = WeaponMesh->GetSocketLocation(InSocketName);
@@ -76,8 +81,8 @@ void UAnimNotify_SpawnBullet::Notify(USkeletalMeshComponent* MeshComp, UAnimSequ
 
 
 
-	if (AMilitia* AnimNotifyCharacter = Cast<AMilitia>(MeshComp->GetOuter())){//此处不能用GetOwner()，而要用GetOuter() 四章三节17:30作更改
-		if (ARuleOfProjectile* Projectile = StoneDefenceUtils::SpawnProjectile(Militia->GetWorld(), AnimNotifyCharacter, ProjectileClass, ComponentLocation, ComponentRotation)) {
+	if (ARuleOfCharacter* AnimNotifyCharacter = Cast<ARuleOfCharacter>(MeshComp->GetOuter())){//此处不能用GetOwner()，而要用GetOuter() 四章三节17:30作更改
+		if (ARuleOfProjectile* Projectile = StoneDefenceUtils::SpawnProjectile(Character->GetWorld(), AnimNotifyCharacter, ProjectileClass, ComponentLocation, ComponentRotation)) {
 			//在生成普通攻击子弹时，将子弹的自动提交技能初始化枚举设置为MANUAL，这样就会跳过初始化技能，这就是一颗普通子弹
 			//当生成技能效果子弹时，默认枚举为AUTO，则进行技能初始化
 			Projectile->SubmissionSkillRequestType = ESubmissionSkillRequestType::MANUAL;
@@ -87,19 +92,19 @@ void UAnimNotify_SpawnBullet::Notify(USkeletalMeshComponent* MeshComp, UAnimSequ
 
 	//调试
 	// 绘制弹道线
-	DrawDebugLine(
-		Militia->GetWorld(),
-		MuzzleLocation,
-		TargetLocation,
-		FColor::Red,        // 颜色
-		false,              // 是否持续
-		0.1f,           // 显示时间
-		0,                  // 深度优先级
-		3.0f                // 线宽
-	);
+	//DrawDebugLine(
+	//	Character->GetWorld(),
+	//	MuzzleLocation,
+	//	TargetLocation,
+	//	FColor::Red,        // 颜色
+	//	false,              // 是否持续
+	//	0.1f,           // 显示时间
+	//	0,                  // 深度优先级
+	//	3.0f                // 线宽
+	//);
 
 	//绘制锥形散布
-	DrawConeSpreadDebug(MeshComp, MuzzleLocation, (TargetLocation - MuzzleLocation).GetSafeNormal(), BulletSpreadAngle, DrawedSpreadDistance);
+	//DrawConeSpreadDebug(MeshComp, MuzzleLocation, (TargetLocation - MuzzleLocation).GetSafeNormal(), BulletSpreadAngle, DrawedSpreadDistance);
 
 }
 
@@ -111,8 +116,9 @@ FVector UAnimNotify_SpawnBullet::GetSimpleConeSpread(const FVector& BaseDirectio
 
 void UAnimNotify_SpawnBullet::DrawConeSpreadDebug(USkeletalMeshComponent* MeshComp, const FVector& Origin, const FVector& Direction, float SpreadAngle, float Distance)
 {
-	AMilitia* Militia = Cast<AMilitia>(MeshComp->GetOuter());
-	UWorld* World = Militia->GetWorld();
+	ARuleOfCharacter* Character = Cast<ARuleOfCharacter>(MeshComp->GetOuter());
+	if (!Character) return;
+	UWorld* World = Character->GetWorld();
 	if (!World) return;
 
 	float SpreadRadians = FMath::DegreesToRadians(SpreadAngle);

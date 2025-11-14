@@ -18,4 +18,5 @@ public:
 
 protected:
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)override;
+	USkeletalMeshComponent* GetWeapon(USkeletalMeshComponent* MeshComp);
 };

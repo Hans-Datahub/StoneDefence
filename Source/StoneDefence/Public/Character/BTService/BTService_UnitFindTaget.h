@@ -30,7 +30,10 @@ public:
 	UPROPERTY(EditAnywhere, Category = "BlackBoard")
 	struct FBlackboardKeySelector BlackBoardKey_FinalTargetLocation;
 
+private:
+	bool bOldIsattack = false;
 
+public:
 	virtual void OnGameplayTaskInitialized(UGameplayTask& Task){}
 
 	virtual void OnGameplayTaskActivated(UGameplayTask& Task){}

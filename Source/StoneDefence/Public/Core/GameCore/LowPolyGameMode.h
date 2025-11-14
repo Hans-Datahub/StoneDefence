@@ -31,10 +31,14 @@ public:
 	virtual void Tick(float DeltaSeconds);
 
 	UFUNCTION(BlueprintCallable, Category = "Spawn")
-	AMilitia* SpawnMilitia(int32 CharacterID, int32 CharacterLevel, const FVector& Location, const FRotator& Rotator);
+	AMilitia* SpawnMilitia(int32 CharacterID, const FVector& Location, const FRotator& Rotator, int32 CharacterLevel = 1/*, const FGuid& Guid*/);
 
 	UFUNCTION(BlueprintCallable, Category = "Spawn")
-	AMarine* SpawnMarine(int32 CharacterID, int32 CharacterLevel, const FVector& Location, const FRotator& Rotator);
+	AMarine* SpawnMarine(int32 CharacterID, const FVector& Location, const FRotator& Rotator, int32 CharacterLevel = 1/*, const FGuid& Guid*/);
+	
+	void UpdateUnitSpawnRule(float DeltaSeconds);
 
-	void UpdateMilitiaSpawnRule(float DeltaSeconds);
+	void InitStandardData() override;
+
+
 };
