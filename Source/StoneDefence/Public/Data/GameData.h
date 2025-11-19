@@ -1,10 +1,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/DataTable.h"
+#include "Engine/World.h"
 #include "GameData.generated.h"
 
-USTRUCT()
-struct FGameInstanceDatas {
+
+class ALowPolyGameState;
+USTRUCT(BlueprintType)
+struct FGameInstanceDatas : public FTableRowBase
+{
 	GENERATED_BODY()
 
 	FGameInstanceDatas();
@@ -20,10 +25,10 @@ struct FGameInstanceDatas {
 	UPROPERTY(SaveGame)
 		int32 MaxNumberOfMonster;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(SaveGame, EditDefaultsOnly)
 		int32 GameDifficulty;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(SaveGame, EditDefaultsOnly)
 		int32 MaxStage;
 
 	UPROPERTY(Transient)
@@ -39,30 +44,30 @@ struct FGameInstanceDatas {
 		uint8 bTimeFreezed : 1;
 
 	//怪物生成间隔
-	UPROPERTY(SaveGame)
+	UPROPERTY(SaveGame, EditDefaultsOnly)
 		float SpawnTimeInterval; //TimeInterval -> SpawnTimeInterval
 
 	//生成当前一波怪物后过了多久
 	UPROPERTY(SaveGame)
 		float CurrentSpawnMonsterTime;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(SaveGame, EditDefaultsOnly)
 		int32 CurrentLevel;
 
 	UPROPERTY(SaveGame)
 		TArray<int32> MobNumberinCurrentStage;//记录有多少波和每波多少怪物
 	//总倒计时
-	UPROPERTY(SaveGame)
+	UPROPERTY(SaveGame, EditDefaultsOnly)
 		float GameTimeCount;
 
 	//最大时间
-	UPROPERTY(SaveGame)
+	UPROPERTY(SaveGame, EditDefaultsOnly)
 		float MaxGameTimeCount;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(SaveGame, EditDefaultsOnly)
 		float GlodGrowthTime;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(SaveGame, EditDefaultsOnly)
 		float MaxGlodGrowthTime;
 
 	UPROPERTY(SaveGame)
@@ -87,10 +92,10 @@ struct FGameInstanceDatas {
 		int32 RemainNumberOfMilitia;
 
 		//当前关卡最大怪物数量
-	UPROPERTY(SaveGame)
+	UPROPERTY(SaveGame, EditDefaultsOnly)
 		int32 MaxNumberOfMilitia;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(SaveGame, EditDefaultsOnly)
 		int32 MaxNumberOfMarine;
 
 	//生成当前一波民兵后过了多久
@@ -103,7 +108,7 @@ struct FGameInstanceDatas {
 	UPROPERTY(SaveGame)
 		TArray<int32> MilitiaNumberinCurrentStage;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(SaveGame, EditDefaultsOnly)
 		int32 MilitiaMaxStage;
 
 	UPROPERTY(SaveGame)
@@ -112,7 +117,7 @@ struct FGameInstanceDatas {
 	UPROPERTY(SaveGame)
 		TArray<int32> MarineNumberinCurrentStage;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(SaveGame, EditDefaultsOnly)
 		int32 MarineMaxStage;
 
 	UPROPERTY(SaveGame)
@@ -130,11 +135,14 @@ struct FGameInstanceDatas {
 	UPROPERTY(SaveGame)
 		float TimeCountForSpawnGap;
 
-	UPROPERTY(SaveGame)
+	UPROPERTY(SaveGame, EditDefaultsOnly)
 		float GapForSpawn;
 
 
 //---------------------------------------------------------------//
+
+	void InitFromGameState(ALowPolyGameState* GameState, const FString& LevelName = TEXT("Level0"));
+
 
 
 

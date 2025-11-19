@@ -1,43 +1,105 @@
 #include "Data/GameData.h"
+#include "Core/GameCore/LowPolyGameState.h" 
+
 
 FGameInstanceDatas::FGameInstanceDatas() {
+
+
 	Init();
 }
 
 void FGameInstanceDatas::Init() {
-	//RemainNumberOfMonster = 20;
-	GameDifficulty = 0;
-	bAllMainTowersDied = false;
-	bGameOver = false;
-	bTimeFreezed = false;
-	bCurrentLevelMissionSuccess = false;
-	MaxNumberOfMonster = 4;
-	CurrentLevel = 1;
-	SpawnTimeInterval = 1.f;
-	//CurrentSpawnMonsterTime = 0.0f;
-	CurrentSpawnMilitaTime = 0.0f;
-	MaxStage = 1;
-	GameTimeCount = 180;
-	MaxGameTimeCount = 0;
-	GlodGrowthTime = 1.f;
-	MaxGlodGrowthTime = 3.0f;
-	KilledMobNumber = 0;
-	KilledBossNumber = 0;
-	TotalDiedTower = 0;
-	TotalDiedMainTower = 0;
+	////RemainNumberOfMonster = 20;
+	//GameDifficulty = 0;
+	//bAllMainTowersDied = false;
+	//bGameOver = false;
+	//bTimeFreezed = false;
+	//bCurrentLevelMissionSuccess = false;
+	//MaxNumberOfMonster = 4;
+	//CurrentLevel = 1;
+	//SpawnTimeInterval = 1.f;
+	////CurrentSpawnMonsterTime = 0.0f;
+	//CurrentSpawnMilitaTime = 0.0f;
+	//MaxStage = 1;
+	//GameTimeCount = 180;
+	//MaxGameTimeCount = 0;
+	//GlodGrowthTime = 1.f;
+	//MaxGlodGrowthTime = 3.0f;
+	//KilledMobNumber = 0;
+	//KilledBossNumber = 0;
+	//TotalDiedTower = 0;
+	//TotalDiedMainTower = 0;
 
-	//-----------------Lowpoly Part Parameters-----------------------//
-	//RemainNumberOfMilitia = 20;
-	MaxNumberOfMilitia = 1;
-	MaxNumberOfMarine = 1;
-	CurrentSpawnMilitaTime = 0.0f;
-	//MilitiaNumberinCurrentStage
-	KilledMilitiabNumber = 0;
+	////-----------------Lowpoly Part Parameters-----------------------//
+	////RemainNumberOfMilitia = 20;
+	//MaxNumberOfMilitia = 1;
+	//MaxNumberOfMarine = 1;
+	//CurrentSpawnMilitaTime = 0.0f;
+	////MilitiaNumberinCurrentStage
+	//KilledMilitiabNumber = 0;
 
-	TotalDiedMarine = 0;
-	TotalDiedMilitia = 0;
-	TimeCountForSpawnGap = 0.f;
-	GapForSpawn = 10.0f;
+	//TotalDiedMarine = 0;
+	//TotalDiedMilitia = 0;
+	//TimeCountForSpawnGap = 0.f;
+	//GapForSpawn = 10.0f;
+
+
+
+	//// 如果有数据，使用第一行来初始化
+	//if (CacheLevelData.Num() > 0 && CacheLevelData[0])
+	//{
+	//	const FGameInstanceDatas* InitData = CacheLevelData[0];
+
+	//	// 使用数据表中的值初始化成员变量
+	//	GameDifficulty = InitData->GameDifficulty;
+	//	MaxStage = InitData->MaxStage;
+	//	CurrentLevel = InitData->CurrentLevel;
+	//	SpawnTimeInterval = InitData->SpawnTimeInterval;
+	//	
+	//	GameTimeCount = InitData->GameTimeCount;
+	//	MaxGameTimeCount = InitData->MaxGameTimeCount;
+	//	GlodGrowthTime = InitData->GlodGrowthTime;
+	//	MaxGlodGrowthTime = InitData->MaxGlodGrowthTime;
+	//	MaxNumberOfMilitia = InitData->MaxNumberOfMilitia;
+	//	MaxNumberOfMarine = InitData->MaxNumberOfMarine;
+	//	MilitiaMaxStage = InitData->MilitiaMaxStage;
+	//	MarineMaxStage = InitData->MarineMaxStage;
+	//	GapForSpawn = InitData->GapForSpawn;
+	//}
+}
+
+// 实现从GameState初始化的方法
+void FGameInstanceDatas::InitFromGameState(ALowPolyGameState* GameState, const FString& LevelName) {
+	if (!GameState) {
+		UE_LOG(LogTemp, Warning, TEXT("FGameInstanceDatas::InitFromGameState - GameState is null!"));
+		return;
+	}
+
+	// 从GameState获取指定关卡的数据
+	FGameInstanceDatas* LevelData = GameState->GetLevelDataByName(LevelName);
+
+	if (LevelData) {
+		// 使用数据表中的值更新当前实例
+		GameDifficulty = LevelData->GameDifficulty;
+		MaxNumberOfMonster = LevelData->MaxNumberOfMonster;
+		CurrentLevel = LevelData->CurrentLevel;
+		SpawnTimeInterval = LevelData->SpawnTimeInterval;
+		MaxStage = LevelData->MaxStage;
+		GameTimeCount = LevelData->GameTimeCount;
+		MaxGameTimeCount = LevelData->MaxGameTimeCount;
+		GlodGrowthTime = LevelData->GlodGrowthTime;
+		MaxGlodGrowthTime = LevelData->MaxGlodGrowthTime;
+		MaxNumberOfMilitia = LevelData->MaxNumberOfMilitia;
+		MaxNumberOfMarine = LevelData->MaxNumberOfMarine;
+		MilitiaMaxStage = LevelData->MilitiaMaxStage;
+		MarineMaxStage = LevelData->MarineMaxStage;
+		GapForSpawn = LevelData->GapForSpawn;
+
+		UE_LOG(LogTemp, Log, TEXT("FGameInstanceDatas initialized from GameState: Level %d"), CurrentLevel);
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("FGameInstanceDatas::InitFromGameState - Level data '%s' not found!"), *LevelName);
+	}
 }
 
 bool FGameInstanceDatas::IsValid() {
@@ -115,7 +177,6 @@ void FGameInstanceDatas::AssignedMilitiaAmount() {
 }
 
 void FGameInstanceDatas::AssignedMarineAmount() {	
-	//Marine直接一次性部署
 	MarineNumberinCurrentStage.Add(MaxNumberOfMarine);
 	MarineCurrentStage = MarineNumberinCurrentStage.Num() - 1;
 

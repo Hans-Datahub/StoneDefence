@@ -37,6 +37,10 @@ void ALowPolyGameMode::BeginPlay() {
 		);
 	}
 
+	//关卡数据加载
+	ALowPolyGameState* TempGameState = GetGameState<ALowPolyGameState>();
+	TempGameState->GetGameData().InitFromGameState(TempGameState, TEXT("Level0"));
+
 	//角色数据还原
 	if (UTD_GameInstance* InGameInstance = GetWorld()->GetGameInstance<UTD_GameInstance>())
 	{
