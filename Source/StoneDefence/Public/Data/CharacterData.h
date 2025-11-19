@@ -125,6 +125,8 @@ public:
 	//TArray<FSkillData> AdditionalSkillData;
 		
 
+	bool bIsDummy;
+
 
 	//以下获取的为经过被动技能影响的参数值
 	float GetMaxHealth() const;

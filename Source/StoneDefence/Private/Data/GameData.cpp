@@ -12,12 +12,12 @@ void FGameInstanceDatas::Init() {
 	bTimeFreezed = false;
 	bCurrentLevelMissionSuccess = false;
 	MaxNumberOfMonster = 4;
-	CurrentLevel = INDEX_NONE;
+	CurrentLevel = 1;
 	SpawnTimeInterval = 1.f;
 	//CurrentSpawnMonsterTime = 0.0f;
 	CurrentSpawnMilitaTime = 0.0f;
-	MaxStage = 4;
-	GameTimeCount = 90;
+	MaxStage = 1;
+	GameTimeCount = 180;
 	MaxGameTimeCount = 0;
 	GlodGrowthTime = 1.f;
 	MaxGlodGrowthTime = 3.0f;
@@ -27,13 +27,17 @@ void FGameInstanceDatas::Init() {
 	TotalDiedMainTower = 0;
 
 	//-----------------Lowpoly Part Parameters-----------------------//
-	RemainNumberOfMilitia = 20;
-	MaxNumberOfMilitia = 20;
+	//RemainNumberOfMilitia = 20;
+	MaxNumberOfMilitia = 1;
 	MaxNumberOfMarine = 1;
 	CurrentSpawnMilitaTime = 0.0f;
 	//MilitiaNumberinCurrentStage
 	KilledMilitiabNumber = 0;
 
+	TotalDiedMarine = 0;
+	TotalDiedMilitia = 0;
+	TimeCountForSpawnGap = 0.f;
+	GapForSpawn = 10.0f;
 }
 
 bool FGameInstanceDatas::IsValid() {
@@ -43,6 +47,13 @@ bool FGameInstanceDatas::IsValid() {
 float FGameInstanceDatas::GetPercentageOfRemainMob() {
 	if (MaxNumberOfMonster) {
 		return (float)GetRemainMobNumbers() / (float)MaxNumberOfMonster;
+	}
+	return 0;
+}
+
+float FGameInstanceDatas::GetPercentageOfRemainMilitia() {
+	if (MaxNumberOfMilitia) {
+		return (float)GetRemainMilitiaNumbers() / (float)MaxNumberOfMilitia;
 	}
 	return 0;
 }
@@ -79,51 +90,32 @@ void FGameInstanceDatas::AssignedMonsterAmount() {
 
 void FGameInstanceDatas::AssignedMilitiaAmount() {
 	int32 CurrentMilitiaNumber = MaxNumberOfMilitia;
-	int32 CurrentStageNumber = MaxStage;
 	int32 CurrentStageAssignedMilitiaNum = 0; 
 	if (CurrentMilitiaNumber > 1) {
-		for (int32 i = 0; i < CurrentStageNumber; i++) {
-			float EverageMilitiaNumInEachStage = (float)MaxNumberOfMilitia / (float)CurrentStageNumber;
-			CurrentStageNumber--;
-			if (CurrentStageNumber > 1) {//若不是最后一波
+		for (int32 CurStage = 0; CurStage < MaxStage; CurStage++) {
+			float EverageMilitiaNumInEachStage = (float)MaxNumberOfMilitia / (float)MaxStage;
+			
+			if (CurStage < MaxStage - 1) {//若不是最后一波
 				//随机分配数量，并为剩余数量去掉本次分配的部分
-				CurrentStageAssignedMilitiaNum = FMath::RandRange(EverageMilitiaNumInEachStage / 6, EverageMilitiaNumInEachStage);
+				CurrentStageAssignedMilitiaNum = (int32)FMath::RandRange(EverageMilitiaNumInEachStage / 6, EverageMilitiaNumInEachStage);
 				CurrentMilitiaNumber -= CurrentStageAssignedMilitiaNum;
 			}
 			else//若为最后一波，分配剩余所有单位
 				CurrentStageAssignedMilitiaNum = CurrentMilitiaNumber;
+
 			//将确定的数量加入数组
 			MilitiaNumberinCurrentStage.Add(CurrentStageAssignedMilitiaNum);
 		}
 	}
-	else
-		MilitiaNumberinCurrentStage.Add(CurrentStageAssignedMilitiaNum);
+	else//若只剩1人
+		MilitiaNumberinCurrentStage.Add(1);
 
+	//初始化当前波数
 	MilitiaCurrentStage = MilitiaNumberinCurrentStage.Num() - 1;
 }
 
-void FGameInstanceDatas::AssignedMarineAmount() {
-	//int32 CurrentMarineNumber = MaxNumberOfMarine;
-	//int32 CurrentStageNumber = MaxStage;
-	//int32 CurrentStageAssignedMarineNum = 0;
-	//if (CurrentMarineNumber > 1) {
-	//	for (int32 i = 0; i < CurrentStageNumber; i++) {
-	//		float EverageMarineNumInEachStage = (float)MaxNumberOfMarine / (float)CurrentStageNumber;
-	//		CurrentStageNumber--;
-	//		if (CurrentStageNumber > 1) {//若不是最后一波
-	//			//随机分配数量，并为剩余数量去掉本次分配的部分
-	//			CurrentStageAssignedMarineNum = FMath::RandRange(EverageMarineNumInEachStage / 6, EverageMarineNumInEachStage);
-	//			CurrentMarineNumber -= CurrentStageAssignedMarineNum;
-	//		}
-	//		else//若为最后一波，分配剩余所有单位
-	//			CurrentStageAssignedMarineNum = CurrentMarineNumber;
-	//		//将确定的数量加入数组
-	//		MilitiaNumberinCurrentStage.Add(CurrentStageAssignedMarineNum);
-	//	}
-	//}
-	//else
-	//	MarineNumberinCurrentStage.Add(CurrentStageAssignedMarineNum);
-	
+void FGameInstanceDatas::AssignedMarineAmount() {	
+	//Marine直接一次性部署
 	MarineNumberinCurrentStage.Add(MaxNumberOfMarine);
 	MarineCurrentStage = MarineNumberinCurrentStage.Num() - 1;
 
@@ -174,4 +166,8 @@ void FGameInstanceDatas::MarineStageDecision() {
 
 int32 FGameInstanceDatas::GetRemainMobNumbers() {
 	return 0;
+}
+
+int32 FGameInstanceDatas::GetRemainMilitiaNumbers() {
+	return MaxNumberOfMilitia - TotalDiedMilitia;
 }

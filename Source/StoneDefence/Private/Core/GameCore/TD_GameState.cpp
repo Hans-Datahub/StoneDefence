@@ -152,6 +152,7 @@ FCharacterData& ATD_GameState::GetCharacterDataNULL() {
 	//因为编辑器状态下获取不到GameState，从而GetCharacterData是在解引用空指针
 	//静态变量能够在整个程序生命周期内存在，故不会出现解引用空指针的情况，虽然可能没值，但一定有地址
 	static FCharacterData DummyData;
+	DummyData.bIsDummy = true;
 	return DummyData;
 }
 

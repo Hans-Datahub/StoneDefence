@@ -63,4 +63,7 @@ public:
 	UPROPERTY(SaveGame)
 		FGameInstanceDatas GameDatas;
 
+
+	void InitSaveGame(UWorld* InWorld)override;
+
 };

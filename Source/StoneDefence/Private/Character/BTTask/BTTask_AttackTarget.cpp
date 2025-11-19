@@ -14,28 +14,37 @@ EBTNodeResult::Type UBTTask_AttackTarget::ExecuteTask(UBehaviorTreeComponent& Ow
 	Super::ExecuteTask(OwnerComp, NodeMemory);
 
 
-	if (AAIController* AIController = Cast<AAIController>(OwnerComp.GetOwner())) {//多态获取Milita和Marine的AIController
-		if (UBlackboardComponent * BlackBoard = OwnerComp.GetBlackboardComponent()) {
-			if (Blackboard_Actor.SelectedKeyType == UBlackboardKeyType_Object::StaticClass()) {
-				if (ARuleOfCharacter* Character = Cast<ARuleOfCharacter>(AIController->GetPawn())) {
-					if (ARuleOfCharacter* TargetUnit = Cast<ARuleOfCharacter>(BlackBoard->GetValueAsObject(Blackboard_Actor.SelectedKeyName))) {
-						//Character->Isattack = true;					
-						return EBTNodeResult::Succeeded;
-					}
-					else {
-						//Character->Isattack = false;
-						////通知停止攻击蒙太奇播放
-						//UMarineAnimInstance* MarineAnimInstance = Cast<UMarineAnimInstance>(Character->GetMesh()->GetAnimInstance());
-						//UAnimMontage* CurrentMontage = MarineAnimInstance->GetCurrentActiveMontage();
-						//MarineAnimInstance->Montage_Stop(0.5f, CurrentMontage);
+	//if (AAIController* AIController = Cast<AAIController>(OwnerComp.GetOwner())) {//多态获取Milita和Marine的AIController
+	//	if (UBlackboardComponent * BlackBoard = OwnerComp.GetBlackboardComponent()) {
+	//		if (Blackboard_Actor.SelectedKeyType == UBlackboardKeyType_Object::StaticClass()) {
+	//			if (ARuleOfCharacter* Character = Cast<ARuleOfCharacter>(AIController->GetPawn())) {
+	//				if (ARuleOfCharacter* TargetUnit = Cast<ARuleOfCharacter>(BlackBoard->GetValueAsObject(Blackboard_Actor.SelectedKeyName))) {
+	//					//Character->Isattack = true;					
+	//					return EBTNodeResult::Succeeded;
+	//				}
+	//				else {
+	//					//Character->Isattack = false;
+	//					////通知停止攻击蒙太奇播放
+	//					//UMarineAnimInstance* MarineAnimInstance = Cast<UMarineAnimInstance>(Character->GetMesh()->GetAnimInstance());
+	//					//UAnimMontage* CurrentMontage = MarineAnimInstance->GetCurrentActiveMontage();
+	//					//MarineAnimInstance->Montage_Stop(0.5f, CurrentMontage);
 
-						return EBTNodeResult::Succeeded;
-					}
-				}
-			}
-		}
-	}
-	return EBTNodeResult::Failed;
+	//					return EBTNodeResult::Succeeded;
+	//				}
+	//			}
+	//		}
+	//	}
+	//}
+
+	UBlackboardComponent* BlackBoard = OwnerComp.GetBlackboardComponent();
+	if (!BlackBoard) return EBTNodeResult::Failed;
+
+	ARuleOfCharacter* TargetUnit = Cast<ARuleOfCharacter>(BlackBoard->GetValueAsObject(Blackboard_Actor.SelectedKeyName));
+	if (!TargetUnit)return EBTNodeResult::Failed;
+
+	TargetUnit->Isattack = true;
+	return EBTNodeResult::Succeeded;
+
 
 }
 

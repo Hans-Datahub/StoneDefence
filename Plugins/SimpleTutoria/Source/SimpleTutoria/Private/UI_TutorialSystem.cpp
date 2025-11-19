@@ -38,6 +38,8 @@ void UUI_TutorialSystem::NativeConstruct() {
 	MovieProgress->OnMouseCaptureEnd.AddDynamic(this, &UUI_TutorialSystem::MouseCaptureEnd);
 
 	SuspendButton->OnCheckStateChanged.AddDynamic(this, &UUI_TutorialSystem::ClickedCheckBox);
+
+	CloseButton->OnClicked.AddDynamic(this, &UUI_TutorialSystem::CloseUI);
 }
 
 void UUI_TutorialSystem::NativeTick(const FGeometry& MeGeometry, float InDeltaTime) {
@@ -127,4 +129,8 @@ void UUI_TutorialSystem::MouseCaptureBegin() {
 
 void UUI_TutorialSystem::MouseCaptureEnd() {
 
+}
+
+void UUI_TutorialSystem::CloseUI() {
+	RemoveFromParent();
 }

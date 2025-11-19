@@ -16,7 +16,7 @@ class STONEDEFENCE_API UBTService_UnitFindTaget : public UBTService
 	GENERATED_BODY()
 	
 public:
-	virtual void TickNode(UBehaviorTreeComponent& OwnerCompm, uint8* Nodememory, float DeltaSeconds) override;
+	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* Nodememory, float DeltaSeconds) override;
 
 	UPROPERTY(EditAnywhere, Category = "BlackBoard")
 	struct FBlackboardKeySelector BlackBoardKey_Target;

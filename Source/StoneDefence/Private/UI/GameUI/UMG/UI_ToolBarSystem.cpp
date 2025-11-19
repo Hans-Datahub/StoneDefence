@@ -11,17 +11,36 @@ void UUI_ToolBarSystem::NativeConstruct(){
 }
 
 void UUI_ToolBarSystem::NativeTick(const FGeometry& MyGeometry, float InDeltaTime) {
-	/*GetGPlayerState()->GetPlayerData();
-	GetGameState()->GetGameData();*/
-	//ToolBar���ݸ���
+	//ToolBar数据更新
+
+	//倒计时
 	GameTimeCount->SetText(FText::FromString(GetCurrentTimeCount(GetGameState()->GetGameData().GameTimeCount)));
-	Coins->SetText(FText::AsNumber(GetPlayerState()->GetPlayerData().GameGold));
-	TowerDeathNumber->SetText(FText::AsNumber(GetGameState()->GetGameData().TotalDiedTower));
-	KilledSoldier->SetText(FText::AsNumber(GetGameState()->GetGameData().KilledMobNumber));
-	SurplusQuantity->SetText(FText(FText::FromString(FString::Printf(TEXT("%02d/%02d"),
-														GetGameState()->GetGameData().MobNumberinCurrentStage.Num(),
-																		GetGameState()->GetGameData().MaxStage - GetGameState()->GetGameData().MobNumberinCurrentStage.Num()))));
-	SurplusQuantityProgressBar->SetPercent(GetGameState()->GetGameData().GetPercentageOfRemainMob());
+
+	//金币
+	int32 CoinsAmount = GetPlayerState()->GetPlayerData().GameGold;
+	FText CoinsText = FText::Format(FText::FromString("Coins:{0}"), FText::AsNumber(CoinsAmount));
+	Coins->SetText(CoinsText);
+
+	//Marine死亡数
+	int32 MarineDeathNum = GetGameState()->GetGameData().TotalDiedMarine;
+	FText MarineDeathText = FText::Format(FText::FromString("Marine DeathNum:{0}"), FText::AsNumber(MarineDeathNum));
+	TowerDeathNumber->SetText(MarineDeathText);
+
+	//Militia死亡数
+	int32 MilitiaDeathNum = GetGameState()->GetGameData().TotalDiedMilitia;
+	FText MilitiaDeathText = FText::Format(FText::FromString("Militia DeathNum:{0}"), FText::AsNumber(MilitiaDeathNum));
+	KilledSoldier->SetText(MilitiaDeathText);
+
+	//关卡进度
+	FText CurrentLevelText = FText::AsNumber(GetGameState()->GetGameData().MilitiaCurrentStage + 1);
+	FText MaxStageText = FText::AsNumber(GetGameState()->GetGameData().MaxStage);
+	FText SurplusQuantityText = FText::Format(FText::FromString("Current/Total(Level):{0}/{1}"), CurrentLevelText, MaxStageText);
+	SurplusQuantity->SetText(SurplusQuantityText);
+
+	//关卡进度（进度条）
+	//SurplusQuantityProgressBar->SetPercent(GetGameState()->GetGameData().GetPercentageOfRemainMilitia());
+	SurplusQuantityProgressBar->SetPercent(0.5f);
+	SurplusQuantityProgressBar->SetVisibility(ESlateVisibility::Visible);
 }
 
 FString UUI_ToolBarSystem::GetCurrentTimeCount(float CounttingTime) {

@@ -44,8 +44,11 @@ class SIMPLETUTORIA_API UUI_TutorialSystem : public UUserWidget
 	UPROPERTY(meta = (BindWidget))
 		UTextBlock* PlayTimeText;
 
+	UPROPERTY(meta = (BindWidget))
+		UButton* CloseButton;
+
 public:
-	//ÔØÈëÊÓÆµ²¥·Å
+	//è½½å…¥è§†é¢‘æ’­æ”¾
 	UPROPERTY(EditAnywhere, Category = UI)
 	UMediaPlayer* MediaPlayer;
 
@@ -88,4 +91,6 @@ protected:
 	UFUNCTION()
 		void MouseCaptureEnd();
 
+	UFUNCTION()
+		void CloseUI();
 };

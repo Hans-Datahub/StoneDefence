@@ -439,59 +439,71 @@ void ATD_GameMode::UpdateSkill(float DeltaSeconds) {
 }
 
 void ATD_GameMode::UpdateInventory(float DeltaSeconds) {
-	if (ATD_GameState* InGameState = GetGameState<ATD_GameState>())
-	{
-		StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATD_PlayerController* MyPlayerController)
+	ATD_GameState* InGameState = GetGameState<ATD_GameState>();
+	if (!InGameState) return;
+
+	StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATD_PlayerController* MyPlayerController)
+		{
+			ATD_PlayerState* InPlayerState = MyPlayerController->GetPlayerState<ATD_PlayerState>();
+			if (!InPlayerState) return;
+
+			for (auto& Tmp : InPlayerState->GetSaveData()->BuildingTowers)
 			{
-				if (ATD_PlayerState* InPlayerState = MyPlayerController->GetPlayerState<ATD_PlayerState>())
+				if (!Tmp.Value.IsValid()) return;
+				FBuildingTowers& BTData = Tmp.Value;
+				if (BTData.isCDFreezed) return;
+				if (BTData.isIconDragged) return;
+
+				if (BTData.CurrentConstructionTowersCD > 0)
 				{
-					for (auto& Tmp : InPlayerState->GetSaveData()->BuildingTowers)
-					{
-						if (Tmp.Value.IsValid())
+					BTData.CurrentConstructionTowersCD -= DeltaSeconds;
+					BTData.CallUpdateTowrsInfoOrNot = true;
+
+					//通知客户端更新我们的装备CD
+					StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATD_PlayerController* MyPlayerController)
 						{
-							if (!Tmp.Value.isCDFreezed)
-							{
-								if (!Tmp.Value.isIconDragged)
-								{
-									if (Tmp.Value.CurrentConstructionTowersCD > 0)
-									{
-										Tmp.Value.CurrentConstructionTowersCD -= DeltaSeconds;
-										Tmp.Value.CallUpdateTowrsInfoOrNot = true;
+							//最终链式调用Inventory中的UpdateInventorySlot
+							MyPlayerController->UpdateInventory_Client(Tmp.Key, true);
+						});
+				}
+				else if (BTData.CallUpdateTowrsInfoOrNot)
+				{
+					BTData.CallUpdateTowrsInfoOrNot = false;
+					//准备构建的塔
+					BTData.TowersPrepareBuildingNumber--;
 
-										//通知客户端更新我们的装备CD
-										StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATD_PlayerController* MyPlayerController)
-											{
-												//最终链式调用Inventory中的UpdateInventorySlot
-												MyPlayerController->UpdateInventory_Client(Tmp.Key, true);
-											});
-									}
-									else if (Tmp.Value.CallUpdateTowrsInfoOrNot)
-									{
-										Tmp.Value.CallUpdateTowrsInfoOrNot = false;
-										//准备构建的塔
-										Tmp.Value.TowersPrepareBuildingNumber--;
-										Tmp.Value.TowersConstructionNumber++;
 
-										//通知客户端更新我们的装备CD
-										StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATD_PlayerController* MyPlayerController)
-										{
-											MyPlayerController->UpdateInventory_Client(Tmp.Key, false);
-										});
+					//CD结束直接生成对应单位
+					TArray<ASpawnPoint*>MarineSpawnPoints;
+					for (ASpawnPoint* SpawnPoint : StoneDefenceUtils::GetAllActor<ASpawnPoint>(GetWorld()))
+						if (ETeam::BLUE == SpawnPoint->Team)
+							MarineSpawnPoints.Add(SpawnPoint);
 
-										if (Tmp.Value.TowersPrepareBuildingNumber > 0)
-										{
-											Tmp.Value.ResetCD();
-										}
-									}
-								}
-							}
-						}
+					AMarine* Marine = SpawnMarine(-1, FVector::ZeroVector, FRotator::ZeroRotator, 1);
+					if (Marine) {
+						ASpawnPoint* OneOfSpawnPoint = MarineSpawnPoints[FMath::RandRange(0, MarineSpawnPoints.Num() - 1)];
+						Marine->SetActorLocationAndRotation(OneOfSpawnPoint->GetActorLocation(), OneOfSpawnPoint->GetActorRotation());
+					}
+
+
+					//由于直接生成，暂时禁用
+					//Tmp.Value.TowersConstructionNumber++;
+
+					//通知客户端更新我们的装备CD
+					StoneDefenceUtils::CallUpdateAllClient(GetWorld(), [&](ATD_PlayerController* MyPlayerController)
+						{
+							MyPlayerController->UpdateInventory_Client(Tmp.Key, false);
+						});
+
+					if (BTData.TowersPrepareBuildingNumber > 0)
+					{
+						BTData.ResetCD();
 					}
 				}
-			}
-		);//CallUpdateAllClient()
-	}
 
+			}
+		}
+	);//CallUpdateAllClient()
 }
 
 

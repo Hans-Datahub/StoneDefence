@@ -14,7 +14,7 @@ EBTNodeResult::Type UBTTaskAAttackTarget::ExecuteTask(UBehaviorTreeComponent& Ow
 		if (UBlackboardComponent * MyBlackBoard = OwnerComp.GetBlackboardComponent()) {
 			if (Blackboard_Actor.SelectedKeyType == UBlackboardKeyType_Object::StaticClass()) {
 				if (ARuleOfCharacter* MyPawn = Cast<ARuleOfCharacter>(MyAIController->GetPawn())) {
-					if (ARuleOfCharacter* TargetTower = Cast<ARuleOfCharacter>(MyBlackBoard->GetValueAsObject(Blackboard_Actor.SelectedKeyName))) {
+					/*if (ARuleOfCharacter* TargetTower = Cast<ARuleOfCharacter>(MyBlackBoard->GetValueAsObject(Blackboard_Actor.SelectedKeyName))) {
 						MyPawn->Isattack = true;
 						MyAIController->AttackTarget(TargetTower);
 						return EBTNodeResult::Succeeded;
@@ -22,7 +22,7 @@ EBTNodeResult::Type UBTTaskAAttackTarget::ExecuteTask(UBehaviorTreeComponent& Ow
 					else {
 						MyPawn->Isattack = false;
 						return EBTNodeResult::Succeeded;
-					}
+					}*/
 				}
 			}
 		}

@@ -245,8 +245,8 @@ float ARuleOfCharacter::TakeDamage(float Damage, struct FDamageEvent const& Dama
 						}
 					}
 				}
-
-				GetGameState()->RemoveCharacterData(GUID);
+				//此处击杀后不删除数据，统一由AnimNotify_Death处理
+				//GetGameState()->RemoveCharacterData(GUID);
 			}
 			else {
 				SubmissionSkillRequest(SkillData->ID);

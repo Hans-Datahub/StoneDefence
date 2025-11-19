@@ -121,16 +121,32 @@ struct FGameInstanceDatas {
 	UPROPERTY(SaveGame)
 		float KilledMilitiabNumber;
 
+	UPROPERTY(SaveGame)
+		float TotalDiedMarine;
+
+	UPROPERTY(SaveGame)
+		float TotalDiedMilitia;
+
+	UPROPERTY(SaveGame)
+		float TimeCountForSpawnGap;
+
+	UPROPERTY(SaveGame)
+		float GapForSpawn;
+
 
 //---------------------------------------------------------------//
 
 
 
 	int32 GetRemainMobNumbers();
+	int32 GetRemainMilitiaNumbers();
 
 	float GetPercentageOfRemainMob();
+	float GetPercentageOfRemainMilitia();
+
 	float GetMaxMobNumber();
 	void ResetCurrentSpawn();
+
 	FORCEINLINE bool bAllowSpawnMonster() { return CurrentSpawnMonsterTime >= SpawnTimeInterval; };
 	FORCEINLINE bool bAllowSpawnMilitia() { return CurrentSpawnMilitaTime >= SpawnTimeInterval; };
 

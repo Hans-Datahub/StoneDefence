@@ -28,55 +28,76 @@ void UBTService_UnitFindTaget::TickNode(UBehaviorTreeComponent& OwnerComp, uint8
 
 		if (UBlackboardComponent* MyBlackBoard = OwnerComp.GetBlackboardComponent()) {
 			if (ARuleOfCharacter* NewTarget = Cast<ARuleOfCharacter>(AIController->FindTarget())) {
-				//---若新搜索到的目标为新目标---//
-				if (AIController->Target != NewTarget) {
-					if (ARuleOfCharacter* UnitSelf = Cast<ARuleOfCharacter>(AIController->GetPawn())) {
-						//当搜寻到新目标停止当前活动，否则会优先执行完当前任务才会开始新活动
-						UnitSelf->GetCharacterMovement()->StopMovementImmediately();
+				if (!NewTarget->IsDeath()) {
+					//---若新搜索到的目标为新目标---//
+					if (AIController->Target != NewTarget) {
+						if (ARuleOfCharacter* UnitSelf = Cast<ARuleOfCharacter>(AIController->GetPawn())) {
+							//当搜寻到新目标停止当前活动，否则会优先执行完当前任务才会开始新活动
+							UnitSelf->GetCharacterMovement()->StopMovementImmediately();
+
+							//停止当前攻击动画（蒙太奇）
+							//UMilitiaAnimInstance* TempAnimInstance = Cast<UMilitiaAnimInstance>(UnitSelf->GetMesh()->GetAnimInstance());
+							//TempAnimInstance->InitializeAnimation();
+						}
+						//更换目标
+						AIController->Target = NewTarget;
 					}
-					//更换目标
-					AIController->Target = NewTarget;
-				}
 
-				//---若目标没变，则计算带不包括攻击范围的距离---//
-				if (AIController->Target.IsValid()) {
-					if (AIController->Target->IsActive()) {
-						////计算怪与塔之间距离（向量）
-						FVector TargetLocation = AIController->Target.Get()->GetActorLocation();
-						FVector SelfLocation = AIController->GetPawn()->GetActorLocation();
+					//---若目标没变，则计算带不包括攻击范围的距离---//
+					if (AIController->Target.IsValid()) {
+						if (AIController->Target->IsActive()) {
+							////计算怪与塔之间距离（向量）
+							FVector TargetLocation = AIController->Target.Get()->GetActorLocation();
+							FVector SelfLocation = AIController->GetPawn()->GetActorLocation();
 
-						// 计算从目标指向自身的单位方向
-						FVector DirectionToSelf = (SelfLocation - TargetLocation).GetSafeNormal();
+							// 计算从目标指向自身的单位方向
+							FVector DirectionToSelf = (SelfLocation - TargetLocation).GetSafeNormal();
 
-						// 从目标位置反向偏移300单位
-						FVector LocationWithGap = TargetLocation + (DirectionToSelf * 2000.0f);
+							// 从目标位置反向偏移300单位
+							FVector LocationWithGap = TargetLocation + (DirectionToSelf * 2000.0f);
 
-						MyBlackBoard->SetValueAsObject(BlackBoardKey_Target.SelectedKeyName, AIController->Target.Get());//Get()用于将弱指针所指的Target转化成对象实例
-						MyBlackBoard->SetValueAsVector(BlackBoardKey_TargetLocation.SelectedKeyName, LocationWithGap);
-					}	 
-					else { MyBlackBoard->SetValueAsObject(BlackBoardKey_Target.SelectedKeyName, NULL);
-						   MyBlackBoard->SetValueAsVector(BlackBoardKey_TargetLocation.SelectedKeyName, FVector::ZeroVector);
+							MyBlackBoard->SetValueAsObject(BlackBoardKey_Target.SelectedKeyName, AIController->Target.Get());//Get()用于将弱指针所指的Target转化成对象实例
+							MyBlackBoard->SetValueAsVector(BlackBoardKey_TargetLocation.SelectedKeyName, LocationWithGap);//此处由LocationWithGap更改为TargetLocation
+						}
+						else {
+							MyBlackBoard->SetValueAsObject(BlackBoardKey_Target.SelectedKeyName, NULL);
+							MyBlackBoard->SetValueAsVector(BlackBoardKey_TargetLocation.SelectedKeyName, FVector::ZeroVector);
+						}
+					}
+					else {
+						MyBlackBoard->SetValueAsObject(BlackBoardKey_Target.SelectedKeyName, NULL);
+						MyBlackBoard->SetValueAsVector(BlackBoardKey_TargetLocation.SelectedKeyName, FVector::ZeroVector);
 					}
 				}
-				else { MyBlackBoard->SetValueAsObject(BlackBoardKey_Target.SelectedKeyName, NULL);
-					   MyBlackBoard->SetValueAsVector(BlackBoardKey_TargetLocation.SelectedKeyName, FVector::ZeroVector);
-				}
-			}
+
+
+			}//如果没搜到新的敌人
 			else {
 				MyBlackBoard->SetValueAsObject(BlackBoardKey_Target.SelectedKeyName, NULL);
 				MyBlackBoard->SetValueAsVector(BlackBoardKey_TargetLocation.SelectedKeyName, FVector::ZeroVector);
+				//暂停攻击
+				//if (ARuleOfCharacter* TempUnit = Cast<ARuleOfCharacter>(AIController->GetPawn())) {
+				//	TempUnit->Isattack = false;
+
+				//	//停止攻击动画（蒙太奇）
+				//	UMilitiaAnimInstance* TempAnimInstance = Cast<UMilitiaAnimInstance>(TempUnit->GetMesh()->GetAnimInstance());
+				//	TempAnimInstance->InitializeAnimation();
+				//}
 			}
 
 			if (ARuleOfCharacter* UnitAI = Cast<ARuleOfCharacter>(AIController->GetPawn())) {
 				if (AIController->Target.IsValid()) {
-				
-					FVector Mylocation = AIController -> GetPawn()->GetActorLocation();
-					FVector TMDistance = Mylocation - AIController->Target->GetActorLocation();
+					if (!AIController->Target->IsDeath()) {
+						FVector Mylocation = AIController->GetPawn()->GetActorLocation();
+						FVector TMDistance = Mylocation - AIController->Target->GetActorLocation();
 
-					if (TMDistance.Size() > 2200) {	UnitAI->Isattack = false; }
-					else { UnitAI->Isattack = true; }
+						/*if (TMDistance.Size() > 2200) { UnitAI->Isattack = false; }
+						else { UnitAI->Isattack = true; }*/
 
-					MyBlackBoard->SetValueAsFloat(BlackBoardKey_Distance.SelectedKeyName, TMDistance.Size());
+						MyBlackBoard->SetValueAsFloat(BlackBoardKey_Distance.SelectedKeyName, TMDistance.Size());
+					}
+					else//若目标死亡
+						UnitAI->Isattack = false;
 				}
 				else {
 					MyBlackBoard->SetValueAsFloat(BlackBoardKey_Distance.SelectedKeyName, 0.0f);
@@ -85,14 +106,14 @@ void UBTService_UnitFindTaget::TickNode(UBehaviorTreeComponent& OwnerComp, uint8
 
 
 				//判断攻击状态是否变化
-				if (bOldIsattack != UnitAI->Isattack) {
-					bOldIsattack = UnitAI->Isattack;
-					//若变化为停止攻击，停止蒙太奇播放
-					if (bOldIsattack == false)
-						if (URuleOfAnimInstance* AnimInstance = Cast<URuleOfAnimInstance>(UnitAI->GetMesh()->GetAnimInstance()))
-							if(UAnimMontage* CurrentMontage = AnimInstance->GetCurrentActiveMontage())
-								AnimInstance->Montage_Stop(0.1f, CurrentMontage);
-				}
+				//if (bOldIsattack != UnitAI->Isattack) {
+				//	bOldIsattack = UnitAI->Isattack;
+				//	//若变化为停止攻击，停止蒙太奇播放
+				//	if (bOldIsattack == false)
+				//		if (URuleOfAnimInstance* AnimInstance = Cast<URuleOfAnimInstance>(UnitAI->GetMesh()->GetAnimInstance()))
+				//			if(UAnimMontage* CurrentMontage = AnimInstance->GetCurrentActiveMontage())
+				//				AnimInstance->Montage_Stop(0.1f, CurrentMontage);
+				//}
 			}
 
 

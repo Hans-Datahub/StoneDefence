@@ -22,11 +22,6 @@ ALowPolyGameMode::ALowPolyGameMode() {
 void ALowPolyGameMode::BeginPlay() {
 	Super::BeginPlay();
 
-	if (ALowPolyGameState* TempGameState = GetGameState<ALowPolyGameState>()) {
-		TempGameState->GetGameData().AssignedMilitiaAmount();//分配每波怪物数量
-		TempGameState->GetGameData().AssignedMarineAmount();
-	}
-
 	//SelectionManager的单例生成
 	if (SelectionManagerClass)
 	{
@@ -102,6 +97,7 @@ void ALowPolyGameMode::InitStandardData() {
 		}*/
 
 		InGameState->GetGameData().AssignedMilitiaAmount();
+		InGameState->GetGameData().AssignedMarineAmount();
 	}
 }
 
@@ -153,6 +149,21 @@ void ALowPolyGameMode::UpdateUnitSpawnRule(float DeltaSeconds) {
 										ASpawnPoint* OneOfSpawnPoint = MilitiaSpawnPoints[FMath::RandRange(0, MilitiaSpawnPoints.Num() - 1)];
 										Militia->SetActorLocationAndRotation(OneOfSpawnPoint->GetActorLocation(), OneOfSpawnPoint->GetActorRotation());
 									}
+								}//若当前波数人耗尽
+								else {
+									
+									if (GameData.TimeCountForSpawnGap <= GameData.GapForSpawn)
+										GameData.TimeCountForSpawnGap += DeltaSeconds;
+									else {//当间隔时间结束
+										GameData.TimeCountForSpawnGap = 0.f;
+										//进行下一波生成
+										if (GameData.MilitiaCurrentStage > 0)
+											GameData.MilitiaCurrentStage--;
+									}
+
+									
+
+
 								}
 							}
 							

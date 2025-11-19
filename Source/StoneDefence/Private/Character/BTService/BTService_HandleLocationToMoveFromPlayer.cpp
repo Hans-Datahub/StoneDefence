@@ -15,7 +15,8 @@ void UBTService_HandleLocationToMoveFromPlayer::TickNode(UBehaviorTreeComponent&
 	if (UBlackboardComponent* BlackBoard = OwnerComp.GetBlackboardComponent()) {
 		//获取ServiceOwner
 		ARuleOfCharacter* ServiceOwner = nullptr;
-		if (AMarineAIController* AIController = Cast<AMarineAIController>(OwnerComp.GetOwner()))
+		AMarineAIController* AIController = Cast<AMarineAIController>(OwnerComp.GetOwner());
+		if(AIController)
 			ServiceOwner = Cast<ARuleOfCharacter>(AIController->GetPawn());
 		if (!ServiceOwner) return;
 		if (!ServiceOwner->GUID.IsValid()) return;
@@ -44,9 +45,10 @@ void UBTService_HandleLocationToMoveFromPlayer::TickNode(UBehaviorTreeComponent&
 						UE_LOG(LogTemp, Log, TEXT("Task:黑板值已设置true"));
 						bIsLastLocationChanged = false;//数据更新后，判断位 置false
 						//动画蓝图状态更新
-						if (UMilitiaAnimInstance* AnimInstance = Cast<UMilitiaAnimInstance>(ServiceOwner->GetMesh()->GetAnimInstance())) {
+						if (UMilitiaAnimInstance* AnimInstance = Cast<UMilitiaAnimInstance>(ServiceOwner->GetMesh()->GetAnimInstance()))
 							AnimInstance->HasMoveOrder = true;
-						}
+						//停止当前的导航移动
+						AIController->StopMovement();
 					}
 
 					/*--------------*/

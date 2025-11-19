@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameMode.h"
 #include "Engine/DataTable.h"
+#include "Character/CharacterCore/Militia.h"
+#include "Character/CharacterCore/Marine.h"
 #include "TD_GameMode.generated.h"
 
 
@@ -42,6 +44,8 @@ protected:
 		return Cast<T>(SpawnCharacter(CharacterID, InCharacterData, Loction, Rotator, CharacterLevel/*, InCharacterGuid*/));
 	}
 
+	virtual AMilitia* SpawnMilitia(int32 CharacterID, const FVector& Location, const FRotator& Rotator, int32 CharacterLevel = 1/*, const FGuid& Guid*/) { return nullptr; };
+	virtual AMarine* SpawnMarine(int32 CharacterID, const FVector& Location, const FRotator& Rotator, int32 CharacterLevel = 1/*, const FGuid& Guid*/) { return nullptr; };
 	void SpawnTowerRule();
 	void SpawnMainTowerRule();
 

@@ -33,6 +33,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AnimAttrubute")
 	bool HasMoveOrder;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AnimAttrubute")
+	bool HasMoveOrderFromPlayer;
+
 	void NativeUpdateAnimation(float DeltaSeconds);
 
 	

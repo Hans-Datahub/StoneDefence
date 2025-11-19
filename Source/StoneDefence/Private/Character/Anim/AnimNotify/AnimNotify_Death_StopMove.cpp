@@ -32,8 +32,21 @@ void UAnimNotify_Death_StopMove::Notify(USkeletalMeshComponent* MeshComp, UAnimS
 			}
 			BTC->StopTree();      // 终止行为树运行（中断所有任务）
 			UE_LOG(LogTemp, Log, TEXT("BT stopped for AIController: %s"), *AIController->GetName());
-			//行为树都停了，更改HasMoveOrder似乎也是无所谓了
-			Cast<UMilitiaAnimInstance>(Character->GetMesh()->GetAnimInstance())->HasMoveOrder = false;
+
+			Cast<UMilitiaAnimInstance>(Character->GetMesh()->GetAnimInstance())->IsDeath = true;
+			//Cast<UMilitiaAnimInstance>(Character->GetMesh()->GetAnimInstance())->HasMoveOrder = false;
+			AIController->StopMovement();
+
+
+			//战局死亡数更新
+			if (!GetWorld()) return;
+			if (!GetWorld()->GetGameState<ALowPolyGameState>()) return;
+			FGameInstanceDatas& InstanceDatas = GetWorld()->GetGameState<ALowPolyGameState>()->GetGameData();
+			//确定死亡单位阵营
+			if (AMarine* Marine = Cast<AMarine>(Character))
+				InstanceDatas.TotalDiedMarine += 1;
+			if(AMilitia* Militia = Cast<AMilitia>(Character))
+				InstanceDatas.TotalDiedMilitia += 1;
 		}
 	}
 }
