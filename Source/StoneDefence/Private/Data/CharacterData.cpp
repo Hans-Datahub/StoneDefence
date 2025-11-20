@@ -45,6 +45,7 @@ void FCharacterData::Init() {
 	Location = FVector::ZeroVector;
 	Rotator = FRotator::ZeroRotator; 
 	LocationToMove = FVector::ZeroVector;
+	LastLocationToMove = FVector::ZeroVector;
 	Team = ETeam::RED;
 }
 

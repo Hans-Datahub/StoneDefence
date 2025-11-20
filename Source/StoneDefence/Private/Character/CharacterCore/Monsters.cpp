@@ -14,6 +14,9 @@ void AMonsters::BeginPlay() {
 	if (MovementComp)
 	{
 		MovementComp->MaxWalkSpeed = 600.f; // 设置最大行走速度
+		MovementComp->SetAvoidanceEnabled(true);
+		MovementComp->AvoidanceConsiderationRadius = 100.0f;
+		MovementComp->AvoidanceWeight = 1.0f;
 	}
 	isFreezed = false;
 }

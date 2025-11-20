@@ -24,7 +24,6 @@ public:
 	struct FBlackboardKeySelector BlackBoardKey_HasMoveOrder;
 
 private:
-	FVector LastLocationToMove = FVector::ZeroVector;
 	bool bIsLastLocationChanged = false;
 
 	

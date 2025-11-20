@@ -35,9 +35,6 @@ void UBTService_UnitFindTaget::TickNode(UBehaviorTreeComponent& OwnerComp, uint8
 							//当搜寻到新目标停止当前活动，否则会优先执行完当前任务才会开始新活动
 							UnitSelf->GetCharacterMovement()->StopMovementImmediately();
 
-							//停止当前攻击动画（蒙太奇）
-							//UMilitiaAnimInstance* TempAnimInstance = Cast<UMilitiaAnimInstance>(UnitSelf->GetMesh()->GetAnimInstance());
-							//TempAnimInstance->InitializeAnimation();
 						}
 						//更换目标
 						AIController->Target = NewTarget;
@@ -57,16 +54,19 @@ void UBTService_UnitFindTaget::TickNode(UBehaviorTreeComponent& OwnerComp, uint8
 							FVector LocationWithGap = TargetLocation + (DirectionToSelf * 2000.0f);
 
 							MyBlackBoard->SetValueAsObject(BlackBoardKey_Target.SelectedKeyName, AIController->Target.Get());//Get()用于将弱指针所指的Target转化成对象实例
-							MyBlackBoard->SetValueAsVector(BlackBoardKey_TargetLocation.SelectedKeyName, LocationWithGap);//此处由LocationWithGap更改为TargetLocation
+							MyBlackBoard->SetValueAsVector(BlackBoardKey_TargetLocation.SelectedKeyName, TargetLocation);//目标的位置
+							MyBlackBoard->SetValueAsVector(BlackBoardKey_AttackLocationForTarget.SelectedKeyName, LocationWithGap);//为了攻击目标需要移动的位置
 						}
 						else {
 							MyBlackBoard->SetValueAsObject(BlackBoardKey_Target.SelectedKeyName, NULL);
 							MyBlackBoard->SetValueAsVector(BlackBoardKey_TargetLocation.SelectedKeyName, FVector::ZeroVector);
+							MyBlackBoard->SetValueAsVector(BlackBoardKey_AttackLocationForTarget.SelectedKeyName, FVector::ZeroVector);
 						}
 					}
 					else {
 						MyBlackBoard->SetValueAsObject(BlackBoardKey_Target.SelectedKeyName, NULL);
 						MyBlackBoard->SetValueAsVector(BlackBoardKey_TargetLocation.SelectedKeyName, FVector::ZeroVector);
+						MyBlackBoard->SetValueAsVector(BlackBoardKey_AttackLocationForTarget.SelectedKeyName, FVector::ZeroVector);
 					}
 				}
 
@@ -75,14 +75,7 @@ void UBTService_UnitFindTaget::TickNode(UBehaviorTreeComponent& OwnerComp, uint8
 			else {
 				MyBlackBoard->SetValueAsObject(BlackBoardKey_Target.SelectedKeyName, NULL);
 				MyBlackBoard->SetValueAsVector(BlackBoardKey_TargetLocation.SelectedKeyName, FVector::ZeroVector);
-				//暂停攻击
-				//if (ARuleOfCharacter* TempUnit = Cast<ARuleOfCharacter>(AIController->GetPawn())) {
-				//	TempUnit->Isattack = false;
-
-				//	//停止攻击动画（蒙太奇）
-				//	UMilitiaAnimInstance* TempAnimInstance = Cast<UMilitiaAnimInstance>(TempUnit->GetMesh()->GetAnimInstance());
-				//	TempAnimInstance->InitializeAnimation();
-				//}
+				MyBlackBoard->SetValueAsVector(BlackBoardKey_AttackLocationForTarget.SelectedKeyName, FVector::ZeroVector);
 			}
 
 			if (ARuleOfCharacter* UnitAI = Cast<ARuleOfCharacter>(AIController->GetPawn())) {
@@ -90,9 +83,6 @@ void UBTService_UnitFindTaget::TickNode(UBehaviorTreeComponent& OwnerComp, uint8
 					if (!AIController->Target->IsDeath()) {
 						FVector Mylocation = AIController->GetPawn()->GetActorLocation();
 						FVector TMDistance = Mylocation - AIController->Target->GetActorLocation();
-
-						/*if (TMDistance.Size() > 2200) { UnitAI->Isattack = false; }
-						else { UnitAI->Isattack = true; }*/
 
 						MyBlackBoard->SetValueAsFloat(BlackBoardKey_Distance.SelectedKeyName, TMDistance.Size());
 					}
@@ -103,19 +93,7 @@ void UBTService_UnitFindTaget::TickNode(UBehaviorTreeComponent& OwnerComp, uint8
 					MyBlackBoard->SetValueAsFloat(BlackBoardKey_Distance.SelectedKeyName, 0.0f);
 					UnitAI->Isattack = false;
 				}
-
-
-				//判断攻击状态是否变化
-				//if (bOldIsattack != UnitAI->Isattack) {
-				//	bOldIsattack = UnitAI->Isattack;
-				//	//若变化为停止攻击，停止蒙太奇播放
-				//	if (bOldIsattack == false)
-				//		if (URuleOfAnimInstance* AnimInstance = Cast<URuleOfAnimInstance>(UnitAI->GetMesh()->GetAnimInstance()))
-				//			if(UAnimMontage* CurrentMontage = AnimInstance->GetCurrentActiveMontage())
-				//				AnimInstance->Montage_Stop(0.1f, CurrentMontage);
-				//}
 			}
-
 
 			//临时设置最终目标位置  测试
 			MyBlackBoard->SetValueAsVector(BlackBoardKey_FinalTargetLocation.SelectedKeyName, FVector(-7000,-7620,0));

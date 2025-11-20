@@ -310,23 +310,23 @@ void ASelectionManager::GenerateAndAssignScatteredTargets(FVector CenterPos, UWo
     }  
 
     // 8. 调试：在所有点位生成标识物
-    if (!GetWorld()) return;
-    FRotator SpawnRotation = FRotator::ZeroRotator;  // 零旋转
-    FActorSpawnParameters SpawnParams;
-    SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;  // 若碰撞则调整位置，无法调整则不生成
+    //if (!GetWorld()) return;
+    //FRotator SpawnRotation = FRotator::ZeroRotator;  // 零旋转
+    //FActorSpawnParameters SpawnParams;
+    //SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;  // 若碰撞则调整位置，无法调整则不生成
 
-    //生成周围点位
-    for (FVector Temp : ValidPoints) {
-        FVector SpawnLocation = Temp;
-        FVector SpawnScale = FVector(0.2f, 0.2f, 0.2f);
-        FTransform SpawnTransform(SpawnRotation, SpawnLocation, SpawnScale);
-        GetWorld()->SpawnActor<ARuleOfCharacter>(ATowers::StaticClass(), SpawnTransform, SpawnParams);
-    }
-    //生成点击位置
-    FVector SpawnLocation = CenterPos;
-    FVector SpawnScale = FVector(0.2f, 0.2f, 0.8f);
-    FTransform SpawnTransform(SpawnRotation, SpawnLocation, SpawnScale);
-    GetWorld()->SpawnActor<ARuleOfCharacter>(ATowers::StaticClass(), SpawnTransform, SpawnParams);
+    ////生成周围点位
+    //for (FVector Temp : ValidPoints) {
+    //    FVector SpawnLocation = Temp;
+    //    FVector SpawnScale = FVector(0.2f, 0.2f, 0.2f);
+    //    FTransform SpawnTransform(SpawnRotation, SpawnLocation, SpawnScale);
+    //    GetWorld()->SpawnActor<ARuleOfCharacter>(ATowers::StaticClass(), SpawnTransform, SpawnParams);
+    //}
+    ////生成点击位置
+    //FVector SpawnLocation = CenterPos;
+    //FVector SpawnScale = FVector(0.2f, 0.2f, 0.8f);
+    //FTransform SpawnTransform(SpawnRotation, SpawnLocation, SpawnScale);
+    //GetWorld()->SpawnActor<ARuleOfCharacter>(ATowers::StaticClass(), SpawnTransform, SpawnParams);
 
 }
 

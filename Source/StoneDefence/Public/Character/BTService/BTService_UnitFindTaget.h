@@ -28,6 +28,9 @@ public:
 	struct FBlackboardKeySelector BlackBoardKey_TargetLocation;
 
 	UPROPERTY(EditAnywhere, Category = "BlackBoard")
+	struct FBlackboardKeySelector BlackBoardKey_AttackLocationForTarget;
+
+	UPROPERTY(EditAnywhere, Category = "BlackBoard")
 	struct FBlackboardKeySelector BlackBoardKey_FinalTargetLocation;
 
 private:

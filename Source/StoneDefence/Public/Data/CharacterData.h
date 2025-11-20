@@ -106,6 +106,8 @@ public:
 		FRotator Rotator;
 	UPROPERTY()
 		FVector LocationToMove;
+	UPROPERTY()
+		FVector LastLocationToMove;
 
 	TEnumAsByte<ETeam> Team;
 

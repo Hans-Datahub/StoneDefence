@@ -29,6 +29,7 @@ void UBTService_HandleLocationToMoveFromPlayer::TickNode(UBehaviorTreeComponent&
 				if (TempSaveData->CharacterDatas.Contains(ServiceOwner->GUID)) {			
 					FCharacterData& CharacterData = TempGameState->GetCharacterData(ServiceOwner->GUID);
 					FVector TargetLocationToMove = CharacterData.LocationToMove;
+					FVector LastLocationToMove = CharacterData.LastLocationToMove;
 					//传值
 					BlackBoard->SetValueAsVector(BlackBoardKey_LocationToMove.SelectedKeyName, TargetLocationToMove);
 					
@@ -37,7 +38,7 @@ void UBTService_HandleLocationToMoveFromPlayer::TickNode(UBehaviorTreeComponent&
 					/*--------------*/
 					//若位置改变，判断位 置为true
 					if (LastLocationToMove != TargetLocationToMove) {
-						LastLocationToMove = TargetLocationToMove;
+						CharacterData.LastLocationToMove = TargetLocationToMove;
 						bIsLastLocationChanged = true;
 					}
 					if (bIsLastLocationChanged) {
