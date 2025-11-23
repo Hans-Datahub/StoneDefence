@@ -33,6 +33,12 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Steering|Weight")
         float SeparationWeight = 2.5f; // 分离行为权重（通常比寻路高）
 
+    UPROPERTY(EditAnywhere, Category = "Steering|Priority")
+        float AvoidancePriorityWeight = 0.8f; // 避障优先级权重
+
+    UPROPERTY(EditAnywhere, Category = "Steering|Priority")
+        float SeparationPriorityWeight = 0.6f; // 分离优先级权重
+
     
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Steering|ObstacleAvoidForce")
@@ -50,14 +56,16 @@ public:
         TSubclassOf<AActor> SeparationActorClass; // 需要分离的Actor类型
 
 
-    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Steering|Damping")
+        float SmoothFactor = 0.2f; // 平滑因子（0-1，越小越平滑）
 
 private:
+
     // 目标和路径数据
     TArray<FVector> PathPoints;
     int32 CurrentWaypointIndex = 0;
 
-    
+    FVector LastSteeringForce; // 上一帧的转向力
     
 
 

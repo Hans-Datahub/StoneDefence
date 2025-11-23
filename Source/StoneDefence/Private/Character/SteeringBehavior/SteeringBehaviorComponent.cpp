@@ -14,6 +14,8 @@
 USteeringBehaviorComponent::USteeringBehaviorComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+
+    LastSteeringForce = FVector::ZeroVector;
 }
 
 
@@ -34,19 +36,55 @@ void USteeringBehaviorComponent::TickComponent(float DeltaTime, ELevelTick TickT
 
 FVector USteeringBehaviorComponent::CalculateSteeringForce(FVector TargetLocation)
 {
+    // 1. 分别计算各种行为力
+    FVector SeekForce = (!TargetLocation.IsZero()) ? Seek(TargetLocation).GetSafeNormal() * SeekWeight : FVector::ZeroVector;
+    FVector PathFollowForce = (PathPoints.Num() > 0) ? FollowPath().GetSafeNormal() * PathFollowWeight : FVector::ZeroVector;
+    FVector AvoidForce = AvoidObstacles().GetSafeNormal() * AvoidanceWeight;
+    FVector SeparateForce = Separation().GetSafeNormal() * SeparationWeight;
+
+    // 2. 行为优先级融合
     FVector TotalForce = FVector::ZeroVector;
 
-    // 组合各种行为
-    if (!TargetLocation.IsZero())
-        TotalForce += Seek(TargetLocation).GetSafeNormal() * SeekWeight;
+    // 避障力最高优先级
+    if (AvoidForce.SizeSquared() > 0.1f)
+    {
+        TotalForce = AvoidForce * AvoidancePriorityWeight;
+        // 混合主要目标力，避免完全偏离
+        TotalForce += (SeekForce + PathFollowForce).GetSafeNormal() * SeekWeight * (1 - AvoidancePriorityWeight);
+    }
+    // 分离力次优先级
+    else if (SeparateForce.SizeSquared() > 0.1f)
+    {
+        TotalForce = SeparateForce * SeparationPriorityWeight;
+        TotalForce += (SeekForce + PathFollowForce).GetSafeNormal() * SeekWeight * (1 - SeparationPriorityWeight);
+    }
+    // 常规寻路
+    else
+    {
+        TotalForce = SeekForce + PathFollowForce;
+    }
 
-    if (PathPoints.Num() > 0)
-        TotalForce += FollowPath().GetSafeNormal() * PathFollowWeight;
+    // 3. 应用平滑滤波（惯性）
+    if (LastSteeringForce.IsZero())
+    {
+        LastSteeringForce = TotalForce; // 初始化
+    }
+    else
+    {
+        TotalForce = FMath::Lerp(LastSteeringForce, TotalForce, SmoothFactor);
+    }
 
-    TotalForce += AvoidObstacles().GetSafeNormal() * AvoidanceWeight;
+    // 保存当前力用于下一帧
+    LastSteeringForce = TotalForce;
 
-    TotalForce += Separation().GetSafeNormal() * SeparationWeight;
+    // 4. 死区过滤：忽略微小的力
+    if (TotalForce.SizeSquared() < 0.01f)
+    {
+        LastSteeringForce = FVector::ZeroVector; // 重置
+        return FVector::ZeroVector;
+    }
 
+    // 5. 返回最终的带速度的力向量
     return TotalForce.GetSafeNormal() * MoveSpeed;
 }
 
@@ -173,7 +211,7 @@ FVector USteeringBehaviorComponent::CalculateAvoidanceForce(const FVector& Actor
     DrawDebugLine(
         GetWorld(),
         ActorLocation,
-        ActorLocation + AvoidanceForce,
+        ActorLocation + AvoidanceForce * 3,
         FColor::Green,
         false,
         0.5f,
