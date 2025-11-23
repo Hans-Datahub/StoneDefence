@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Character/CharacterCore/Monsters.h"
+#include "Character/CharacterCore/Units.h"
 #include "Militia.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class STONEDEFENCE_API AMilitia : public AMonsters
+class STONEDEFENCE_API AMilitia : public AUnits
 {
 	GENERATED_BODY()
 

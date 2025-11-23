@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Character/CharacterCore/Monsters.h"
+#include "Character/CharacterCore/Units.h"
 #include "Marine.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class STONEDEFENCE_API AMarine : public AMonsters
+class STONEDEFENCE_API AMarine : public AUnits
 {
 	GENERATED_BODY()
 	

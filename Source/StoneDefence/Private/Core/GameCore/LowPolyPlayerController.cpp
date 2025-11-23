@@ -284,49 +284,10 @@ void ALowPolyPlayerController::CheckRightClickNavMeshPosition()
     }
 
     // 根据结果执行后续逻辑（示例：输出日志）
-    if (bIsInNavMesh)
-    {
-        //UE_LOG(LogTemp, Log, TEXT("右键点击位置在NavMesh中：%s"), *ClickWorldPos.ToString());
-
-        if (ALowPolyGameState* TempState = GetWorld()->GetGameState<ALowPolyGameState>()) {
+    if (bIsInNavMesh) {
+        if (ALowPolyGameState* TempState = GetWorld()->GetGameState<ALowPolyGameState>())
             if (ASelectionManager* SelManager = GetSelectionManager())
-            {
                 SelManager->GenerateAndAssignScatteredTargets(ClickWorldPos, GetWorld(), 50.f);
-
-                const TArray<USelectableComponent*>& SelectedComponents = SelManager->CurrentlySelectedUnits;
-                for (USelectableComponent* SelComp : SelectedComponents)
-                {
-                    if (!SelComp) continue; // 跳过空组件
-
-                    // 从组件获取所属的Actor（ARuleOfCharacter）
-                    ARuleOfCharacter* ComponentOwner = Cast<ARuleOfCharacter>(SelComp->GetOwner());
-                    if (!ComponentOwner)
-                    {
-                        UE_LOG(LogTemp, Warning, TEXT("选中的组件不属于ARuleOfCharacter类型"));
-                        continue;
-                    }
-
-                    // 确保GUID有效
-                    if (!ComponentOwner->GUID.IsValid())
-                    {
-                        UE_LOG(LogTemp, Warning, TEXT("单位 %s 的GUID无效"), *ComponentOwner->GetName());
-                        continue;
-                    }
-
-                    // 更新CharacterData中的移动目标
-                    FCharacterData& CharacterData = TempState->GetCharacterData(ComponentOwner->GUID);
-                    if (CharacterData.IsValid())
-                    {
-                        CharacterData.LocationToMove = ClickWorldPos;
-                        UE_LOG(LogTemp, Log, TEXT("Task:点击位置已传输至CharacterData.LocationToMove"));
-                    }
-                    else
-                    {
-                        UE_LOG(LogTemp, Error, TEXT("未找到GUID为 %s 的CharacterData,目标移动位置读写失败"), *ComponentOwner->GUID.ToString());
-                    }
-                }
-            }
-        }        
     }
     else
     {

@@ -301,33 +301,23 @@ void ASelectionManager::GenerateAndAssignScatteredTargets(FVector CenterPos, UWo
     for (int32 i = 0; i < CurrentlySelectedUnits.Num(); i++) {
         if (ARuleOfCharacter* Unit = Cast<ARuleOfCharacter>(CurrentlySelectedUnits[i]->GetOwner())) {
             if (ALowPolyGameState* TempState = GetWorld()->GetGameState<ALowPolyGameState>()) {
-                FCharacterData CharacterData = TempState->GetCharacterData(Unit->GUID);
+                FCharacterData& CharacterData = TempState->GetCharacterData(Unit->GUID);
                 CharacterData.LocationToMove = ValidPoints[i];
-                UE_LOG(LogTemp, Log, TEXT("Task:LocationToMove已分配"));
-                
+                UE_LOG(LogTemp, Log, TEXT("SelectionManager: %s's Location is set to %s"), *Unit->GetName(), *ValidPoints[i].ToString());
+
+                // 调试绘制：在障碍物位置画红色球体
+                DrawDebugSphere(
+                    GetWorld(),
+                    ValidPoints[i],
+                    10.0f,
+                    12,
+                    FColor::Red,
+                    false,
+                    0.5f
+                );
             }
         }
     }  
-
-    // 8. 调试：在所有点位生成标识物
-    //if (!GetWorld()) return;
-    //FRotator SpawnRotation = FRotator::ZeroRotator;  // 零旋转
-    //FActorSpawnParameters SpawnParams;
-    //SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;  // 若碰撞则调整位置，无法调整则不生成
-
-    ////生成周围点位
-    //for (FVector Temp : ValidPoints) {
-    //    FVector SpawnLocation = Temp;
-    //    FVector SpawnScale = FVector(0.2f, 0.2f, 0.2f);
-    //    FTransform SpawnTransform(SpawnRotation, SpawnLocation, SpawnScale);
-    //    GetWorld()->SpawnActor<ARuleOfCharacter>(ATowers::StaticClass(), SpawnTransform, SpawnParams);
-    //}
-    ////生成点击位置
-    //FVector SpawnLocation = CenterPos;
-    //FVector SpawnScale = FVector(0.2f, 0.2f, 0.8f);
-    //FTransform SpawnTransform(SpawnRotation, SpawnLocation, SpawnScale);
-    //GetWorld()->SpawnActor<ARuleOfCharacter>(ATowers::StaticClass(), SpawnTransform, SpawnParams);
-
 }
 
 TArray<FVector> ASelectionManager::GenerateCandidatePoints(FVector TargetCenter, int32 UnitCount, float MinSafeDistance)

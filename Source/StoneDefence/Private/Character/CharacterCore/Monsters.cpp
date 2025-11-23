@@ -24,19 +24,19 @@ void AMonsters::BeginPlay() {
 void AMonsters::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 
-	//速度设定
-	ATD_GameState* TempGameState = GetWorld()->GetGameState<ATD_GameState>();
+	////速度设定
+	//ATD_GameState* TempGameState = GetWorld()->GetGameState<ATD_GameState>();
 
-	if (TempGameState) {
-		if (isFreezed != TempGameState->GetGameData().bTimeFreezed){//当自身冻结状态和世界冻结状态不匹配，判断解or冻结
-			//能执行进来就是不匹配
-			if (isFreezed == true)
-				GetCharacterMovement()->MaxWalkSpeed = 600.f;//解冻
-			else
-				GetCharacterMovement()->MaxWalkSpeed = 0.f;//冻结
-			isFreezed = !isFreezed;//更新自身冻结状态
-		}	
-	}
+	//if (TempGameState) {
+	//	if (isFreezed != TempGameState->GetGameData().bTimeFreezed){//当自身冻结状态和世界冻结状态不匹配，判断解or冻结
+	//		//能执行进来就是不匹配
+	//		if (isFreezed == true)
+	//			GetCharacterMovement()->MaxWalkSpeed = 600.f;//解冻
+	//		else
+	//			GetCharacterMovement()->MaxWalkSpeed = 0.f;//冻结
+	//		isFreezed = !isFreezed;//更新自身冻结状态
+	//	}	
+	//}
 }
 
 EGameCharacterType::Type AMonsters::GetCharacterType() {

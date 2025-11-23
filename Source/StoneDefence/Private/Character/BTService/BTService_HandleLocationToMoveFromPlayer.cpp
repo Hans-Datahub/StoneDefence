@@ -28,11 +28,13 @@ void UBTService_HandleLocationToMoveFromPlayer::TickNode(UBehaviorTreeComponent&
 				
 				if (TempSaveData->CharacterDatas.Contains(ServiceOwner->GUID)) {			
 					FCharacterData& CharacterData = TempGameState->GetCharacterData(ServiceOwner->GUID);
+
 					FVector TargetLocationToMove = CharacterData.LocationToMove;
 					FVector LastLocationToMove = CharacterData.LastLocationToMove;
 					//传值
 					BlackBoard->SetValueAsVector(BlackBoardKey_LocationToMove.SelectedKeyName, TargetLocationToMove);
-					
+					UE_LOG(LogTemp, Log, TEXT("HandleLocationFromPlayer: %s 's Location is set to %s"), *ServiceOwner->GetName(), *TargetLocationToMove.ToString());
+
 					/*--------------*/
 					//更新HasMoveOrder
 					/*--------------*/
@@ -43,7 +45,7 @@ void UBTService_HandleLocationToMoveFromPlayer::TickNode(UBehaviorTreeComponent&
 					}
 					if (bIsLastLocationChanged) {
 						BlackBoard->SetValueAsBool(BlackBoardKey_HasMoveOrder.SelectedKeyName, true);
-						UE_LOG(LogTemp, Log, TEXT("Task:黑板值已设置true"));
+						
 						bIsLastLocationChanged = false;//数据更新后，判断位 置false
 						//动画蓝图状态更新
 						if (UMilitiaAnimInstance* AnimInstance = Cast<UMilitiaAnimInstance>(ServiceOwner->GetMesh()->GetAnimInstance()))
