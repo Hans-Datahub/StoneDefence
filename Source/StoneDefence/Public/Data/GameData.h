@@ -141,9 +141,7 @@ struct FGameInstanceDatas : public FTableRowBase
 
 //---------------------------------------------------------------//
 
-	void InitFromGameState(ALowPolyGameState* GameState, const FString& LevelName = TEXT("Level0"));
-
-
+	void InitLevelData(ALowPolyGameState* GameState, bool bLoadFromSave);
 
 
 	int32 GetRemainMobNumbers();

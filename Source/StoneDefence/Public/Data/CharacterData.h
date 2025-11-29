@@ -109,6 +109,7 @@ public:
 	UPROPERTY()
 		FVector LastLocationToMove;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Team")
 	TEnumAsByte<ETeam> Team;
 
 

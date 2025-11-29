@@ -22,7 +22,7 @@ void ALowPolyGameState::BeginPlay() {
 	GetMarineDataArrayFromTable();
 	GetLevelDataArrayFromTable();
 
-	AssignExistedUnit();
+	//AssignExistedUnit();
 }
 
 void ALowPolyGameState::AssignExistedUnit() {

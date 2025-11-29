@@ -36,3 +36,7 @@ void ARuleOfHUD::UpdatePlayerSkillSlot(const FGuid& PlayerSkillSlotGUID, bool bI
 		MainScreen->UpdatePlayerSkillSlot(PlayerSkillSlotGUID, bInCD);
 	}
 }
+
+UUI_MainScreen* ARuleOfHUD::GetMainScreen() {
+	return MainScreen;
+}

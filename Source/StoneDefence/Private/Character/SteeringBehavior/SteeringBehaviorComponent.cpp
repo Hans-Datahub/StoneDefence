@@ -8,7 +8,7 @@
 #include "Character/Core/RuleOfCharacter.h"
 #include "NavigationSystem.h" 
 #include "NavigationPath.h"
-
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values for this component's properties
 USteeringBehaviorComponent::USteeringBehaviorComponent()
@@ -378,3 +378,11 @@ bool USteeringBehaviorComponent::CalculatePathToLocation(const FVector& TargetLo
     return false;
 }
 
+
+
+bool USteeringBehaviorComponent::CheckAndApplyAvoidance()
+{
+ 
+
+    return false; // 没有需要避让的情况
+}

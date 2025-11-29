@@ -3,6 +3,7 @@
 #pragma once
 
 #include "ArchiveDelegate.h"
+#include "Core/SimpleArchivesGlobalVariable.h"
 
 UArchiveDelegate* UArchiveDelegate::Instance = nullptr;
 
@@ -29,4 +30,9 @@ void UArchiveDelegate::Shutdown()
         Instance->RemoveFromRoot();
         Instance = nullptr;
     }
+}
+
+int32 UArchiveDelegate::GetCurrentSlotIndex() const
+{
+    return SimpleSlotIndex; // 插件原有全局变量
 }

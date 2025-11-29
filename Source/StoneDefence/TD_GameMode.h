@@ -36,16 +36,16 @@ public:
 	
 	
 protected:
-	ARuleOfCharacter* SpawnCharacter(int32 CharacterID, UDataTable* InCharacterData, const FVector& Location, const FRotator& Rotator, int32 CharacterLevel = 1/*, const FGuid& InCharacterGuid*/);
-	
+	ARuleOfCharacter* SpawnStandardCharacterFromTable(int32 CharacterID, UDataTable* InCharacterData, const FVector& Location, const FRotator& Rotator, int32 CharacterLevel = 1/*, const FGuid& InCharacterGuid*/);
+	ARuleOfCharacter* SpawnCharacterWithData(const FCharacterData& CharacterData, const FVector& Location, const FRotator& Rotator, int32 CharacterLevel = 1);
 	template<class T>
-	T* SpawnCharacter(int32 CharacterID, UDataTable* InCharacterData, const FVector& Loction, const FRotator& Rotator, int32 CharacterLevel = 1/*, const FGuid& InCharacterGuid = FGuid()*/)
+	T* SpawnStandardCharacterFromTable(int32 CharacterID, UDataTable* InCharacterData, const FVector& Loction, const FRotator& Rotator, int32 CharacterLevel = 1/*, const FGuid& InCharacterGuid = FGuid()*/)
 	{
-		return Cast<T>(SpawnCharacter(CharacterID, InCharacterData, Loction, Rotator, CharacterLevel/*, InCharacterGuid*/));
+		return Cast<T>(SpawnStandardCharacterFromTable(CharacterID, InCharacterData, Loction, Rotator, CharacterLevel/*, InCharacterGuid*/));
 	}
 
-	virtual AMilitia* SpawnMilitia(int32 CharacterID, const FVector& Location, const FRotator& Rotator, int32 CharacterLevel = 1/*, const FGuid& Guid*/) { return nullptr; };
-	virtual AMarine* SpawnMarine(int32 CharacterID, const FVector& Location, const FRotator& Rotator, int32 CharacterLevel = 1/*, const FGuid& Guid*/) { return nullptr; };
+	virtual AMilitia* SpawnMilitia(const FCharacterData& CharacterData, const FVector& Location, const FRotator& Rotator, int32 CharacterLevel = 1){ return nullptr; };
+	virtual AMarine* SpawnMarine(const FCharacterData& CharacterData, const FVector& Location, const FRotator& Rotator, int32 CharacterLevel = 1) { return nullptr; };
 	void SpawnTowerRule();
 	void SpawnMainTowerRule();
 
@@ -62,4 +62,5 @@ protected:
 	void UpdateInventory(float DeltaSeconds);
 
 	int32 GetTowerDifficultyParam_Level(UWorld* InWorld);
+	FCharacterData GetCharacterDataByID(int32 ID, UDataTable* DataTable);
 };

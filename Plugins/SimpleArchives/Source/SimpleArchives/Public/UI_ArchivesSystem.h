@@ -36,6 +36,11 @@ class SIMPLEARCHIVES_API UUI_ArchivesSystem : public UUI_ArchivesWidget
 
 	UPROPERTY(EditDefaultsOnly, Category = UI)
 	TSubclassOf<UUI_ArchivesBar> ArchivesBarClass;
+
+public:
+	int CurrentSaveSlot;
+
+
 public:
 	void InitArchivesSystem(EArchivesState ArchivesState);
 

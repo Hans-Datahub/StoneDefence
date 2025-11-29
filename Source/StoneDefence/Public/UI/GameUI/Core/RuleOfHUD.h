@@ -19,7 +19,7 @@ public:
 	virtual void BeginPlay()override;
 	void UpdateInventorySlot(const FGuid& InventorySlotGUID, bool bInCD);
 	void UpdatePlayerSkillSlot(const FGuid& PlayerSkillSlotGUID, bool bInCD);
-
+	UUI_MainScreen* GetMainScreen();
 private:
 	TSubclassOf<UUI_MainScreen> MainScreenClass;
 	TSubclassOf<UUI_NativeOnDrop>NativeOnDropClass;

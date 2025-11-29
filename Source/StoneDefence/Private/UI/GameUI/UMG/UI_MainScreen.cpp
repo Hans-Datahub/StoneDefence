@@ -22,6 +22,7 @@
 #include "UI/GameUI/UMG/Inventory/UI_Inventory.h"
 #include "UI/GameUI/UMG/Inventory/UI_InventorySlot.h"
 #include "Data/Save/GameSaveData.h"
+#include "Core/GameCore/TD_GameInstance.h"
 
 class USD_DragDropOperation;
 struct FBuildingTowers;
@@ -152,9 +153,9 @@ void UUI_MainScreen::HideGameMenu()
 void UUI_MainScreen::SaveGame()
 {
 	HideGameMenu();
-	if (UUI_ArchivesSystem* ArchivesSystem = StoneDefenceUtils::CreateAssistWidget<UUI_MainScreen, UUI_ArchivesSystem>(this, ArchivesSystemClass, BoxList))
+	if (UUI_ArchivesSystem* TempArchivesSystem = StoneDefenceUtils::CreateAssistWidget<UUI_MainScreen, UUI_ArchivesSystem>(this, ArchivesSystemClass, BoxList))
 	{
-		ArchivesSystem->BindWindows(
+		TempArchivesSystem->BindWindows(
 			[&](FSimpleDelegate InDelegate)
 			{
 				SimplePopupUtils::CreatePopup(
@@ -221,8 +222,9 @@ void UUI_MainScreen::SubscribeToCloseEvent()
 		UArchiveDelegate* ArchivesDelegates = UArchiveDelegate::GetInstance();
 		if (ArchivesDelegates)
 		{
-			// 关键代码：订阅者将自己的处理函数绑定到代理
 			ArchivesDelegates->OnArchivesClosed.AddDynamic(this, &UUI_MainScreen::OnArchivesOrSettingsClosedHandler);
+			ArchivesDelegates->OnArchiveIndexChanged.AddDynamic(this, &UUI_MainScreen::OnArchiveIndexChangedHandler);
+
 		}
 	}
 
@@ -245,6 +247,8 @@ void UUI_MainScreen::UnsubscribeFromCloseEvent()
 		if (ArchivesDelegates)
 		{
 			ArchivesDelegates->OnArchivesClosed.RemoveDynamic(this, &UUI_MainScreen::OnArchivesOrSettingsClosedHandler);
+			ArchivesDelegates->OnArchiveIndexChanged.RemoveDynamic(this, &UUI_MainScreen::OnArchiveIndexChangedHandler);
+
 		}
 	}
 
@@ -260,11 +264,17 @@ void UUI_MainScreen::UnsubscribeFromCloseEvent()
 }
 
 
+
 void UUI_MainScreen::OnArchivesOrSettingsClosedHandler()
 {
-	// 订阅者行为：当代理事件触发时执行的处理逻辑
-	//ToggleGameMenuDisplay(); // 显示主菜单
-
 	ShowGameMenu();
 }
 
+void UUI_MainScreen::OnArchiveIndexChangedHandler(int32 NewSlotIndex)
+{	
+	// 同步到GameInstance（供GameMode读取）
+	if (UTD_GameInstance* GI = GetGameInstance<UTD_GameInstance>())
+	{
+		GI->SetCurrentSaveSlotNumber(NewSlotIndex);
+	}
+}

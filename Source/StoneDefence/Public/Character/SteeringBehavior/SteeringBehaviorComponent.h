@@ -33,11 +33,16 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Steering|Weight")
         float SeparationWeight = 2.5f; // 分离行为权重（通常比寻路高）
 
-    UPROPERTY(EditAnywhere, Category = "Steering|Priority")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Steering|Weight")
+        float IdleSeparationWeight = 2.0f;
+
+    UPROPERTY(EditAnywhere, Category = "Steering|Weight|Priority")
         float AvoidancePriorityWeight = 0.8f; // 避障优先级权重
 
-    UPROPERTY(EditAnywhere, Category = "Steering|Priority")
+    UPROPERTY(EditAnywhere, Category = "Steering|Weight|Priority")
         float SeparationPriorityWeight = 0.6f; // 分离优先级权重
+
+    
 
     
 
@@ -55,9 +60,16 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Steering|Separation")
         TSubclassOf<AActor> SeparationActorClass; // 需要分离的Actor类型
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Steering|Separation")
+        float IdleSeparationTriggerDistance = SeparationRadius * 0.8f;
+
+
+
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Steering|Damping")
         float SmoothFactor = 0.2f; // 平滑因子（0-1，越小越平滑）
+
+    
 
 private:
 
@@ -94,10 +106,13 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Steering")
         bool CalculatePathToLocation(const FVector& TargetLocation);
 
+    UFUNCTION(BlueprintCallable, Category = "Steering")
+        bool CheckAndApplyAvoidance();
+
     // 获取拥有者的Actor
     AActor* GetOwnerActor() const { return GetOwner(); }
 
-private:
+
     // 核心行为函数
     FVector Seek(const FVector& Target);
     FVector AvoidObstacles();

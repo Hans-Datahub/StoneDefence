@@ -7,6 +7,7 @@
 #include "../StoneDefenceMacro.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Core/GameCore/TD_PlayerController.h"
+#include "Core/GameCore/TD_GameInstance.h"
 
 
 //__pragma(optimize("", off))
@@ -84,9 +85,25 @@ void ATD_PlayerState::RequestInventorySlotSwap(const FGuid& A, const FGuid& B) {
 }
 
 UPlayerSaveData* ATD_PlayerState::GetSaveData() {
-	if (!SaveData) {
+	/*if (!SaveData) {
 		SaveData = Cast<UPlayerSaveData>(UGameplayStatics::CreateSaveGameObject(UPlayerSaveData::StaticClass()));
 	}
+	return SaveData;*/
+
+	//若有玩家数据实例直接返回
+	if (SaveData)return SaveData;
+
+	//若没有则通过Utils生成一个到PlayerState
+	if (!GetWorld()) return nullptr;
+	UTD_GameInstance* InGameInstance = GetWorld()->GetGameInstance<UTD_GameInstance>();
+	if (!InGameInstance) return nullptr;
+
+	SaveData = StoneDefenceUtils::GetSave<UPlayerSaveData>(
+		GetWorld(),
+		TEXT("PlayerData_%i"),
+		InGameInstance->GetCurrentSaveSlotNumber(),
+		InGameInstance->GetGameType()
+		);
 	return SaveData;
 }
 

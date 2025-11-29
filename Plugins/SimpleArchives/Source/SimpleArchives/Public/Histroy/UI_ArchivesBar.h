@@ -20,6 +20,7 @@ class SIMPLEARCHIVES_API UUI_ArchivesBar : public UUI_ArchivesWidget
 {
 	GENERATED_BODY()
 	
+public:
 	UPROPERTY(meta = (BindWidget))
 	UImage *GameThumbnail;
 

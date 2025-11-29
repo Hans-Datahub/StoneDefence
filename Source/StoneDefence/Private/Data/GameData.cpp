@@ -69,37 +69,37 @@ void FGameInstanceDatas::Init() {
 }
 
 // 实现从GameState初始化的方法
-void FGameInstanceDatas::InitFromGameState(ALowPolyGameState* GameState, const FString& LevelName) {
-	if (!GameState) {
-		UE_LOG(LogTemp, Warning, TEXT("FGameInstanceDatas::InitFromGameState - GameState is null!"));
-		return;
-	}
+void FGameInstanceDatas::InitLevelData(ALowPolyGameState* GameState, bool bLoadFromSave) {
+	if (!GameState)return;
 
-	// 从GameState获取指定关卡的数据
-	FGameInstanceDatas* LevelData = GameState->GetLevelDataByName(LevelName);
-
-	if (LevelData) {
-		// 使用数据表中的值更新当前实例
-		GameDifficulty = LevelData->GameDifficulty;
-		MaxNumberOfMonster = LevelData->MaxNumberOfMonster;
-		CurrentLevel = LevelData->CurrentLevel;
-		SpawnTimeInterval = LevelData->SpawnTimeInterval;
-		MaxStage = LevelData->MaxStage;
-		GameTimeCount = LevelData->GameTimeCount;
-		MaxGameTimeCount = LevelData->MaxGameTimeCount;
-		GlodGrowthTime = LevelData->GlodGrowthTime;
-		MaxGlodGrowthTime = LevelData->MaxGlodGrowthTime;
-		MaxNumberOfMilitia = LevelData->MaxNumberOfMilitia;
-		MaxNumberOfMarine = LevelData->MaxNumberOfMarine;
-		MilitiaMaxStage = LevelData->MilitiaMaxStage;
-		MarineMaxStage = LevelData->MarineMaxStage;
-		GapForSpawn = LevelData->GapForSpawn;
-
-		UE_LOG(LogTemp, Log, TEXT("FGameInstanceDatas initialized from GameState: Level %d"), CurrentLevel);
+	FGameInstanceDatas* LevelData;
+	if (bLoadFromSave) {
+		UGameSaveData* SaveData = GameState->GetSaveData();
+		if (!SaveData)return;
+		LevelData = &(SaveData->GameDatas);
 	}
 	else {
-		UE_LOG(LogTemp, Warning, TEXT("FGameInstanceDatas::InitFromGameState - Level data '%s' not found!"), *LevelName);
+		LevelData = GameState->GetLevelDataByName(TEXT("Level0"));
 	}
+
+	if (!LevelData)return;
+
+	GameDifficulty = LevelData->GameDifficulty;
+	MaxNumberOfMonster = LevelData->MaxNumberOfMonster;
+	CurrentLevel = LevelData->CurrentLevel;
+	SpawnTimeInterval = LevelData->SpawnTimeInterval;
+	MaxStage = LevelData->MaxStage;
+	GameTimeCount = LevelData->GameTimeCount;
+	MaxGameTimeCount = LevelData->MaxGameTimeCount;
+	GlodGrowthTime = LevelData->GlodGrowthTime;
+	MaxGlodGrowthTime = LevelData->MaxGlodGrowthTime;
+	MaxNumberOfMilitia = LevelData->MaxNumberOfMilitia;
+	MaxNumberOfMarine = LevelData->MaxNumberOfMarine;
+	MilitiaMaxStage = LevelData->MilitiaMaxStage;
+	MarineMaxStage = LevelData->MarineMaxStage;
+	GapForSpawn = LevelData->GapForSpawn;
+	TimeCountForSpawnGap = LevelData->TimeCountForSpawnGap;
+
 }
 
 bool FGameInstanceDatas::IsValid() {
@@ -169,7 +169,7 @@ void FGameInstanceDatas::AssignedMilitiaAmount() {
 			MilitiaNumberinCurrentStage.Add(CurrentStageAssignedMilitiaNum);
 		}
 	}
-	else//若只剩1人
+	else if (CurrentMilitiaNumber == 1)//若只剩1人
 		MilitiaNumberinCurrentStage.Add(1);
 
 	//初始化当前波数

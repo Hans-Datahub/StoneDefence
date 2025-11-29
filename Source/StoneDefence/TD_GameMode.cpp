@@ -13,7 +13,7 @@
 #include "Engine/World.h"
 #include "Core/GameCore/Synty_Camera.h"
 #include "Core/GameCore/TD_GameInstance.h"
-
+#include "Core/GameCore/LowPolyGameState.h"
 
 
 
@@ -198,12 +198,12 @@ int32 ATD_GameMode::GetTowerDifficultyParam_Level(UWorld* InWorld) {
 	return ReturnLevel;
 }
 
-ARuleOfCharacter* ATD_GameMode::SpawnCharacter(int32 CharacterID,
+ARuleOfCharacter* ATD_GameMode::SpawnStandardCharacterFromTable(int32 CharacterID,
 	UDataTable* InCharacterData,
 	const FVector& Location,
 	const FRotator& Rotator,
-	int32 CharacterLevel
-	/*const FGuid& InCharacterGuid*/) {
+	int32 CharacterLevel) {
+
 	ARuleOfCharacter* InCharacter = nullptr;
 	if (ATD_GameState* TempGameState = GetGameState<ATD_GameState>()) {
 		if (InCharacterData) {
@@ -220,12 +220,12 @@ ARuleOfCharacter* ATD_GameMode::SpawnCharacter(int32 CharacterID,
 			};
 
 			if (FCharacterData* CharacterData = GetCharacterData(CharacterID)) {
-				UClass* NewClass = CharacterData->CharacterBlueprintKey.LoadSynchronous();//负载同步
+				UClass* ClassData = CharacterData->CharacterBlueprintKey.LoadSynchronous();//负载同步
 				if (GetWorld())
-					if (ARuleOfCharacter* RuleOfCharacter = GetWorld()->SpawnActor<ARuleOfCharacter>(NewClass, Location, Rotator)) {
+					if (ARuleOfCharacter* RuleOfCharacter = GetWorld()->SpawnActor<ARuleOfCharacter>(ClassData, Location, Rotator)) {
 						//RuleOfCharacter->ResetGUID();
 						FCharacterData& CharacterDataInstance = TempGameState->AddCharacterData(RuleOfCharacter->GUID, *CharacterData);
-						CharacterDataInstance.UpdateHealth();
+						//CharacterDataInstance.UpdateHealth();
 
 						//初始化等级
 						if (CharacterLevel > 1) {
@@ -245,12 +245,49 @@ ARuleOfCharacter* ATD_GameMode::SpawnCharacter(int32 CharacterID,
 	return InCharacter;
 }
 
+ARuleOfCharacter* ATD_GameMode::SpawnCharacterWithData(
+	const FCharacterData& CharacterData,
+	const FVector& Location,
+	const FRotator& Rotator,
+	int32 CharacterLevel) {
+
+	ARuleOfCharacter* InCharacter = nullptr;
+	ATD_GameState* TempGameState = GetGameState<ATD_GameState>();
+	if (!TempGameState) return nullptr;
+	if (&CharacterData == nullptr) return nullptr;
+
+
+	UClass* ClassData = CharacterData.CharacterBlueprintKey.LoadSynchronous();//负载同步
+	if (GetWorld() && ClassData)
+		if (ARuleOfCharacter* RuleOfCharacter = GetWorld()->SpawnActor<ARuleOfCharacter>(ClassData, Location, Rotator)) {
+			FCharacterData& CharacterDataInstance = TempGameState->AddCharacterData(RuleOfCharacter->GUID, CharacterData);	
+
+			//初始化等级
+			if (CharacterLevel > 1) {
+				for (int32 i = 0; i < CharacterLevel; i++) {
+					CharacterDataInstance.UpdateExp(CharacterData.AddEmpiricalValue);
+				}
+			}
+			//初始化角色被动技能
+			RuleOfCharacter->InitPassiveSkill();
+			RuleOfCharacter->RegisterTeam();
+			InCharacter = RuleOfCharacter;
+		}
+	return InCharacter;
+}
+
+
+
+
+
+
 ATowers* ATD_GameMode::SpawnTower(int32 CharacterID,	
 	const FVector& Location,
 	const FRotator& Rotator,
 	int32 CharacterLevel
 	/*const FGuid& InCharacterGuid*/) {
-	return SpawnCharacter<ATowers>(CharacterID, GetGameState<ATD_GameState>()->AITowerCharacterData, Location, Rotator, CharacterLevel/*, InCharacterGuid*/);
+	//return SpawnCharacter<ATowers>(CharacterID, GetGameState<ATD_GameState>()->AITowerCharacterData, Location, Rotator, CharacterLevel/*, InCharacterGuid*/);
+	return nullptr;
 }
 
 AMonsters* ATD_GameMode::SpawnMonster(int32 CharacterID,
@@ -258,7 +295,8 @@ AMonsters* ATD_GameMode::SpawnMonster(int32 CharacterID,
 	const FRotator& Rotator,
 	int32 CharacterLevel
 	/*const FGuid& InCharacterGuid*/){
-	return SpawnCharacter<AMonsters>(CharacterID, GetGameState<ATD_GameState>()->AIMonsterCharacterData, Loction, Rotator, CharacterLevel/*, InCharacterGuid*/);
+	//return SpawnCharacter<AMonsters>(CharacterID, GetGameState<ATD_GameState>()->AIMonsterCharacterData, Loction, Rotator, CharacterLevel/*, InCharacterGuid*/);
+	return nullptr;
 }
 
 void ATD_GameMode::UpdateSkill(float DeltaSeconds) {
@@ -479,7 +517,9 @@ void ATD_GameMode::UpdateInventory(float DeltaSeconds) {
 						if (ETeam::BLUE == SpawnPoint->Team)
 							MarineSpawnPoints.Add(SpawnPoint);
 
-					AMarine* Marine = SpawnMarine(-1, FVector::ZeroVector, FRotator::ZeroRotator, 1);
+					UDataTable* MarineDataTable = GetGameState<ALowPolyGameState>()->AIMarineCharacterData;
+					FCharacterData MarineData = GetCharacterDataByID(-1, MarineDataTable); // 通过ID获取数据
+					AMarine* Marine = SpawnMarine(MarineData, FVector::ZeroVector, FRotator::ZeroRotator, 1);
 					if (Marine) {
 						ASpawnPoint* OneOfSpawnPoint = MarineSpawnPoints[FMath::RandRange(0, MarineSpawnPoints.Num() - 1)];
 						Marine->SetActorLocationAndRotation(OneOfSpawnPoint->GetActorLocation(), OneOfSpawnPoint->GetActorRotation());
@@ -579,3 +619,15 @@ void ATD_GameMode::UpdatePlayerSkill(float DeltaSeconds) {
 	}
 }
 
+FCharacterData ATD_GameMode::GetCharacterDataByID(int32 ID, UDataTable* DataTable)
+{
+	if (!DataTable) return FCharacterData();
+	TArray<FCharacterData*> Rows;
+	DataTable->GetAllRows(TEXT(""), Rows);
+	for (FCharacterData* Row : Rows) {
+		if (Row && Row->ID == ID) {
+			return *Row;
+		}
+	}
+	return FCharacterData();
+}

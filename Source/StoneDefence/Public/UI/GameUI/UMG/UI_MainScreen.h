@@ -92,9 +92,12 @@ public:
 
 						//--------------------------------代理部分--------------------------------//
 private:
-	// 订阅者核心方法：响应代理事件
+
+	// 响应代理事件
 	UFUNCTION()
 		void OnArchivesOrSettingsClosedHandler();  // 事件处理函数
+	UFUNCTION()
+		void OnArchiveIndexChangedHandler(int32 NewSlotIndex); // 序号变更
 
 		// 订阅者管理方法
 	void SubscribeToCloseEvent();    // 订阅事件

@@ -7,6 +7,7 @@
 #include "Components/Image.h"
 #include "Core/SimpleArchivesGlobalVariable.h"
 #include "Data/SimpleArchivesList.h"
+#include "ArchiveDelegate.h"
 
 #define LOCTEXT_NAMESPACE "ArchivesBar"
 
@@ -52,6 +53,13 @@ void UUI_ArchivesBar::ClickedCheckBox(bool ClickedWidget)
 	}
 
 	ReverseProxy.ExecuteIfBound();
+
+	//点击存档条触发 Index更新 多播
+	UArchiveDelegate* DelegateMgr = UArchiveDelegate::GetInstance();
+	if (DelegateMgr)
+	{
+		DelegateMgr->OnArchiveIndexChanged.Broadcast(SimpleSlotIndex);
+	}
 }
 
 void UUI_ArchivesBar::OnClickedWidgetDelete()

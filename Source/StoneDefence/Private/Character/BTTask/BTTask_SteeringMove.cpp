@@ -30,6 +30,7 @@ EBTNodeResult::Type UBTTask_SteeringMove::ExecuteTask(UBehaviorTreeComponent& Ow
         FVector SteeringForce = SteeringComponent->CalculateSteeringForce(TargetLocation);
 
         //应用转向力
+        //若有移动力
         if (!SteeringForce.IsZero())
         {   
             TargetUnit->AddMovementInput(SteeringForce);
@@ -40,6 +41,13 @@ EBTNodeResult::Type UBTTask_SteeringMove::ExecuteTask(UBehaviorTreeComponent& Ow
 
             MoveComp->bOrientRotationToMovement = true;//开启
             MoveComp->RotationRate = FRotator(0, 1080, 0);//设置速度
+        }
+        else//若已经停止移动（或者到达目标位置）
+        {
+            // 到达目标后，持续检测是否需要避让
+            SteeringComponent->CheckAndApplyAvoidance();
+            // 返回InProgress让行为树持续调用
+            return EBTNodeResult::InProgress;
         }
         return EBTNodeResult::Succeeded;
     }

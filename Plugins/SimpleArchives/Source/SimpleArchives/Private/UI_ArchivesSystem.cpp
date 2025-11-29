@@ -4,8 +4,10 @@
 #include "Histroy/UI_ArchivesBar.h"
 #include "Components/ScrollBox.h"
 #include "Components/Button.h"
+#include "Components/CheckBox.h"
 
 
+class UCheckBox;
 
 #if PLATFORM_WINDOWS
 #pragma optimize("",off) 
@@ -26,13 +28,22 @@ void UUI_ArchivesSystem::InitArchivesSystem(EArchivesState ArchivesState)
 
 void UUI_ArchivesSystem::LoadGame()
 {
-	if (ISimpleArchivesInterface * MyArchives = GetCurrentArchivesInterface())
-	{
-		if (MyArchives->OpenLevel(SimpleSlotIndex))
-		{
+	ISimpleArchivesInterface* MyArchives = GetCurrentArchivesInterface();
+	if (!MyArchives) return;
 
-		}
+	TArray<UUI_ArchivesBar*> InArchivesBars;
+	if (!GetArchivesBarArray(InArchivesBars)) return;
+
+	int BarIndex = 0;
+	for (UUI_ArchivesBar* OneOfBar : InArchivesBars){
+		if (OneOfBar->CheckBoxButton->IsChecked())
+			break;
+		BarIndex++;
 	}
+
+	CurrentSaveSlot = BarIndex;
+	SimpleSlotIndex = BarIndex;
+	MyArchives->OpenLevel(SimpleSlotIndex);
 }
 
 void UUI_ArchivesSystem::SaveGame() 
@@ -151,7 +162,7 @@ void UUI_ArchivesSystem::CallAllCkeckBox(UUI_ArchivesBar* OwnerArchivesBar)
 		if (Tmp != OwnerArchivesBar)
 		{
 			Tmp->SetCheckBoxState(ECheckBoxState::Unchecked);
-		}
+		}		
 	});
 }
 

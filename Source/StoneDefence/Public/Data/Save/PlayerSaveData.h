@@ -26,4 +26,7 @@ public:
 	TMap<FGuid, FPlayerSkillData> PlayerSkillDatas;
 
 	bool IsValid();
+
+	void InitSaveGame(UWorld* InWorld);
+	void InitSaveGameFromArchives(UWorld* InWorld);
 };
