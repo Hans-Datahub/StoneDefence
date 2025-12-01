@@ -60,4 +60,9 @@ float Value = SkillCD; \
 	} \
 return Value;
 
-#define GAMETHUMBNAIL_SCREENSHOT(InWidth,InHeight,InTexture,InOuter) (new RenderingUtils::FScreenShot(InWidth,InHeight,InTexture,InOuter))
+#define GAMETHUMBNAIL_SCREENSHOT(InWidth,InHeight,InTexture,InOuter) \
+	(new RenderingUtils::FScreenShot(InWidth,InHeight,InTexture,InOuter))
+
+// 新增带回调版本
+#define GAMETHUMBNAIL_SCREENSHOT_WITH_CALLBACK(InWidth,InHeight,InTexture,InOuter,OnComplete) \
+    (new RenderingUtils::FScreenShot(InWidth,InHeight,InTexture,InOuter,80,false,true,OnComplete))

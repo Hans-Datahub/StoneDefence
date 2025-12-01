@@ -97,45 +97,101 @@ UWorld* UTD_GameInstance::GetSimpleWorld() const
 	return GetWorld();
 }
 
-bool UTD_GameInstance::SaveGameData(int32 SaveNumber)
+bool UTD_GameInstance::SaveGameData(int32 SlotIndex, FArchivesScreenshotComplete OnScreenshotDone)
 {
 	bool bSave = false;
 
-	//游戏存储
-	if (ARuleOfTheGameState* InGameState = GetGameState())
-	{
-		if (FSaveSlot* InSlot = InGameState->GetSaveSlot(SaveNumber))
+	ARuleOfTheGameState* InGameState = GetGameState();
+	if (!InGameState) return bSave;
+	TWeakObjectPtr<ARuleOfTheGameState> WeakGameState = InGameState; // 弱引用，检测GameState是否存活 
+
+	//1. 游戏数据存储（GameData）
+	bSave = InGameState->SaveGameData(SlotIndex);
+
+	// 2. 获取存档槽引用
+	/*FSaveSlotList& TempSlotList = WeakGameState->GetSaveSlotList();
+	if (TempSlotList.Slots.Num() == 0) return bSave;
+	FSaveSlotList SlotListCopy = TempSlotList;*/
+
+	FSaveSlotList& RawSlotList = WeakGameState->GetSaveSlotList();
+	if (RawSlotList.Slots.Num() == 0) return bSave;
+
+	// 3. 创建主项目的截图回调
+	RenderingUtils::FOnScreenshotComplete InternalCallback;
+
+	// 捕获插件的回调和必要数据
+	InternalCallback.BindLambda([this, SlotIndex, OnScreenshotDone, WeakGameState, &RawSlotList](UTexture2D* GeneratedTexture) mutable
 		{
-			InSlot->DateText = FText::FromString(FDateTime::Now().ToString());
-			//InSlot->LevelName = LOCTEXT("LevelName", "TestMap");
-			InSlot->LevelName = FText::FromString(GetWorld()->GetMapName().Replace(*GetWorld()->StreamingLevelsPrefix, TEXT("")));
-			InSlot->ChapterName = LOCTEXT("ChapterName", "Hello World~~");
-			InSlot->GameThumbnail.ReleaseResources();
-			InSlot->GameThumbnail.ScrPath = GAMETHUMBNAIL_SCREENSHOT(
+			//FSaveSlot& SaveSlot = RawSlotList.Slots[SlotIndex];
+			FSaveSlot& SaveSlot = RawSlotList.Slots[SlotIndex];
+
+			// 3.1 保存其他游戏数据
+			SaveSlot.DateText = FText::FromString(FDateTime::Now().ToString());
+			SaveSlot.LevelName = FText::FromString(GetWorld()->GetMapName().Replace(*GetWorld()->StreamingLevelsPrefix, TEXT("")));
+			SaveSlot.ChapterName = LOCTEXT("ChapterName", "Hello World~~");		
+			SaveSlot.bSave = true;
+
+			// 3.2使用带回调的截图
+			
+			/*SaveSlot.GameThumbnail.ScrPath = GAMETHUMBNAIL_SCREENSHOT_WITH_CALLBACK(
 				400, 200,
-				InSlot->GameThumbnail.GameThumbnail,
-				GetWorld())->GetFilename();
+				SaveSlot.GameThumbnail.GameThumbnail,
+				GetWorld(),
+				OnScreenshotDone)->GetFilename();*/
+			SaveSlot.GameThumbnail.GameThumbnail = GeneratedTexture;
+			SaveSlot.GameThumbnail.ScrPath = FPaths::ProjectSavedDir() / TEXT("SaveGames") / GeneratedTexture->GetName() + TEXT(".jpg");
 
-			bSave = InGameState->SaveGameData(SaveNumber);
+			// 3.3 更新SaveList，用于主菜单存档页面数据调用
+			RawSlotList.Slots.Add(SlotIndex, SaveSlot);
+			RawSlotList.DegreeOfCompletion.Add(SlotIndex, 0);
+
+			// 3.4 保存到磁盘
+			// UGameplayStatics::SaveGameToSlot(...);
+
+			// ============================================================
+			// 关键：调用插件传入的回调，通知UI更新
+			// ============================================================
+			if (OnScreenshotDone.IsBound())
+			{
+				OnScreenshotDone.Execute(GeneratedTexture);
+			}
+
+			//SaveSlot.GameThumbnail.ReleaseResources();
 
 
-			//更新SaveList，用于主菜单存档页面数据调用
-			FSaveSlotList& InSlotList = InGameState->GetSaveSlotList();
-			InSlotList.Slots.Add(SaveNumber, *InSlot);
-			InSlotList.DegreeOfCompletion.Add(SaveNumber, 0);
-		}
+		});
 
-		
-	}
+	// 4. 发起截图请求
+	// 校验
+	//UTexture2D* TargetTexture = nullptr;
+	//auto TempSlotSet = RawSlotList.Slots;
+	//if (IsValid(RawSlotList.Slots[SlotIndex].GameThumbnail.GameThumbnail))
+	//	TargetTexture = RawSlotList.Slots[SlotIndex].GameThumbnail.GameThumbnail;
+	UTexture2D*& TargetTexture = RawSlotList.Slots[SlotIndex].GameThumbnail.GameThumbnail; // 取原始纹理的引用
+	
+	// 使用主项目的 RenderingUtils::FScreenShot
+	RenderingUtils::FScreenShot* ScreenshotInstance = new RenderingUtils::FScreenShot(
+		400,                           // 宽度
+		200,                           // 高度
+		TargetTexture,   // 输出纹理引用
+		this,                          // Outer
+		80,                            // JPEG质量
+		false,                         // 不显示UI
+		false,                          // 添加文件名后缀
+		InternalCallback               // 完成回调
+	);
+	//在上面的InternalCallback绑定的Lambda中无法获取外部的ScreenshotInstance里的FileName，所以在这儿获取
+	//RawSlotList.Slots[SlotIndex].GameThumbnail.ScrPath = ScreenshotInstance->GetFilename();
 
-	//玩家数据存储
+	// 5. 玩家数据存储（PlayerData）
 	StoneDefenceUtils::CallUpdateAllBaseClient(GetSafeWorld(), [&](APlayerController* InPlayerController)
 		{
 			if (ARuleOfThePlayerState* InState = InPlayerController->GetPlayerState<ARuleOfThePlayerState>())
 			{
-				bSave = InState->SaveGameData(SaveNumber);
+				bSave = InState->SaveGameData(SlotIndex);
 			}
 		});
+
 
 	return bSave;
 }

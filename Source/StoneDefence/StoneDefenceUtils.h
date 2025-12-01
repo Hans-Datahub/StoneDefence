@@ -194,6 +194,11 @@ namespace MeshUtils {
 
 namespace RenderingUtils
 {
+	// 新增：截图完成委托
+	DECLARE_DELEGATE_OneParam(FOnScreenshotComplete, UTexture2D* /*Texture*/);
+
+	
+
 	struct FScreenShot
 	{
 		FScreenShot(
@@ -203,9 +208,14 @@ namespace RenderingUtils
 			UObject* InOuter,
 			int32 InImageQuality = 80,
 			bool bInShowUI = false,
-			bool bAddFilenameSuffix = true);
+			bool bAddFilenameSuffix = true,
+			FOnScreenshotComplete InOnComplete = FOnScreenshotComplete()  // 新增参数
+		);
 
 		FString& GetFilename() { return Filename; }
+
+		static bool  IsScreenshotInProgress() { return  bScreenshotInProgress; }
+
 	protected:
 		void OnScreenshotCapturedInternal(int32 SrcWidth, int32 SrcHeight, const TArray<FColor>& OrigBitmap);
 	private:
@@ -216,7 +226,10 @@ namespace RenderingUtils
 		int32 ImageQuality;
 		UObject* Outer;
 		FString Filename;
+		FOnScreenshotComplete OnComplete;  // 新增
+		static bool bScreenshotInProgress;
 	};
+
 
 	ASceneCapture2D* SpawnSceneCapture2D(UWorld* World, UClass* SceneCaptureClass, FMapSize& MapSize, float Life = 0.f);
 }

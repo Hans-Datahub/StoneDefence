@@ -46,31 +46,47 @@ void UUI_ArchivesSystem::LoadGame()
 	MyArchives->OpenLevel(SimpleSlotIndex);
 }
 
-void UUI_ArchivesSystem::SaveGame() 
+void UUI_ArchivesSystem::SaveGame()
 {
-	if (SimpleSlotIndex != INDEX_NONE)
-	{
-		if (ISimpleArchivesInterface * ArchInterface = GetCurrentArchivesInterface())
-		{
-			if (ArchInterface->SaveGameData(SimpleSlotIndex))
+	if (SimpleSlotIndex == INDEX_NONE) return;
+
+	ISimpleArchivesInterface* ArchInterface = GetCurrentArchivesInterface();
+	if (!ArchInterface)return;
+
+	// 创建截图完成回调
+	// 注意：我们需要捕获 SimpleSlotIndex 的当前值，因为它可能在回调执行前改变
+	const int32 CapturedSlotIndex = SimpleSlotIndex;
+
+	// 绑定截图完成回调
+	FArchivesScreenshotComplete OnScreenshotDone;
+	OnScreenshotDone.BindLambda([this, CapturedSlotIndex, ArchInterface](UTexture2D* NewTexture) {
+		
+		// 1. 获取存档接口（需要重新获取，因为这是异步回调）
+		ISimpleArchivesInterface* CallbackArchInterface = GetCurrentArchivesInterface();
+		if (!CallbackArchInterface) return;
+
+		// 2. 获取对应的存档槽数据
+		FSaveSlot* InSlot = ArchInterface->GetSaveSlot(CapturedSlotIndex);
+		if (!InSlot) return;
+
+		// 3. 更新UI显示
+		// 遍历所有存档条目，找到对应槽位并更新其显示
+		CallAllArchivesBarBreak([this, CapturedSlotIndex, InSlot, NewTexture](UUI_ArchivesBar* Tmp) -> bool
 			{
-				if (FSaveSlot *InSlot = ArchInterface->GetSaveSlot(SimpleSlotIndex))
+				if (Tmp->SlotIndex == CapturedSlotIndex)
 				{
-					CallAllArchivesBarBreak([&](UUI_ArchivesBar *Tmp)
-					{
-						if (Tmp->SlotIndex == SimpleSlotIndex)
-						{
-							ResetArchivesBar(Tmp, InSlot);
-
-							return true;
-						}
-
-						return false;
-					});
+					ResetArchivesBar(Tmp, InSlot);
+					Tmp->SetGameThumbnail(NewTexture);
+					return true;
 				}
-			}
-		}
-	}
+
+				return false;
+			});
+
+	});
+	// 调用带回调的SaveGameData
+	ArchInterface->SaveGameData(CapturedSlotIndex, OnScreenshotDone);
+	
 }
 
 void UUI_ArchivesSystem::CloseArchivesSystem() {
@@ -199,12 +215,10 @@ void UUI_ArchivesSystem::ResetArchivesBar(UUI_ArchivesBar* InArchivesBar, const 
 	{
 		InArchivesBar->SetSaveGameDate(InData->DateText);
 		InArchivesBar->SetChapterName(InData->ChapterName);
+		
 	}
 }
 
-//void UUI_ArchivesSystem::GetLevelStateFromArchive(FSaveSlot* InSaveSlot) {
-//	InSaveSlot.CharacterData.Location
-//}
 
 
 									//-------------代理部分-----------//

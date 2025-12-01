@@ -13,7 +13,7 @@ struct SIMPLEARCHIVES_API FGameArchivesThumbnail
 	FGameArchivesThumbnail();
 
 	UPROPERTY(Transient)
-	UTexture2D* GameThumbnail;
+	UTexture2D* GameThumbnail = nullptr;
 
 	UPROPERTY(SaveGame)
 	FString ScrPath;
@@ -31,23 +31,23 @@ struct SIMPLEARCHIVES_API FSaveSlot
 
 		FSaveSlot();
 
-	//ËõÂÔÍ¼
+	//ç¼©ç•¥å›¾
 	UPROPERTY(SaveGame)
 		FGameArchivesThumbnail GameThumbnail;
 
-	//´æ´¢µÄÄÚÈİºÍÈÕÆÚ
+	//å­˜å‚¨çš„å†…å®¹å’Œæ—¥æœŸ
 	UPROPERTY(SaveGame)
 		FText DateText;
 
-	//¹Ø¿¨Ãû³Æ
+	//å…³å¡åç§°
 	UPROPERTY(SaveGame)
 		FText LevelName;
 
-	//ÕÂ½ÚÃû³Æ
+	//ç« èŠ‚åç§°
 	UPROPERTY(SaveGame)
 		FText ChapterName;
 
-	//ÊÇ·ñ´æµµ
+	//æ˜¯å¦å­˜æ¡£
 	UPROPERTY(SaveGame)
 		bool bSave;
 
@@ -61,7 +61,7 @@ struct SIMPLEARCHIVES_API FSaveSlotList
 
 	FSaveSlotList();
 
-	//ÓÉÍâ²¿µ÷ÓÃ
+	//ç”±å¤–éƒ¨è°ƒç”¨
 	void InitSlot();
 
 	UPROPERTY(SaveGame)

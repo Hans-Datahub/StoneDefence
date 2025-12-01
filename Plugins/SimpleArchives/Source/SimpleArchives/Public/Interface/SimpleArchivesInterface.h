@@ -3,6 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "../RenderingUtils.h"
+#include "ArchivesScreenshotTypes.h"  // 包含委托定义
+
 
 struct FSaveSlot;
 struct FSaveSlotList;
@@ -13,9 +16,11 @@ class SIMPLEARCHIVES_API ISimpleArchivesInterface
 public:
 	ISimpleArchivesInterface();
 	virtual ~ISimpleArchivesInterface();
-	virtual int32 GetSaveSlotNumber()const { return 20; }; //��ȡ��
 
-	virtual	bool SaveGameData(int32 SaveNumber) = 0;
+
+	virtual int32 GetSaveSlotNumber()const { return 20; }; //获取槽
+
+	virtual	bool SaveGameData(int32 SaveNumber, FArchivesScreenshotComplete OnScreenshotDone) = 0;
 
 	virtual	void SetSaveNumber(int32 SaveNumber) = 0;
 

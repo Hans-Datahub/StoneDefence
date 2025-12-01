@@ -4,8 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
-#include "Interface/SimpleArchivesInterface.h"
 #include "../StoneDefenceType.h"
+#include "../StoneDefenceUtils.h"
+
+#include "Interface/SimpleArchivesInterface.h"
+#include "ArchivesScreenshotTypes.h"
+
 #include "TD_GameInstance.generated.h"
 
 class ARuleOfTheGameState;
@@ -30,7 +34,7 @@ public:
 
 	virtual bool IsSlotValid(int32 SaveNumber) const;
 
-	virtual	bool SaveGameData(int32 SaveNumber);
+	virtual	bool SaveGameData(int32 SlotIndex, FArchivesScreenshotComplete OnScreenshotDone)override;
 
 	virtual	bool ClearGameData(int32 SaveNumber);
 
@@ -61,6 +65,8 @@ protected:
 protected:
 	UPROPERTY()
 		int32 SaveSlotNumber;
+
+	//FSaveSlotList SlotList;
 
 	//游戏存储状态flag
 	EGameSaveType GameSaveType;

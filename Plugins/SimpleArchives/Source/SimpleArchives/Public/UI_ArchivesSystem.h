@@ -7,6 +7,7 @@
 #include "SimpleArchivesType.h"
 #include "ArchiveDelegate.h"
 #include "Data/SimpleArchivesList.h"
+#include "ArchivesScreenshotTypes.h"  // 添加：包含委托定义
 #include "UI_ArchivesSystem.generated.h"
 
 

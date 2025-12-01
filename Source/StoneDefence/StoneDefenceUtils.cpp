@@ -444,22 +444,36 @@ RenderingUtils::FScreenShot::FScreenShot(
 	UObject* InOuter,
 	int32 InImageQuality /*= 80*/,
 	bool bInShowUI /*= false*/,
-	bool bAddFilenameSuffix /*= true*/)
+	bool bAddFilenameSuffix, /*= true*/
+	FOnScreenshotComplete InOnComplete)
 	:Texture(InTexture)
 	, ScaledWidth(InWidth)
 	, ScaledHeight(InHeight)
 	, ImageQuality(InImageQuality)
 	, Outer(InOuter)
+	, OnComplete(InOnComplete)
 {
-	if (!UGameViewportClient::OnScreenshotCaptured().IsBound())
+	if (!bScreenshotInProgress)
 	{
-		Filename = FPaths::ProjectSavedDir() / TEXT("SaveGames") / FGuid::NewGuid().ToString();
+		//置标志位为true，给截图过程上锁
+		bScreenshotInProgress = true;
+
+		//1. 获取截图路径（不包括“.jpg”）
+		FString GuidStr = FGuid::NewGuid().ToString();
+		Filename = FPaths::ProjectSavedDir() / TEXT("SaveGames") / GuidStr;
+
+		//2.【关键】注册截图完成后的处理函数（绑定到OnScreenshotCapturedInternal）
 		ScreenShotDelegateHandle = UGameViewportClient::OnScreenshotCaptured().AddRaw(
 			this,
 			&RenderingUtils::FScreenShot::OnScreenshotCapturedInternal);
-
+		//3.【关键】调用引擎API发起异步截图
 		FScreenshotRequest::RequestScreenshot(Filename, bInShowUI, bAddFilenameSuffix);
+
+		//4. 补充“.jpg”
 		Filename += TEXT(".jpg");
+
+		//更新GameInstance中的FileName
+		
 	}
 }
 
@@ -468,36 +482,109 @@ void RenderingUtils::FScreenShot::OnScreenshotCapturedInternal(
 	int32 SrcHeight,
 	const TArray<FColor>& OrigBitmap)
 {
+	//置标志位为false，给截图过程去锁
+	bScreenshotInProgress = false;
+
 	IImageWrapperModule& ImageWrapperModule = FModuleManager::LoadModuleChecked<IImageWrapperModule>(FName("ImageWrapper"));
 	check(OrigBitmap.Num() == SrcWidth * SrcHeight);
 
-	// 调整图像大小以强制最大大小。 
+	// 1. 缩放截图到指定尺寸（400x200） 
 	TArray<FColor> ScaledBitmap;
-	FImageUtils::ImageResize(SrcWidth, SrcHeight, OrigBitmap, ScaledWidth, ScaledHeight, ScaledBitmap, true);
+	FImageUtils::ImageResize(SrcWidth, SrcHeight, OrigBitmap, ScaledWidth, ScaledHeight, ScaledBitmap, false);
 
+
+	// 2. 压缩为JPEG并保存到磁盘（路径为之前生成的Filename）
 	TSharedPtr<IImageWrapper> ImageWrapper = ImageWrapperModule.CreateImageWrapper(EImageFormat::JPEG);
 	ImageWrapper->SetRaw(ScaledBitmap.GetData(), ScaledBitmap.GetAllocatedSize(), ScaledWidth, ScaledHeight, ERGBFormat::BGRA, 8);
-
-	//jpg资源包头
+			//jpg资源包头
 	TArray64<uint8> JPEGData = ImageWrapper->GetCompressed(ImageQuality);
 	FFileHelper::SaveArrayToFile(JPEGData, *Filename);
 
-	//压缩
-	FCreateTexture2DParameters Params;
-	Params.bDeferCompression = true;
-	Texture = FImageUtils::CreateTexture2D(ScaledWidth, ScaledHeight, ScaledBitmap, Outer, FGuid::NewGuid().ToString(), RF_NoFlags, Params);
 
+	// 3. 【关键】创建UTexture2D纹理，赋值给外部传入的引用（InSlot->GameThumbnail.GameThumbnail）
+	if (Outer && FPaths::FileExists(Filename))
+	{
+		// 第一步：导入文件为 Texture2D（无 Outer 参数，需手动设置）
+		UTexture2D* LoadedTexture = FImageUtils::ImportFileAsTexture2D(Filename);
+		if (LoadedTexture)
+		{
+			// 第二步：重新设置 Texture 的 Outer（确保归属正确）
+			LoadedTexture->Rename(*FPaths::GetBaseFilename(Filename), Outer);
+			LoadedTexture->SetFlags(RF_NoFlags);
+
+			// ========== AI修改：初始化纹理参数 + 强制更新GPU资源 ==========
+			LoadedTexture->CompressionSettings = TC_EditorIcon; // 无压缩，适配UI截图显示
+			LoadedTexture->SRGB = true; // JPG为sRGB色彩空间，必须开启
+			LoadedTexture->Filter = TF_Bilinear; // 避免采样错误
+			LoadedTexture->AddressX = TA_Clamp;
+			LoadedTexture->AddressY = TA_Clamp;
+			LoadedTexture->UpdateResource(); // 强制将纹理数据提交到GPU（UE5必须）
+
+			// 第三步：赋值给外部引用
+			Texture = LoadedTexture;
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("UE5 ImportFileAsTexture2D failed: %s"), *Filename);
+			// Fallback：用内存数据创建纹理（统一 GUID 命名）
+			FCreateTexture2DParameters Params;
+			Params.bDeferCompression = true;
+			Texture = FImageUtils::CreateTexture2D(
+				ScaledWidth, ScaledHeight, ScaledBitmap,
+				Outer, FPaths::GetBaseFilename(Filename), // 用统一 GUID 命名
+				RF_NoFlags, Params
+			);
+
+			// ========== AI修改：Fallback分支也初始化纹理参数 ==========
+			if (Texture)
+			{
+				Texture->CompressionSettings = TC_EditorIcon;
+				Texture->SRGB = true;
+				Texture->Filter = TF_Bilinear;
+				Texture->AddressX = TA_Clamp;
+				Texture->AddressY = TA_Clamp;
+				Texture->UpdateResource();
+			}
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Screenshot file not found: %s"), *Filename);
+		// Fallback：内存创建纹理（统一 GUID 命名）
+		FCreateTexture2DParameters Params;
+		Params.bDeferCompression = true;
+		Texture = FImageUtils::CreateTexture2D(
+			ScaledWidth, ScaledHeight, ScaledBitmap,
+			Outer, FPaths::GetBaseFilename(Filename), // 统一 GUID 命名
+			RF_NoFlags, Params
+		);
+
+		// ========== AI修改：Fallback分支也初始化纹理参数 ==========
+		if (Texture)
+		{
+			Texture->CompressionSettings = TC_EditorIcon;
+			Texture->SRGB = true;
+			Texture->Filter = TF_Bilinear;
+			Texture->AddressX = TA_Clamp;
+			Texture->AddressY = TA_Clamp;
+			Texture->UpdateResource();
+		}
+	}
+	
+	// 4. 清理资源并自我销毁
 	UGameViewportClient::OnScreenshotCaptured().Remove(ScreenShotDelegateHandle);
 	ImageWrapper.Reset();
-
-	//结束自己
+			//新增：通知截图完成
+	if (OnComplete.IsBound())
+		OnComplete.Execute(Texture);
+			//结束自己
 	delete this;
 }
 
 
 //-----------------------------RenderingUtils---------------------------//
 
-
+bool RenderingUtils::FScreenShot::bScreenshotInProgress = false;
 
 ASceneCapture2D* RenderingUtils::SpawnSceneCapture2D(UWorld* World, UClass* SceneCaptureClass, FMapSize& MapSize, float Life)
 {
